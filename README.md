@@ -142,6 +142,18 @@ The page 1 `Continue` action validates the email field in the browser and derive
 
 The form does not submit to a live backend and does not send the full form payload anywhere.
 
+## Enrichment Contract
+
+The browser sends the local proxy a JSON object with `companyUrl` and `message`. A successful response always contains these string fields, which may be empty when no value is available:
+
+- `industry`
+- `about`
+- `urgency`
+- `sentiment`
+- `query`
+
+`index.html` validates this response shape before updating the form. Keep this section, the browser field registry, and the proxy response fields aligned when changing enrichment.
+
 ## Consent And Privacy
 
 No consent or marketing opt-in fields have been implemented yet.
@@ -164,6 +176,19 @@ Target modern versions of:
 The form should be responsive and usable at `320px`, `375px`, `390px`, `768px`, `1024px`, and desktop widths.
 
 Verified detail fields are stacked on mobile and display in three columns on wider screens. Finish fields use the two-column responsive layout, with About spanning the full available width and Query sitting beside Industry on wider screens.
+
+## Shared Visual Design
+
+The form uses a shared token system in `index.html` so every step uses the same visual rules:
+
+- Inter with local system fallbacks: 14px/20px regular body text, 16px/20px medium titles, and 13px/16px medium labels.
+- Default text is `#333333`; subtle supporting text is `#777777`.
+- Buttons are 32px high with a 10px radius.
+- Reusable data rows are 40px high and store rows are 44px high.
+- Reusable badges are 20px high with a 6px radius, `#CAFACE` fill, and `#15B042` text.
+- Reusable switches are 24px by 14px with a 10px thumb and `#0077E6` active track.
+
+The current form does not display rows, badges, or switches, but their shared styles are ready for consistent use if those components are introduced later.
 
 ## Known Limitations
 
@@ -225,24 +250,7 @@ The proxy does not perform role lookup. The Role field remains available for man
 
 ## Recent Changes
 
-- Added the initial `index.html` form with an email field and a `Verify` button.
-- Added red failure and green pass icons inside the email field after pressing `Verify`.
-- Updated the `Verify` button so it is grey until a valid-looking email is detected, then blue.
-- Added first name, last name, website, and company name fields that stay hidden until email verification succeeds, then auto-populate from the email.
-- Added an always-visible 3-line message field below the email address.
-- Added DeepSeek message analysis fields for urgency, sentiment, and query classification.
-- Split the form into a three-page Back/Continue/Finish flow.
-- Updated fields to use infield top-aligned labels with increased vertical spacing.
-- Updated verified detail fields to use a responsive multi-column layout on wider screens.
-- Updated the `Continue` button so it turns blue once first name, last name, website, and company name all have entries.
-- Added a local DeepSeek proxy flow that enriches industry and about fields after details are confirmed.
-- Kept Role as a manual field and removed DeepSeek role lookup.
-- Added phone number to the Details step and moved Industry to Finish.
-- Updated the Details step to use a three-column layout on wider screens.
-- Added section titles to the Finish step for Inquiry, Details, and Hidden fields.
-- Added a minimal numbered progress indicator with green completed ticks.
-- Added visible-field green tick status icons while leaving Hidden fields without status icons.
-- Hid the `https://` prefix in the Website field while preserving it for proxy requests.
-- Moved the full-width `Submit Inquiry` button above the Hidden fields on the Finish step.
-- Added request cancellation, stale-response protection, and timeouts to the local enrichment flow.
-- Added pre-build README content describing the expected project structure, implementation constraints, documentation requirements, and current limitations.
+- The current form is a three-step inquiry flow with local email-derived details and optional local DeepSeek enrichment.
+- Added shared typography, colour, button, row, badge, and switch design tokens across the form.
+- The enrichment request now has a documented and validated response contract.
+- Browser field behavior is maintained through a central field registry, and the proxy keeps HTTP routing separate from enrichment orchestration.
