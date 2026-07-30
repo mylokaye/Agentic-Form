@@ -362,9 +362,13 @@
     /* 6. Messages and validation */
     .form__message {
       min-height: 1.25rem;
-      margin: 0;
+      margin: calc(var(--space-md) * -1) 0 0;
       color: var(--color-muted);
       font-size: 0.9375rem;
+    }
+
+    .form:not(.form--inquiry) .form__message:empty {
+      display: none;
     }
 
     .form__message--error {
@@ -527,7 +531,7 @@
 <body>
   <main class="page-shell">
     <section class="form-shell">
-      <form class="form" novalidate>
+      <form class="form form--inquiry" novalidate>
         <div class="form-page" id="page-1">
           <h2 class="form__section-title" data-review-title hidden>Confirm your inquiry</h2>
 
@@ -564,7 +568,7 @@
         <p class="form__message" id="form-message" aria-live="polite"></p>
 
         <div class="form-page form__section form__section--three-columns" id="verified-fields" hidden>
-          <h2 class="form__section-title" data-review-title hidden>Details</h2>
+          <h2 class="form__section-title">Personal details</h2>
 
           <div class="form__field">
             <label class="form__label" for="first-name">First name</label>
@@ -732,6 +736,7 @@
   <script>
     // 1. DOM references
     const emailField = document.getElementById("email");
+    const form = document.querySelector(".form");
     const validationStatus = document.getElementById("email-validation-status");
     const pageOne = document.getElementById("page-1");
     const progressSteps = document.querySelectorAll("[data-progress-step]");
@@ -987,6 +992,10 @@
     function showPage(pageNumber) {
       formState.currentPage = pageNumber;
 
+      if (form) {
+        form.classList.toggle("form--inquiry", pageNumber === 1);
+      }
+
       if (pageOne) {
         pageOne.hidden = pageNumber === 2;
       }
@@ -999,12 +1008,27 @@
         enrichedFields.hidden = pageNumber !== 3;
       }
 
+      placeFormMessage(pageNumber);
+
       reviewTitles.forEach((title) => {
         title.hidden = pageNumber !== 3;
       });
 
       updateProgress();
       updateNavigationState();
+    }
+
+    function placeFormMessage(pageNumber) {
+      if (!formMessage || !pageOne) return;
+
+      const hiddenTitle = enrichedFields?.querySelector(".form__section-title");
+
+      if (pageNumber === 3 && hiddenTitle) {
+        hiddenTitle.after(formMessage);
+        return;
+      }
+
+      pageOne.after(formMessage);
     }
 
     function clearEnrichmentFields() {
