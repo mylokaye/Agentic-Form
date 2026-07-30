@@ -8,6 +8,13 @@ const MODEL = "deepseek-v4-flash";
 const ENV_FILES = [".env.local", ".env"];
 const DEFAULT_SYSTEM_PROMPT = "Return valid JSON only. Do not include markdown or extra commentary.";
 const DEEPSEEK_REQUEST_TIMEOUT_MS = 8000;
+const ENRICHMENT_RESPONSE_FIELDS = [
+  "industry",
+  "about",
+  "urgency",
+  "sentiment",
+  "query"
+];
 
 function loadLocalEnv() {
   ENV_FILES.forEach((fileName) => {
@@ -109,6 +116,18 @@ function parseDeepSeekJson(content) {
     sentiment: String(parsed.sentiment || "").trim(),
     query: String(parsed.query || "").trim()
   };
+}
+
+function createEnrichmentResponse(companyResult, messageResult) {
+  const result = {
+    ...companyResult,
+    ...messageResult
+  };
+
+  return ENRICHMENT_RESPONSE_FIELDS.reduce((response, fieldName) => {
+    response[fieldName] = String(result[fieldName] || "").trim();
+    return response;
+  }, {});
 }
 
 function getPublicErrorMessage(error) {
@@ -214,6 +233,23 @@ async function analyzeMessage(message) {
   }
 }
 
+async function handleEnrichmentRequest(request, response) {
+  const body = await readJsonBody(request);
+  const companyUrl = String(body.companyUrl || "").trim();
+  const message = String(body.message || "").trim();
+
+  if (!companyUrl) {
+    sendJson(response, 400, {
+      error: "companyUrl is required."
+    });
+    return;
+  }
+
+  const companyResult = await enrichCompany(companyUrl);
+  const messageResult = await analyzeMessage(message);
+  sendJson(response, 200, createEnrichmentResponse(companyResult, messageResult));
+}
+
 const server = http.createServer(async (request, response) => {
   if (request.method === "OPTIONS") {
     sendJson(response, 204, {});
@@ -228,28 +264,7 @@ const server = http.createServer(async (request, response) => {
   }
 
   try {
-    const body = await readJsonBody(request);
-    const companyUrl = String(body.companyUrl || "").trim();
-    const message = String(body.message || "").trim();
-
-    if (!companyUrl) {
-      sendJson(response, 400, {
-        error: "companyUrl is required."
-      });
-      return;
-    }
-
-    const companyResult = await enrichCompany(companyUrl);
-    const messageResult = await analyzeMessage(message);
-    const responseBody = {
-      industry: companyResult.industry,
-      about: companyResult.about,
-      urgency: messageResult.urgency,
-      sentiment: messageResult.sentiment,
-      query: messageResult.query
-    };
-
-    sendJson(response, 200, responseBody);
+    await handleEnrichmentRequest(request, response);
   } catch (error) {
     sendJson(response, 500, {
       error: getPublicErrorMessage(error)

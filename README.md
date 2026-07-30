@@ -17,22 +17,23 @@ Required project files:
 
 ## Form Fields
 
-- Email address
-  - Field name: `email`
-  - Input type: `email`
-  - Required: no
-  - Autocomplete: `email`
-  - Input mode: `email`
-  - Validation indicator: icon shown inside the field after pressing `Continue`
-  - Page: 1
-  - Button state: `Continue` is grey until the email looks valid, then blue
 - Inquiry
   - Field name: `message`
   - Input type: `textarea`
   - Rows: 3
   - Required: no
   - Page: 1 and 3
-  - Visibility: visible below the email address
+  - Placeholder: `How can we help you today?`
+  - Visibility: visible above the email address
+- Email address
+  - Field name: `email`
+  - Input type: `email`
+  - Required: no
+  - Autocomplete: `email`
+  - Input mode: `email`
+  - Validation indicator: green border when the value looks valid
+  - Page: 1
+  - Button state: `Continue` is grey until the email looks valid, then blue
 - First name
   - Field name: `firstName`
   - Input type: `text`
@@ -84,9 +85,10 @@ Required project files:
   - Auto-population: returned by the local DeepSeek proxy
 - Role
   - Field name: `role`
-  - Input type: `text`
+  - Input type: `select`
+  - Options: `Manager`, `Assistant`
+  - Default: `Manager`
   - Required: no
-  - Autocomplete: `organization-title`
   - Page: 2 and 3
   - Visibility: hidden until page 2
   - Auto-population: no, entered or corrected manually
@@ -122,7 +124,7 @@ Required project files:
 
 No `type="hidden"` fields have been implemented.
 
-The form is split into three named pages. Page 1 is `Inquiry` with the description `How can we help you today?`; it shows email and inquiry fields with no Back button. Page 2 is `Details` with the description `Confirm your information`; it shows first name, last name, phone number, role, website, and company name fields with Back and Continue buttons. Page 3 is `Finish` with the description `Confirm your inquiry`; it shows the Inquiry and Details review groups, then a full-width `Submit Inquiry` button, then the `Hidden` group. Page 3 has no Back button. A minimal numbered progress indicator at the top of the form turns completed steps into green ticks. The Submit Inquiry button is currently a no-op apart from showing a submitted message.
+The form is split into three steps. The first step shows the inquiry field with the placeholder `How can we help you today?`, followed by the email field, with no Back button. The second step shows first name, last name, phone number, role, website, and company name fields with Back and Continue buttons. The third step shows the Inquiry and Details review groups, then a full-width `Submit Inquiry` button, then the `Hidden` group. The third step has no Back button. The numbered progress indicator sits immediately below the white form container and turns completed steps into green ticks. The Submit Inquiry button is currently a no-op apart from showing a submitted message.
 
 The first name, last name, phone number, website, company name, and role inputs are conditionally hidden from the UI until page 2. The industry, about, urgency, sentiment, and query inputs are conditionally hidden until page 3. They remain visible in the HTML source and are documented in the form fields section above.
 
@@ -130,7 +132,7 @@ Any future `type="hidden"` fields should remain visible in the HTML source and b
 
 ## Validation Rules
 
-On page 1, the `Continue` button is grey until the email value looks like a valid email address, then it turns blue. Visible non-hidden fields show a green tick when they contain data. The email field shows the green tick only when the value looks valid.
+On page 1, the `Continue` button is grey until the email value looks like a valid email address, then it turns blue. Visible non-hidden fields show a green border when they contain data. The email field shows the green border only when the value looks valid.
 
 When the email value passes validation, the first name, last name, website, and company name fields are auto-populated from the email address. The website field displays the email domain without the `https://` prefix, but the proxy request adds the prefix back before sending. The company name is capitalised from the email host name, and the form advances to page 2 without calling DeepSeek. On page 2, `Continue` turns blue once first name, last name, website, and company name all have entries.
 
@@ -235,7 +237,7 @@ Visit {company_url}, return a JSON result with two fields:
 - "about": a short 1-2 sentence description of what the company does
 ```
 
-The proxy does not perform role lookup. The Role field remains available for manual entry or correction in the form.
+The proxy does not perform role lookup. The Role field is a manual selection with Manager selected by default.
 
 ## Development Notes
 
@@ -254,3 +256,14 @@ The proxy does not perform role lookup. The Role field remains available for man
 - Added shared typography, colour, button, row, badge, and switch design tokens across the form.
 - The enrichment request now has a documented and validated response contract.
 - Browser field behavior is maintained through a central field registry, and the proxy keeps HTTP routing separate from enrichment orchestration.
+- Moved the Inquiry field above the email field and added its prompt as a placeholder.
+- Set the shared button height to 50px for consistent touch targets.
+- Moved the progress indicator outside and below the white form container.
+- Removed the page heading above the form fields.
+- Replaced green field-status ticks with 2px green valid-field borders.
+- Centralized all green UI accents on `#00B77D`.
+- Styled the final Submit Inquiry button with the shared green accent.
+- Moved the form feedback message directly below the email field and reserved its space when empty.
+- Made mobile form action buttons full-width; on wider screens Back uses a 100px width, Continue uses a 175px width, and Submit Inquiry remains full-width.
+- Replaced the Role text input with a Manager/Assistant dropdown, defaulting to Manager.
+- Renamed the inquiry review heading to `Confirm your inquiry`.

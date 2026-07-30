@@ -20,11 +20,12 @@
       --color-button-muted-hover: #667085;
       --color-error: #b42318;
       --color-focus: #7cc4ff;
-      --color-progress: #14b8a6;
-      --color-progress-soft: #ccfbf1;
-      --color-success: #027a48;
-      --color-badge-bg: #caface;
-      --color-badge-text: #15b042;
+      --color-green: #00B77D;
+      --color-progress: var(--color-green);
+      --color-progress-soft: var(--color-green);
+      --color-success: var(--color-green);
+      --color-badge-bg: var(--color-green);
+      --color-badge-text: #ffffff;
       --color-switch-track: #0077e6;
 
       --space-xs: 0.25rem;
@@ -47,7 +48,7 @@
       --font-weight-regular: 400;
       --font-weight-medium: 500;
 
-      --height-button: 32px;
+      --height-button: 50px;
       --height-data-row: 40px;
       --height-store-row: 44px;
       --height-badge: 20px;
@@ -78,6 +79,7 @@
 
     button,
     input,
+    select,
     textarea {
       font: inherit;
     }
@@ -92,7 +94,7 @@
 
     .form-shell {
       display: grid;
-      gap: var(--space-lg);
+      gap: var(--space-sm);
       padding: var(--space-lg);
       background: var(--color-surface);
       border: 1px solid var(--color-border);
@@ -100,28 +102,11 @@
       box-shadow: var(--shadow-sm);
     }
 
-    .form-header {
-      display: grid;
-      gap: var(--space-xs);
-    }
-
-    .form-header__title {
-      margin: 0;
-      font-size: var(--font-size-title);
-      font-weight: var(--font-weight-medium);
-      line-height: var(--line-height-title);
-    }
-
-    .form-header__text {
-      margin: 0;
-      color: var(--color-muted);
-    }
-
     .progress {
       display: grid;
       grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: var(--space-sm);
-      margin: 0;
+      gap: var(--space-lg);
+      margin: var(--space-lg) 0 0;
       padding: 0;
       list-style: none;
     }
@@ -276,7 +261,7 @@
     .form__input {
       width: 100%;
       min-height: 4.25rem;
-      padding: 1.85rem 3rem 0.65rem 0.75rem;
+      padding: 1.85rem 0.75rem 0.65rem;
       resize: vertical;
       color: var(--color-text);
       background: var(--color-surface);
@@ -284,39 +269,9 @@
       border-radius: var(--radius-sm);
     }
 
-    .form__control .form__input {
-      padding-right: 2.75rem;
-    }
-
-    .form__field-status {
-      position: absolute;
-      top: 50%;
-      right: 0.75rem;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      width: 1.5rem;
-      height: 1.5rem;
-      color: #ffffff;
-      background: var(--color-success);
-      border: 1px solid var(--color-success);
-      border-radius: 999px;
-      transform: translateY(-50%);
-      pointer-events: none;
-    }
-
-    .form__field-status[hidden] {
-      display: none;
-    }
-
-    .form__field-status svg {
-      width: 1rem;
-      height: 1rem;
-      fill: none;
-      stroke: currentColor;
-      stroke-linecap: round;
-      stroke-linejoin: round;
-      stroke-width: 3;
+    .form__input.is-valid {
+      border-width: 2px;
+      border-color: var(--color-success);
     }
 
     .form__input:focus {
@@ -344,43 +299,6 @@
       clip: rect(0, 0, 0, 0);
       white-space: nowrap;
       border: 0;
-    }
-
-    .form__validation-icon {
-      position: absolute;
-      top: 2.65rem;
-      right: 0.75rem;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      width: 1.5rem;
-      height: 1.5rem;
-      color: #ffffff;
-      border-radius: 999px;
-      transform: translateY(-50%);
-      pointer-events: none;
-    }
-
-    .form__validation-icon[hidden] {
-      display: none;
-    }
-
-    .form__validation-icon--success {
-      background: var(--color-success);
-    }
-
-    .form__validation-icon--error {
-      background: var(--color-error);
-    }
-
-    .form__validation-icon svg {
-      width: 1rem;
-      height: 1rem;
-      stroke: currentColor;
-      stroke-width: 3;
-      stroke-linecap: round;
-      stroke-linejoin: round;
-      fill: none;
     }
 
     /* 5. Buttons */
@@ -443,6 +361,7 @@
 
     /* 6. Messages and validation */
     .form__message {
+      min-height: 1.25rem;
       margin: 0;
       color: var(--color-muted);
       font-size: 0.9375rem;
@@ -454,21 +373,28 @@
 
     .form__actions {
       display: flex;
+      flex-direction: column;
       gap: var(--space-md);
       justify-content: space-between;
     }
 
     .form__actions .button {
-      width: calc((100% - (var(--space-md) * 2)) / 3);
+      width: 100%;
     }
 
     .form__actions .button:last-child {
-      margin-left: auto;
-      width: min(219px, calc(((100% - (var(--space-md) * 2)) / 3) * 2));
+      margin-left: 0;
+      width: 100%;
     }
 
     .form__actions.is-final .button:last-child {
       width: 100%;
+    }
+
+    .form__actions.is-final #verify-button,
+    .form__actions.is-final #verify-button:hover {
+      background: var(--color-green);
+      border-color: var(--color-green);
     }
 
     .form__actions .button--secondary {
@@ -572,6 +498,27 @@
         grid-template-columns: repeat(3, minmax(0, 1fr));
       }
 
+      .form__actions {
+        flex-direction: row;
+      }
+
+      .form__actions .button {
+        width: calc((100% - (var(--space-md) * 2)) / 3);
+      }
+
+      .form__actions:not(.is-final) #verify-button {
+        margin-left: auto;
+        width: 10.9375rem;
+      }
+
+      .form__actions .button--secondary {
+        width: 6.25rem;
+      }
+
+      .form__actions.is-final .button:last-child {
+        width: 100%;
+      }
+
     }
   </style>
 
@@ -579,27 +526,21 @@
 </head>
 <body>
   <main class="page-shell">
-    <section class="form-shell" aria-labelledby="form-heading">
-      <ol class="progress" aria-label="Form progress">
-        <li class="progress__item" data-progress-step="1" aria-current="step">
-          <span class="progress__marker" aria-hidden="true">1</span>
-        </li>
-        <li class="progress__item" data-progress-step="2">
-          <span class="progress__marker" aria-hidden="true">2</span>
-        </li>
-        <li class="progress__item" data-progress-step="3">
-          <span class="progress__marker" aria-hidden="true">3</span>
-        </li>
-      </ol>
-
-      <div class="form-header">
-        <h1 id="form-heading" class="form-header__title">Inquiry</h1>
-        <p class="form-header__text"></p>
-      </div>
-
+    <section class="form-shell">
       <form class="form" novalidate>
         <div class="form-page" id="page-1">
-          <h2 class="form__section-title" data-review-title hidden>Inquiry</h2>
+          <h2 class="form__section-title" data-review-title hidden>Confirm your inquiry</h2>
+
+          <div class="form__field">
+            <label class="form__label" for="message">Inquiry</label>
+            <textarea
+              class="form__input"
+              id="message"
+              name="message"
+              rows="3"
+              placeholder="How can we help you today?"
+            ></textarea>
+          </div>
 
           <div class="form__field">
             <label class="form__label" for="email">Email address</label>
@@ -615,26 +556,12 @@
                 aria-describedby="email-validation-status"
                 aria-invalid="false"
               >
-              <span
-                class="form__validation-icon"
-                id="email-validation-icon"
-                aria-hidden="true"
-                hidden
-              ></span>
             </div>
             <span id="email-validation-status" class="visually-hidden" aria-live="polite"></span>
           </div>
-
-          <div class="form__field">
-            <label class="form__label" for="message">Inquiry</label>
-            <textarea
-              class="form__input"
-              id="message"
-              name="message"
-              rows="3"
-            ></textarea>
-          </div>
         </div>
+
+        <p class="form__message" id="form-message" aria-live="polite"></p>
 
         <div class="form-page form__section form__section--three-columns" id="verified-fields" hidden>
           <h2 class="form__section-title" data-review-title hidden>Details</h2>
@@ -675,13 +602,14 @@
 
           <div class="form__field">
             <label class="form__label" for="role">Role</label>
-            <input
+            <select
               class="form__input"
               id="role"
               name="role"
-              type="text"
-              autocomplete="organization-title"
             >
+              <option value="Manager" selected>Manager</option>
+              <option value="Assistant">Assistant</option>
+            </select>
           </div>
 
           <div class="form__field">
@@ -784,20 +712,28 @@
             >
           </div>
         </div>
-
-        <p class="form__message" id="form-message" aria-live="polite"></p>
       </form>
+
     </section>
+
+    <ol class="progress" aria-label="Form progress">
+      <li class="progress__item" data-progress-step="1" aria-current="step">
+        <span class="progress__marker" aria-hidden="true">1</span>
+      </li>
+      <li class="progress__item" data-progress-step="2">
+        <span class="progress__marker" aria-hidden="true">2</span>
+      </li>
+      <li class="progress__item" data-progress-step="3">
+        <span class="progress__marker" aria-hidden="true">3</span>
+      </li>
+    </ol>
   </main>
 
   <script>
     // 1. DOM references
     const emailField = document.getElementById("email");
-    const validationIcon = document.getElementById("email-validation-icon");
     const validationStatus = document.getElementById("email-validation-status");
     const pageOne = document.getElementById("page-1");
-    const formHeading = document.getElementById("form-heading");
-    const formHeaderText = document.querySelector(".form-header__text");
     const progressSteps = document.querySelectorAll("[data-progress-step]");
     const reviewTitles = document.querySelectorAll("[data-review-title]");
     const backButton = document.getElementById("back-button");
@@ -822,27 +758,13 @@
     // 2. Configuration
     const COMPANY_ENRICHMENT_ENDPOINT = "http://127.0.0.1:8787/enrich-company";
     const COMPANY_ENRICHMENT_TIMEOUT_MS = 20000;
-    const PAGE_COPY = {
-      1: {
-        title: "Inquiry",
-        description: "How can we help you today?"
-      },
-      2: {
-        title: "Details",
-        description: "Confirm your information"
-      },
-      3: {
-        title: "Finish",
-        description: "Confirm your inquiry"
-      }
-    };
     const FIELD_CONFIG = {
       email: { field: emailField, tracksStatus: true },
       message: { field: messageField, tracksStatus: true },
       firstName: { field: firstNameField, tracksStatus: true, detail: true },
       lastName: { field: lastNameField, tracksStatus: true, detail: true },
       phone: { field: phoneField, tracksStatus: true, detail: true },
-      role: { field: roleField, tracksStatus: true, detail: true, resetWhenEmailChanges: true },
+      role: { field: roleField, tracksStatus: true, detail: true },
       website: { field: websiteField, tracksStatus: true, detail: true },
       companyName: { field: companyNameField, tracksStatus: true, detail: true },
       industry: { field: industryField, enrichment: true, resetWhenEmailChanges: true },
@@ -895,52 +817,14 @@
       return svg;
     }
 
-    function setValidationIcon(isValid) {
-      if (!validationIcon) return;
-
-      validationIcon.hidden = false;
-      validationIcon.classList.toggle("form__validation-icon--success", isValid);
-      validationIcon.classList.toggle("form__validation-icon--error", !isValid);
-      validationIcon.replaceChildren(
-        isValid
-          ? createIcon(["M5 12.5l4 4L19 7"])
-          : createIcon(["M7 7l10 10", "M17 7L7 17"])
-      );
-    }
-
-    function ensureFieldStatus(field) {
-      const fieldWrapper = field.closest(".form__field");
-
-      if (!fieldWrapper) return null;
-
-      let statusIcon = fieldWrapper.querySelector(".form__field-status");
-
-      if (!statusIcon) {
-        statusIcon = document.createElement("span");
-        statusIcon.className = "form__field-status";
-        statusIcon.setAttribute("aria-hidden", "true");
-        fieldWrapper.appendChild(statusIcon);
-      }
-
-      return statusIcon;
-    }
-
     function updateFieldStatus(field) {
-      const statusIcon = ensureFieldStatus(field);
-
-      if (!statusIcon) return;
+      if (!field) return;
 
       const hasValue = field === emailField
         ? isValidEmail(field.value)
         : Boolean(getFieldValue(field));
 
-      statusIcon.hidden = !hasValue;
-
-      if (hasValue) {
-        statusIcon.replaceChildren(createIcon(["M5 12.5l4 4L19 7"]));
-      } else {
-        statusIcon.replaceChildren();
-      }
+      field.classList.toggle("is-valid", hasValue);
     }
 
     function updateFieldStatuses() {
@@ -1074,18 +958,6 @@
       verifyButton.setAttribute("aria-expanded", String(formState.currentPage > 1));
     }
 
-    function updatePageCopy() {
-      const pageCopy = PAGE_COPY[formState.currentPage] || PAGE_COPY[1];
-
-      if (formHeading) {
-        formHeading.textContent = pageCopy.title;
-      }
-
-      if (formHeaderText) {
-        formHeaderText.textContent = pageCopy.description;
-      }
-    }
-
     function updateProgress() {
       progressSteps.forEach((step) => {
         const stepNumber = Number(step.dataset.progressStep);
@@ -1131,7 +1003,6 @@
         title.hidden = pageNumber !== 3;
       });
 
-      updatePageCopy();
       updateProgress();
       updateNavigationState();
     }
