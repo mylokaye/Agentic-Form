@@ -20,6 +20,12 @@
       --color-button-muted-border: #667085;
       --color-button-muted-hover: #667085;
       --color-error: #b42318;
+      --color-error-surface: #fff9e6;
+      --color-error-border: #f2cf66;
+      --color-error-text: #8a3c00;
+      --color-success-surface: #e7f8f1;
+      --color-success-border: #86daba;
+      --color-success-text: #0c5f45;
       --color-focus: #7cc4ff;
       --color-green: #00B77D;
       --color-progress: var(--color-green);
@@ -31,13 +37,16 @@
       --space-lg: 1.5rem;
       --space-xl: 2rem;
 
-      --radius-sm: 6px;
-      --radius-md: 10px;
-      --radius-button: 10px;
+      --radius: 10px;
 
       --font-family: Arial, Helvetica, sans-serif;
       --font-size-body: 14px;
+      --font-size-message: 14px;
       --line-height-body: 20px;
+      --height-message-alert: 42px;
+      --padding-alert-block: var(--space-sm);
+      --padding-alert-inline: var(--space-md);
+      --gap-alert-content: var(--space-sm);
       --font-size-title: 16px;
       --font-size-title-primary: 20px;
       --line-height-title: 20px;
@@ -92,7 +101,7 @@
       padding: var(--space-lg);
       background: var(--color-surface);
       border: 1px solid var(--color-border);
-      border-radius: var(--radius-md);
+      border-radius: var(--radius);
       box-shadow: var(--shadow-sm);
     }
 
@@ -121,7 +130,7 @@
       height: 1.75rem;
       place-items: center;
       border: 2px solid var(--color-border);
-      border-radius: var(--radius-sm);
+      border-radius: var(--radius);
       background: var(--color-surface);
       color: var(--color-muted);
       font-size: 0.875rem;
@@ -252,13 +261,14 @@
 
     .form__alert {
       display: flex;
-      gap: var(--space-md);
+      gap: var(--gap-alert-content);
       align-items: center;
-      padding: var(--space-md);
+      min-height: var(--height-message-alert);
+      padding: var(--padding-alert-block) var(--padding-alert-inline);
       color: var(--color-title);
       background: var(--color-surface);
       border: 1px solid var(--color-border);
-      border-radius: var(--radius-md);
+      border-radius: var(--radius);
     }
 
     .form__alert-icon {
@@ -269,7 +279,7 @@
 
     .form__alert-text {
       margin: 0;
-      font-size: var(--font-size-body);
+      font-size: var(--font-size-message);
       line-height: var(--line-height-body);
     }
 
@@ -305,7 +315,7 @@
       color: var(--color-text);
       background: var(--color-surface);
       border: 1px solid var(--color-border);
-      border-radius: var(--radius-sm);
+      border-radius: var(--radius);
     }
 
     .form__input.is-valid {
@@ -337,7 +347,7 @@
     .newsletter-option {
       display: flex;
       align-items: flex-start;
-      gap: var(--space-sm);
+      gap: var(--gap-alert-content);
       min-height: 2.75rem;
       padding-top: 0.55rem;
       color: var(--color-text);
@@ -354,6 +364,61 @@
     .newsletter-option__input:focus-visible {
       outline: 3px solid var(--color-focus);
       outline-offset: 2px;
+    }
+
+    .newsletter-option__icon,
+    .newsletter-option__text--review {
+      display: none;
+    }
+
+    .form:not(.form--inquiry) .newsletter-group {
+      display: flex;
+      align-items: center;
+      min-height: var(--height-message-alert);
+      padding: var(--padding-alert-block) var(--padding-alert-inline);
+      color: var(--color-success-text);
+      background: var(--color-success-surface);
+      border: 1px solid var(--color-success-border);
+      border-radius: var(--radius);
+    }
+
+    .form:not(.form--inquiry) .newsletter-group .form__section-title {
+      display: none;
+    }
+
+    .form:not(.form--inquiry) .newsletter-group .form__group-grid {
+      display: block;
+      flex: 1;
+    }
+
+    .form:not(.form--inquiry) .newsletter-group .newsletter-field {
+      display: block;
+    }
+
+    .form:not(.form--inquiry) .newsletter-group .newsletter-option {
+      align-items: center;
+      min-height: 0;
+      padding: 0;
+    }
+
+    .form:not(.form--inquiry) .newsletter-option__icon {
+      display: block;
+      flex: 0 0 auto;
+      width: 1.5rem;
+      height: 1.5rem;
+    }
+
+    .form:not(.form--inquiry) .newsletter-option__text--stage-two {
+      display: none;
+    }
+
+    .form:not(.form--inquiry) .newsletter-option__text--review {
+      display: block;
+    }
+
+    .form:not(.form--inquiry) .newsletter-option__input {
+      order: 1;
+      margin-left: auto;
     }
 
     .visually-hidden {
@@ -384,7 +449,7 @@
       text-align: center;
       background: var(--color-button-muted);
       border: 1px solid var(--color-button-muted-border);
-      border-radius: var(--radius-button);
+      border-radius: var(--radius);
       cursor: pointer;
     }
 
@@ -438,15 +503,38 @@
       min-height: 1.25rem;
       margin: calc(var(--space-md) * -1) 0 0;
       color: var(--color-muted);
-      font-size: 0.9375rem;
+      font-size: var(--font-size-message);
     }
 
-    .form:not(.form--inquiry) .form__message:empty {
+    .form:not(.form--inquiry) .form__message--empty {
       display: none;
     }
 
     .form__message--error {
-      color: var(--color-error);
+      display: flex;
+      gap: var(--gap-alert-content);
+      align-items: center;
+      min-height: var(--height-message-alert);
+      padding: var(--padding-alert-block) var(--padding-alert-inline);
+      color: var(--color-error-text);
+      background: var(--color-error-surface);
+      border: 1px solid var(--color-error-border);
+      border-radius: var(--radius);
+    }
+
+    .form__message-icon {
+      flex: 0 0 auto;
+      width: 1.5rem;
+      height: 1.5rem;
+    }
+
+    .form__message-icon[hidden],
+    .form__message--empty .form__message-icon {
+      display: none;
+    }
+
+    .form__message--error .form__message-icon {
+      display: block;
     }
 
     .form__actions {
@@ -596,7 +684,14 @@
           </div>
         </div>
 
-        <p class="form__message" id="form-message" aria-live="polite"></p>
+        <p class="form__message form__message--empty" id="form-message" aria-live="polite">
+          <svg class="form__message-icon" id="form-message-icon" aria-hidden="true" viewBox="0 0 24 24" fill="none" hidden>
+            <path d="M12 3.5 21 20.5H3L12 3.5Z" stroke="currentColor" stroke-linejoin="round" stroke-width="1.75" />
+            <path d="M12 9v5" stroke="currentColor" stroke-linecap="round" stroke-width="1.75" />
+            <circle cx="12" cy="17" r="1" fill="currentColor" />
+          </svg>
+          <span id="form-message-text"></span>
+        </p>
 
         <div class="form-page form__section" id="verified-fields" aria-labelledby="stage-two-personal-details-title" tabindex="-1" hidden>
           <fieldset class="form__group" aria-labelledby="review-personal-details">
@@ -683,7 +778,7 @@
                   id="business"
                   name="business"
                 >
-                  <option value="Norican" selected>Norican</option>
+                  <option value="Google" selected>Google</option>
                 </select>
               </div>
 
@@ -711,11 +806,15 @@
             </div>
           </fieldset>
 
-          <fieldset class="form__group">
+          <fieldset class="form__group newsletter-group" aria-label="Subscribe to newsletter">
             <legend class="form__section-title">Subscribe to newsletter</legend>
             <div class="form__group-grid">
               <div class="form__field form__section--full-width newsletter-field">
                 <label class="newsletter-option" for="newsletter">
+                  <svg class="newsletter-option__icon" aria-hidden="true" viewBox="0 0 24 24" fill="none">
+                    <rect x="3.5" y="5.5" width="17" height="13" rx="1.5" stroke="currentColor" stroke-width="1.75" />
+                    <path d="m4.5 7 7.5 5.5L19.5 7" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" />
+                  </svg>
                   <input
                     class="newsletter-option__input"
                     id="newsletter"
@@ -723,7 +822,8 @@
                     type="checkbox"
                     value="newsletter"
                   >
-                  <span>News, events and other content</span>
+                  <span class="newsletter-option__text--stage-two">News, events and other content</span>
+                  <span class="newsletter-option__text--review">Subscribe to news, events and other content.</span>
                 </label>
               </div>
             </div>
@@ -875,6 +975,8 @@
     const sentimentField = document.getElementById("sentiment");
     const queryField = document.getElementById("query");
     const formMessage = document.getElementById("form-message");
+    const formMessageIcon = document.getElementById("form-message-icon");
+    const formMessageText = document.getElementById("form-message-text");
 
     // 2. Configuration
     const COMPANY_ENRICHMENT_ENDPOINT = "http://127.0.0.1:8787/enrich-company";
@@ -1045,10 +1147,17 @@
 
     // 5. State / UI functions
     function setFormMessage(message, isError = false) {
-      if (!formMessage) return;
+      if (!formMessage || !formMessageText) return;
 
-      formMessage.textContent = message;
-      formMessage.classList.toggle("form__message--error", isError);
+      const hasError = Boolean(message) && isError;
+
+      formMessageText.textContent = message;
+      formMessage.classList.toggle("form__message--empty", !message);
+      formMessage.classList.toggle("form__message--error", hasError);
+
+      if (formMessageIcon) {
+        formMessageIcon.hidden = !hasError;
+      }
     }
 
     function isPrimaryReady() {
