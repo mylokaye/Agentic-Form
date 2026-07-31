@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Email Verification Form</title>
+  <title>Inquiry Form</title>
 
   <style>
     /* 1. Design tokens */
@@ -11,12 +11,13 @@
       --color-bg: #f6f8fb;
       --color-surface: #ffffff;
       --color-text: #333333;
+      --color-title: #4d4c4c;
       --color-muted: #777777;
       --color-border: #d0d5dd;
       --color-primary: #005eb8;
       --color-primary-hover: #004a94;
-      --color-button-muted: #d1d7e1;
-      --color-button-muted-border: #bac2ce;
+      --color-button-muted: #667085;
+      --color-button-muted-border: #667085;
       --color-button-muted-hover: #667085;
       --color-error: #b42318;
       --color-focus: #7cc4ff;
@@ -24,11 +25,7 @@
       --color-progress: var(--color-green);
       --color-progress-soft: var(--color-green);
       --color-success: var(--color-green);
-      --color-badge-bg: var(--color-green);
-      --color-badge-text: #ffffff;
-      --color-switch-track: #0077e6;
 
-      --space-xs: 0.25rem;
       --space-sm: 0.5rem;
       --space-md: 1rem;
       --space-lg: 1.5rem;
@@ -38,24 +35,21 @@
       --radius-md: 10px;
       --radius-button: 10px;
 
-      --font-family: "Inter", Arial, Helvetica, sans-serif;
+      --font-family: Arial, Helvetica, sans-serif;
       --font-size-body: 14px;
       --line-height-body: 20px;
       --font-size-title: 16px;
+      --font-size-title-primary: 20px;
       --line-height-title: 20px;
+      --font-weight-title: 600;
       --font-size-label: 13px;
       --line-height-label: 16px;
       --font-weight-regular: 400;
       --font-weight-medium: 500;
 
       --height-button: 50px;
-      --height-data-row: 40px;
-      --height-store-row: 44px;
-      --height-badge: 20px;
-      --height-switch: 14px;
-      --width-switch: 24px;
-      --size-switch-thumb: 10px;
-
+      --width-button-continue-stage-one: calc((100% - (var(--space-lg) * 2)) / 3);
+      --width-button-continue: calc((100% - var(--space-lg)) * 2 / 3);
       --shadow-sm: 0 1px 2px rgba(16, 24, 40, 0.06);
     }
 
@@ -87,7 +81,7 @@
     /* 3. Layout */
     .page-shell {
       width: 100%;
-      max-width: 40.8rem;
+      max-width: 700px;
       margin: 0 auto;
       padding: var(--space-xl) var(--space-md);
     }
@@ -215,14 +209,36 @@
     .form__section-title {
       grid-column: 1 / -1;
       margin: 0;
-      color: var(--color-text);
+      padding-bottom: var(--space-md);
+      color: var(--color-title);
       font-size: var(--font-size-title);
-      font-weight: var(--font-weight-medium);
+      font-weight: var(--font-weight-title);
       line-height: var(--line-height-title);
     }
 
     .form__section-title[hidden] {
       display: none;
+    }
+
+    .form__section-title--primary {
+      color: var(--color-green);
+      font-size: var(--font-size-title-primary);
+    }
+
+    .form-page > .form__section-title {
+      margin-bottom: calc(var(--space-lg) * -1);
+    }
+
+    .form__group {
+      min-inline-size: 0;
+      margin: 0;
+      padding: 0;
+      border: 0;
+    }
+
+    .form__group-grid {
+      display: grid;
+      gap: var(--space-lg);
     }
 
     .form__section--full-width {
@@ -232,6 +248,29 @@
     .form__field {
       position: relative;
       display: grid;
+    }
+
+    .form__alert {
+      display: flex;
+      gap: var(--space-md);
+      align-items: center;
+      padding: var(--space-md);
+      color: var(--color-title);
+      background: var(--color-surface);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-md);
+    }
+
+    .form__alert-icon {
+      flex: 0 0 auto;
+      width: 1.5rem;
+      height: 1.5rem;
+    }
+
+    .form__alert-text {
+      margin: 0;
+      font-size: var(--font-size-body);
+      line-height: var(--line-height-body);
     }
 
     .form__control {
@@ -274,19 +313,47 @@
       border-color: var(--color-success);
     }
 
+    select.form__input {
+      -webkit-appearance: none;
+      appearance: none;
+      padding-right: 2.5rem;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23333333' stroke-linecap='round' stroke-linejoin='round' stroke-width='2'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 0.75rem top 2rem;
+      background-size: 1rem;
+    }
+
     .form__input:focus {
       border-color: var(--color-primary);
       box-shadow: 0 0 0 3px var(--color-focus);
       outline: none;
     }
 
-    .form .form__input:focus {
-      border-color: var(--color-primary);
-    }
-
     textarea.form__input {
       min-height: 7.5rem;
       line-height: 1.45;
+    }
+
+    .newsletter-option {
+      display: flex;
+      align-items: flex-start;
+      gap: var(--space-sm);
+      min-height: 2.75rem;
+      padding-top: 0.55rem;
+      color: var(--color-text);
+      cursor: pointer;
+    }
+
+    .newsletter-option__input {
+      width: 1.125rem;
+      height: 1.125rem;
+      margin: 0;
+      accent-color: var(--color-green);
+    }
+
+    .newsletter-option__input:focus-visible {
+      outline: 3px solid var(--color-focus);
+      outline-offset: 2px;
     }
 
     .visually-hidden {
@@ -306,10 +373,11 @@
       display: inline-flex;
       align-items: center;
       justify-content: center;
+      gap: var(--space-sm);
       width: 100%;
       min-height: var(--height-button);
       padding: 0 0.75rem;
-      color: #ffffff;
+      color: var(--color-surface);
       font-size: var(--font-size-label);
       font-weight: var(--font-weight-medium);
       line-height: var(--line-height-label);
@@ -318,6 +386,12 @@
       border: 1px solid var(--color-button-muted-border);
       border-radius: var(--radius-button);
       cursor: pointer;
+    }
+
+    .button__icon {
+      flex: 0 0 auto;
+      width: 1rem;
+      height: 1rem;
     }
 
     .button[hidden] {
@@ -330,13 +404,13 @@
     }
 
     .button--ready {
-      background: var(--color-primary);
-      border-color: var(--color-primary);
+      background: var(--color-green);
+      border-color: var(--color-green);
     }
 
     .button--ready:hover {
-      background: var(--color-primary-hover);
-      border-color: var(--color-primary-hover);
+      background: var(--color-green);
+      border-color: var(--color-green);
     }
 
     .button--secondary {
@@ -395,97 +469,8 @@
       width: 100%;
     }
 
-    .form__actions.is-final #verify-button,
-    .form__actions.is-final #verify-button:hover {
-      background: var(--color-green);
-      border-color: var(--color-green);
-    }
-
     .form__actions .button--secondary {
       font-weight: var(--font-weight-medium);
-    }
-
-    /* Shared data-display components */
-    .row {
-      display: flex;
-      align-items: center;
-      min-width: 0;
-      color: var(--color-text);
-      font-size: var(--font-size-body);
-      font-weight: var(--font-weight-regular);
-      line-height: var(--line-height-body);
-    }
-
-    .row--data {
-      min-height: var(--height-data-row);
-    }
-
-    .row--store {
-      min-height: var(--height-store-row);
-    }
-
-    .badge {
-      display: inline-flex;
-      align-items: center;
-      min-height: var(--height-badge);
-      padding: 0 var(--space-sm);
-      color: var(--color-badge-text);
-      background: var(--color-badge-bg);
-      border-radius: var(--radius-sm);
-      font-size: var(--font-size-label);
-      font-weight: var(--font-weight-medium);
-      line-height: var(--line-height-label);
-      white-space: nowrap;
-    }
-
-    .switch {
-      position: relative;
-      display: inline-flex;
-      flex: 0 0 auto;
-      width: var(--width-switch);
-      height: var(--height-switch);
-    }
-
-    .switch__input {
-      position: absolute;
-      width: 1px;
-      height: 1px;
-      margin: -1px;
-      overflow: hidden;
-      clip: rect(0, 0, 0, 0);
-      white-space: nowrap;
-    }
-
-    .switch__track {
-      display: flex;
-      align-items: center;
-      width: 100%;
-      height: 100%;
-      padding: 2px;
-      background: var(--color-border);
-      border-radius: 999px;
-      transition: background-color 150ms ease;
-    }
-
-    .switch__thumb {
-      width: var(--size-switch-thumb);
-      height: var(--size-switch-thumb);
-      background: var(--color-surface);
-      border-radius: 50%;
-      box-shadow: var(--shadow-sm);
-      transition: transform 150ms ease;
-    }
-
-    .switch__input:checked + .switch__track {
-      background: var(--color-switch-track);
-    }
-
-    .switch__input:checked + .switch__track .switch__thumb {
-      transform: translateX(10px);
-    }
-
-    .switch__input:focus-visible + .switch__track {
-      box-shadow: 0 0 0 3px var(--color-focus);
     }
 
     /* 7. Responsive rules */
@@ -502,6 +487,14 @@
         grid-template-columns: repeat(3, minmax(0, 1fr));
       }
 
+      .company-location-field {
+        grid-column: 1;
+      }
+
+      .company-inquiry-field {
+        grid-column: 1;
+      }
+
       .form__actions {
         flex-direction: row;
       }
@@ -512,7 +505,11 @@
 
       .form__actions:not(.is-final) #verify-button {
         margin-left: auto;
-        width: 10.9375rem;
+        width: var(--width-button-continue);
+      }
+
+      .form--inquiry .form__actions #verify-button {
+        width: var(--width-button-continue-stage-one);
       }
 
       .form__actions .button--secondary {
@@ -528,14 +525,15 @@
 
 
 </head>
-<body>
+  <body>
   <main class="page-shell">
+    <h1 class="visually-hidden" id="form-title">Inquiry form</h1>
     <section class="form-shell">
-      <form class="form form--inquiry" novalidate>
-        <div class="form-page" id="page-1">
-          <h2 class="form__section-title" data-review-title hidden>Confirm your inquiry</h2>
+      <form class="form form--inquiry" aria-labelledby="form-title" novalidate>
+        <div class="form-page form__section form__section--three-columns" id="page-1">
+          <h2 class="form__section-title form__section-title--primary" data-review-title id="review-heading" tabindex="-1" hidden>Confirm your inquiry</h2>
 
-          <div class="form__field">
+          <div class="form__field form__section--full-width">
             <label class="form__label" for="message">Inquiry</label>
             <textarea
               class="form__input"
@@ -546,29 +544,16 @@
             ></textarea>
           </div>
 
-          <div class="form__field">
-            <label class="form__label" for="email">Email address</label>
-            <div class="form__control">
-              <input
-                class="form__input"
-                id="email"
-                name="email"
-                type="email"
-                autocomplete="email"
-                inputmode="email"
-                value="mylo.kaye@google.com"
-                aria-describedby="email-validation-status"
-                aria-invalid="false"
-              >
-            </div>
-            <span id="email-validation-status" class="visually-hidden" aria-live="polite"></span>
+          <div class="form__alert form__section--full-width" id="stage-one-guidance" role="note">
+            <svg class="form__alert-icon" aria-hidden="true" viewBox="0 0 24 24" fill="none">
+              <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.75" />
+              <path d="M12 10.5v5" stroke="currentColor" stroke-linecap="round" stroke-width="1.75" />
+              <circle cx="12" cy="7" r="1" fill="currentColor" />
+            </svg>
+            <p class="form__alert-text">Enter as much information as possible in order for us to route your inquiry promptly.</p>
           </div>
-        </div>
 
-        <p class="form__message" id="form-message" aria-live="polite"></p>
-
-        <div class="form-page form__section form__section--three-columns" id="verified-fields" hidden>
-          <h2 class="form__section-title">Personal details</h2>
+          <h2 class="form__section-title" data-review-title id="review-personal-details" hidden>Personal details</h2>
 
           <div class="form__field">
             <label class="form__label" for="first-name">First name</label>
@@ -593,73 +578,183 @@
           </div>
 
           <div class="form__field">
-            <label class="form__label" for="phone">Phone number</label>
-            <input
-              class="form__input"
-              id="phone"
-              name="phone"
-              type="tel"
-              autocomplete="tel"
-              inputmode="tel"
-            >
+            <label class="form__label" for="email">Email address</label>
+            <div class="form__control">
+              <input
+                class="form__input"
+                id="email"
+                name="email"
+                type="email"
+                autocomplete="email"
+                inputmode="email"
+                value="mylo.kaye@google.com"
+                aria-describedby="email-validation-status"
+                aria-invalid="false"
+              >
+            </div>
+            <span id="email-validation-status" class="visually-hidden" aria-live="polite"></span>
           </div>
+        </div>
 
-          <div class="form__field">
-            <label class="form__label" for="role">Role</label>
-            <select
-              class="form__input"
-              id="role"
-              name="role"
-            >
-              <option value="Manager" selected>Manager</option>
-              <option value="Assistant">Assistant</option>
-            </select>
-          </div>
+        <p class="form__message" id="form-message" aria-live="polite"></p>
 
-          <div class="form__field">
-            <label class="form__label" for="website">Website</label>
-            <input
-              class="form__input"
-              id="website"
-              name="website"
-              type="url"
-              autocomplete="url"
-            >
-          </div>
+        <div class="form-page form__section" id="verified-fields" aria-labelledby="stage-two-personal-details-title" tabindex="-1" hidden>
+          <fieldset class="form__group" aria-labelledby="review-personal-details">
+            <legend class="form__section-title" data-stage-two-personal-title id="stage-two-personal-details-title">Personal details</legend>
+            <div class="form__group-grid form__section--three-columns">
+              <div class="form__field">
+                <label class="form__label" for="phone">Phone number</label>
+                <input
+                  class="form__input"
+                  id="phone"
+                  name="phone"
+                  type="tel"
+                  autocomplete="tel"
+                  inputmode="tel"
+                >
+              </div>
 
-          <div class="form__field">
-            <label class="form__label" for="company-name">Company name</label>
-            <input
-              class="form__input"
-              id="company-name"
-              name="companyName"
-              type="text"
-              autocomplete="organization"
-            >
-          </div>
+              <div class="form__field">
+                <label class="form__label" for="role">Role</label>
+                <select
+                  class="form__input"
+                  id="role"
+                  name="role"
+                >
+                  <option value="Manager" selected>Manager</option>
+                  <option value="Assistant">Assistant</option>
+                </select>
+              </div>
+            </div>
+          </fieldset>
+
+          <fieldset class="form__group">
+            <legend class="form__section-title">Company details</legend>
+            <div class="form__group-grid form__section--three-columns">
+              <div class="form__field">
+                <label class="form__label" for="company-name">Company name</label>
+                <input
+                  class="form__input"
+                  id="company-name"
+                  name="companyName"
+                  type="text"
+                  autocomplete="organization"
+                >
+              </div>
+
+              <div class="form__field">
+                <label class="form__label" for="company-industry">Industry</label>
+                <select
+                  class="form__input"
+                  id="company-industry"
+                  name="companyIndustry"
+                >
+                  <option value="Aerospace" selected>Aerospace</option>
+                  <option value="Manufacturing">Manufacturing</option>
+                </select>
+              </div>
+
+              <div class="form__field company-location-field">
+                <label class="form__label" for="country">Country</label>
+                <select
+                  class="form__input"
+                  id="country"
+                  name="country"
+                >
+                  <option value="United States" selected>United States</option>
+                </select>
+              </div>
+
+              <div class="form__field">
+                <label class="form__label" for="state">State</label>
+                <select
+                  class="form__input"
+                  id="state"
+                  name="state"
+                >
+                  <option value="Alabama" selected>Alabama</option>
+                </select>
+              </div>
+
+              <div class="form__field company-inquiry-field">
+                <label class="form__label" for="business">Business</label>
+                <select
+                  class="form__input"
+                  id="business"
+                  name="business"
+                >
+                  <option value="Norican" selected>Norican</option>
+                </select>
+              </div>
+
+              <div class="form__field">
+                <label class="form__label" for="inquiry-type">Inquiry type</label>
+                <select
+                  class="form__input"
+                  id="inquiry-type"
+                  name="inquiryType"
+                >
+                  <option value="Aftermarket" selected>Aftermarket</option>
+                </select>
+              </div>
+
+              <div class="form__field">
+                <label class="form__label" for="inquiry-subtype">Inquiry subtype</label>
+                <select
+                  class="form__input"
+                  id="inquiry-subtype"
+                  name="inquirySubtype"
+                >
+                  <option value="Spare parts" selected>Spare parts</option>
+                </select>
+              </div>
+            </div>
+          </fieldset>
+
+          <fieldset class="form__group">
+            <legend class="form__section-title">Subscribe to newsletter</legend>
+            <div class="form__group-grid">
+              <div class="form__field form__section--full-width newsletter-field">
+                <label class="newsletter-option" for="newsletter">
+                  <input
+                    class="newsletter-option__input"
+                    id="newsletter"
+                    name="newsletter"
+                    type="checkbox"
+                    value="newsletter"
+                  >
+                  <span>News, events and other content</span>
+                </label>
+              </div>
+            </div>
+          </fieldset>
         </div>
 
         <div class="form__actions">
           <button
             class="button button--secondary"
             type="button"
-            id="back-button"
-            hidden
+          id="back-button"
+          hidden
           >
-            Back
+            <svg class="button__icon" aria-hidden="true" viewBox="0 0 16 16" fill="none">
+              <path d="M10 3 5 8l5 5" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" />
+            </svg>
+            <span class="button__label">Back</span>
           </button>
           <button
             class="button"
-            type="button"
+            type="submit"
             id="verify-button"
-            aria-controls="page-1 verified-fields enriched-fields"
-            aria-expanded="false"
           >
-            Continue
+            <span class="button__label">Continue</span>
+            <svg class="button__icon" aria-hidden="true" viewBox="0 0 16 16" fill="none">
+              <path d="M6 3l5 5-5 5" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" />
+            </svg>
           </button>
         </div>
 
-        <div class="form-page form__section form__section--two-columns" id="enriched-fields" hidden>
+        <div class="form-page form__section form__section--three-columns" id="enriched-fields" hidden>
           <h2 class="form__section-title">Hidden</h2>
 
           <div class="form__field form__section--full-width">
@@ -706,7 +801,7 @@
           </div>
 
           <div class="form__field">
-            <label class="form__label" for="industry">Industry</label>
+            <label class="form__label" for="industry">Enriched industry</label>
             <input
               class="form__input"
               id="industry"
@@ -715,19 +810,30 @@
               autocomplete="off"
             >
           </div>
+
+          <div class="form__field">
+            <label class="form__label" for="website">Website</label>
+            <input
+              class="form__input"
+              id="website"
+              name="website"
+              type="url"
+              autocomplete="url"
+            >
+          </div>
         </div>
       </form>
 
     </section>
 
     <ol class="progress" aria-label="Form progress">
-      <li class="progress__item" data-progress-step="1" aria-current="step">
+      <li class="progress__item" data-progress-step="1" aria-current="step" aria-label="Step 1 of 3: Inquiry">
         <span class="progress__marker" aria-hidden="true">1</span>
       </li>
-      <li class="progress__item" data-progress-step="2">
+      <li class="progress__item" data-progress-step="2" aria-label="Step 2 of 3: Personal and company details">
         <span class="progress__marker" aria-hidden="true">2</span>
       </li>
-      <li class="progress__item" data-progress-step="3">
+      <li class="progress__item" data-progress-step="3" aria-label="Step 3 of 3: Confirm your inquiry">
         <span class="progress__marker" aria-hidden="true">3</span>
       </li>
     </ol>
@@ -739,10 +845,14 @@
     const form = document.querySelector(".form");
     const validationStatus = document.getElementById("email-validation-status");
     const pageOne = document.getElementById("page-1");
+    const stageOneGuidance = document.getElementById("stage-one-guidance");
     const progressSteps = document.querySelectorAll("[data-progress-step]");
     const reviewTitles = document.querySelectorAll("[data-review-title]");
+    const stageTwoPersonalTitles = document.querySelectorAll("[data-stage-two-personal-title]");
+    const reviewHeading = document.getElementById("review-heading");
     const backButton = document.getElementById("back-button");
     const verifyButton = document.getElementById("verify-button");
+    const verifyButtonLabel = verifyButton?.querySelector(".button__label");
     const formActions = document.querySelector(".form__actions");
     const verifiedFields = document.getElementById("verified-fields");
     const firstNameField = document.getElementById("first-name");
@@ -750,6 +860,12 @@
     const phoneField = document.getElementById("phone");
     const websiteField = document.getElementById("website");
     const companyNameField = document.getElementById("company-name");
+    const companyIndustryField = document.getElementById("company-industry");
+    const countryField = document.getElementById("country");
+    const stateField = document.getElementById("state");
+    const businessField = document.getElementById("business");
+    const inquiryTypeField = document.getElementById("inquiry-type");
+    const inquirySubtypeField = document.getElementById("inquiry-subtype");
     const enrichedFields = document.getElementById("enriched-fields");
     const industryField = document.getElementById("industry");
     const roleField = document.getElementById("role");
@@ -765,13 +881,19 @@
     const COMPANY_ENRICHMENT_TIMEOUT_MS = 20000;
     const FIELD_CONFIG = {
       email: { field: emailField, tracksStatus: true },
-      message: { field: messageField, tracksStatus: true },
-      firstName: { field: firstNameField, tracksStatus: true, detail: true },
-      lastName: { field: lastNameField, tracksStatus: true, detail: true },
-      phone: { field: phoneField, tracksStatus: true, detail: true },
-      role: { field: roleField, tracksStatus: true, detail: true },
-      website: { field: websiteField, tracksStatus: true, detail: true },
-      companyName: { field: companyNameField, tracksStatus: true, detail: true },
+      message: { field: messageField },
+      firstName: { field: firstNameField, detail: true },
+      lastName: { field: lastNameField, detail: true },
+      phone: { field: phoneField, detail: true },
+      role: { field: roleField, detail: true },
+      website: { field: websiteField, detail: true },
+      companyName: { field: companyNameField, detail: true },
+      companyIndustry: { field: companyIndustryField, detail: true },
+      country: { field: countryField, detail: true },
+      state: { field: stateField, detail: true },
+      business: { field: businessField, detail: true },
+      inquiryType: { field: inquiryTypeField, detail: true },
+      inquirySubtype: { field: inquirySubtypeField, detail: true },
       industry: { field: industryField, enrichment: true, resetWhenEmailChanges: true },
       about: { field: aboutField, enrichment: true, resetWhenEmailChanges: true },
       urgency: { field: urgencyField, enrichment: true, resetWhenEmailChanges: true },
@@ -905,7 +1027,6 @@
     function getEnrichmentSnapshot(companyUrl) {
       return {
         email: getFieldValue(emailField),
-        companyName: getFieldValue(companyNameField),
         companyUrl,
         message: getFieldValue(messageField)
       };
@@ -917,7 +1038,6 @@
         formState.enrichmentController === controller &&
         formState.currentPage === 2 &&
         snapshot.email === getFieldValue(emailField) &&
-        snapshot.companyName === getFieldValue(companyNameField) &&
         snapshot.companyUrl === getWebsiteUrl(getFieldValue(websiteField)) &&
         snapshot.message === getFieldValue(messageField)
       );
@@ -955,12 +1075,11 @@
 
       if (!verifyButton) return;
 
-      if (!verifyButton.disabled) {
-        verifyButton.textContent = formState.currentPage === 3 ? "Submit Inquiry" : "Continue";
+      if (!verifyButton.disabled && verifyButtonLabel) {
+        verifyButtonLabel.textContent = formState.currentPage === 3 ? "Submit Inquiry" : "Continue";
       }
 
       verifyButton.classList.toggle("button--ready", isPrimaryReady());
-      verifyButton.setAttribute("aria-expanded", String(formState.currentPage > 1));
     }
 
     function updateProgress() {
@@ -1000,6 +1119,10 @@
         pageOne.hidden = pageNumber === 2;
       }
 
+      if (stageOneGuidance) {
+        stageOneGuidance.hidden = pageNumber !== 1;
+      }
+
       if (verifiedFields) {
         verifiedFields.hidden = pageNumber === 1;
       }
@@ -1014,8 +1137,22 @@
         title.hidden = pageNumber !== 3;
       });
 
+      stageTwoPersonalTitles.forEach((title) => {
+        title.hidden = pageNumber !== 2;
+      });
+
       updateProgress();
       updateNavigationState();
+    }
+
+    function focusCurrentStage(pageNumber) {
+      const target = pageNumber === 2
+        ? verifiedFields
+        : pageNumber === 3
+          ? reviewHeading
+          : emailField;
+
+      window.requestAnimationFrame(() => target?.focus());
     }
 
     function placeFormMessage(pageNumber) {
@@ -1055,11 +1192,6 @@
     }
 
     function resetValidationFeedback() {
-      if (validationIcon) {
-        validationIcon.hidden = true;
-        validationIcon.replaceChildren();
-      }
-
       if (emailField) {
         emailField.setAttribute("aria-invalid", "false");
       }
@@ -1120,7 +1252,10 @@
       if (!verifyButton) return;
 
       verifyButton.disabled = isLoading;
-      verifyButton.textContent = isLoading ? "One moment..." : "Continue";
+
+      if (verifyButtonLabel) {
+        verifyButtonLabel.textContent = formState.currentPage === 3 ? "Submit Inquiry" : "Continue";
+      }
 
       if (!isLoading) {
         updateNavigationState();
@@ -1183,7 +1318,7 @@
       const companyUrl = getWebsiteUrl(getFieldValue(websiteField));
 
       if (!companyUrl) {
-        setFormMessage("Enter a company website before verifying company details.", true);
+        console.warn("[Form] Company enrichment skipped because required information is unavailable.");
         return false;
       }
 
@@ -1224,20 +1359,23 @@
 
         applyEnrichmentResult(getEnrichmentResult(result));
         updateFieldStatuses();
-        setFormMessage("Company details verified.");
         return true;
       } catch (error) {
         if (!isCurrentEnrichmentRequest(requestId, controller, snapshot)) {
           return null;
         }
 
-        const message = error instanceof TypeError
-          ? "Company enrichment proxy is not running."
-          : error?.name === "AbortError"
-            ? "Company enrichment timed out. Please try again."
-          : error?.message || "Company enrichment failed.";
+        if (error instanceof TypeError) {
+          setFormMessage("");
+          return false;
+        }
 
-        setFormMessage(message, true);
+        if (error?.name === "AbortError") {
+          console.error("[Form] Company enrichment timed out.");
+          return false;
+        }
+
+        console.error("[Form] Company enrichment failed.");
         return false;
       } finally {
         window.clearTimeout(timeoutId);
@@ -1268,13 +1406,13 @@
     }
 
     function handleVerifiedFieldInput() {
-      cancelEnrichmentRequest();
       updateVerifiedButtonState();
     }
 
     async function handlePrimaryAction() {
       if (formState.currentPage === 3) {
-        setFormMessage("Inquiry submitted.");
+        setFormMessage("");
+        console.info("[Form] Inquiry submitted (prototype).");
         return;
       }
 
@@ -1283,18 +1421,9 @@
           setFormMessage("Enter first name, last name, website, and company name before continuing.", true);
           return;
         }
-
-        const didEnrich = await enrichCompanyDetails();
-
-        if (didEnrich === null) {
-          return;
-        }
-
         showPage(3);
-
-        if (didEnrich) {
-          setFormMessage("");
-        }
+        setFormMessage("");
+        focusCurrentStage(3);
 
         return;
       }
@@ -1307,7 +1436,8 @@
       }
 
       showPage(2);
-      setFormMessage("");
+      focusCurrentStage(2);
+      void enrichCompanyDetails();
     }
 
     function handleBack() {
@@ -1318,11 +1448,13 @@
       if (formState.currentPage === 3) {
         showPage(2);
         setFormMessage("");
+        focusCurrentStage(2);
         return;
       }
 
       showPage(1);
       setFormMessage("");
+      focusCurrentStage(1);
     }
 
     // 7. Event listeners
@@ -1342,8 +1474,11 @@
       backButton.addEventListener("click", handleBack);
     }
 
-    if (verifyButton) {
-      verifyButton.addEventListener("click", handlePrimaryAction);
+    if (form) {
+      form.addEventListener("submit", (event) => {
+        event.preventDefault();
+        void handlePrimaryAction();
+      });
     }
 
     updateFieldStatuses();

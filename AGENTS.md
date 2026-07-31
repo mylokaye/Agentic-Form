@@ -516,6 +516,16 @@ Avoid this:
 const showError = (f, m) => document.getElementById(f.dataset.err).innerHTML = m;
 ```
 
+## Current User Interface Preferences
+
+1. Apply spacing, widths, colours, and typography through shared tokens or reusable selectors; avoid one-off per-stage overrides.
+2. Keep every section title on the same shared title-to-first-field spacing.
+3. Start enrichment after Stage 1. It must degrade gracefully when data or the local proxy is unavailable, and Stage 2 edits must not cancel an in-flight request.
+4. For this prototype, keep submission local-only and log generic technical/prototype outcomes to the console without personal data.
+5. Use a green validation border only for Email. Do not add validation icons or validation borders to other fields unless requested.
+6. Preserve the mobile-first layouts: actions fill the width on mobile, while desktop Continue uses the shared 190px width.
+7. Keep Stage 3 grouped semantically, move focus to the newly displayed stage, and use three columns below the full-width About field at desktop widths.
+
 ## Final Instruction
 
 When editing this project, keep everything in one HTML file unless explicitly told otherwise. Keep the code clean, accessible, responsive, predictable, privacy-aware, and easy for a non-specialist developer to understand.
