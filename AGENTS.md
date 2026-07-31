@@ -153,8 +153,7 @@ Example CSS variables:
   --space-lg: 1.5rem;
   --space-xl: 2rem;
 
-  --radius-sm: 6px;
-  --radius-md: 10px;
+  --radius: 10px;
 
   --shadow-sm: 0 1px 2px rgba(16, 24, 40, 0.06);
 }
