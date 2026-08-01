@@ -117,7 +117,9 @@ async function callDeepSeek(env, prompt) {
   const apiKey = env.DEEPSEEK_API_KEY || env.deepseek;
 
   if (!apiKey) {
-    throw new Error("DeepSeek is not configured.");
+    const error = new Error("DeepSeek is not configured.");
+    error.code = "MISSING_DEEPSEEK_CONFIGURATION";
+    throw error;
   }
 
   const controller = new AbortController();
@@ -200,11 +202,14 @@ async function handleEnrichment(request, env) {
     return json(createEnrichmentResponse(companyResult, messageResult));
   } catch (error) {
     console.error("DeepSeek enrichment failed:", error?.message || "unknown error");
-    const message = error?.name === "AbortError"
+    const status = error?.code === "MISSING_DEEPSEEK_CONFIGURATION" ? 503 : 502;
+    const message = error?.code === "MISSING_DEEPSEEK_CONFIGURATION"
+      ? "Company enrichment is not configured yet."
+      : error?.name === "AbortError"
       ? "DeepSeek request timed out. Please try again."
       : "Company enrichment failed. Please try again.";
 
-    return json({ error: message }, 502);
+    return json({ error: message }, status);
   }
 }
 
