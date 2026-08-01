@@ -1,6 +1,6 @@
 # Forms v2
 
-Forms v2 is a lightweight, portable inquiry form. Its UI, styles, and browser logic live in one readable file: `index.html`. No framework, build step, or frontend dependency is required. `package.json` contains only deployment metadata required by the hosting service; it has no dependencies or scripts.
+Forms v2 is a lightweight, portable inquiry form. Its UI, styles, and browser logic live in one readable file: `index.html`. No framework, build step, or frontend dependency is required. `package.json` contains only deployment metadata required by the hosting service; its dependency-free build command confirms that the committed static worker is ready to deploy.
 
 ## Project Files
 
