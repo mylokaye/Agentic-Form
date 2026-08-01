@@ -26,8 +26,7 @@
       --color-success-text: #0c5f45;
       --color-focus: #7cc4ff;
       --color-green: #00B77D;
-      --color-progress: var(--color-green);
-      --color-progress-soft: var(--color-green);
+      --color-progress: var(--color-button-muted);
       --color-success: var(--color-green);
 
       --space-sm: 0.5rem;
@@ -57,6 +56,9 @@
       --height-button: 50px;
       --width-button-continue-stage-one: calc((100% - (var(--space-lg) * 2)) / 3);
       --width-button-continue: calc((100% - var(--space-lg)) * 2 / 3);
+      --size-progress-marker: 1.75rem;
+      --offset-progress-marker-center: 0.875rem;
+      --offset-progress-connector: 1.25rem;
       --color-elevation-ring: rgba(16, 24, 40, 0.08);
       --shadow-elevation-depth-sm: 0 1px 2px rgba(16, 24, 40, 0.06);
       --shadow-elevation-sm: 0 0 0 1px var(--color-elevation-ring), var(--shadow-elevation-depth-sm);
@@ -121,7 +123,7 @@
     .progress {
       display: grid;
       grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: var(--space-lg);
+      gap: 0;
       margin: var(--space-lg) 0 0;
       padding: 0;
       list-style: none;
@@ -139,8 +141,8 @@
 
     .progress__marker {
       display: inline-grid;
-      width: 1.75rem;
-      height: 1.75rem;
+      width: var(--size-progress-marker);
+      height: var(--size-progress-marker);
       place-items: center;
       border: 2px solid var(--color-border);
       border-radius: var(--radius);
@@ -163,15 +165,14 @@
 
     .progress__item[aria-current="step"] .progress__marker {
       border-color: var(--color-progress);
-      background: var(--color-progress);
-      color: var(--color-surface);
-      box-shadow: 0 0 0 0.25rem var(--color-progress-soft);
+      background: var(--color-surface);
+      color: var(--color-progress);
     }
 
     .progress__item.is-complete .progress__marker {
-      border-color: var(--color-success);
-      background: var(--color-success);
-      color: var(--color-surface);
+      border-color: var(--color-progress);
+      background: var(--color-surface);
+      color: var(--color-progress);
     }
 
     .progress__item.is-complete::after,
@@ -181,9 +182,9 @@
 
     .progress__item::before {
       position: absolute;
-      top: 0.875rem;
-      right: calc(50% + 1.25rem);
-      left: calc(-50% + 1.25rem);
+      top: var(--offset-progress-marker-center);
+      right: calc(50% + var(--offset-progress-connector));
+      left: calc(-50% + var(--offset-progress-connector));
       height: 2px;
       background: var(--color-border);
       content: "";
@@ -191,9 +192,9 @@
 
     .progress__item::after {
       position: absolute;
-      top: 0.875rem;
-      right: calc(50% + 1.25rem);
-      left: calc(-50% + 1.25rem);
+      top: var(--offset-progress-marker-center);
+      right: calc(50% + var(--offset-progress-connector));
+      left: calc(-50% + var(--offset-progress-connector));
       height: 2px;
       background: transparent;
       content: "";
@@ -637,26 +638,6 @@
         <div class="form-page form__section form__section--three-columns" id="page-1">
           <h2 class="form__section-title form__section-title--primary" data-review-title id="review-heading" tabindex="-1" hidden>Confirm your inquiry</h2>
 
-          <div class="form__field form__section--full-width">
-            <label class="form__label" for="message">Inquiry</label>
-            <textarea
-              class="form__input"
-              id="message"
-              name="message"
-              rows="3"
-              placeholder="How can we help you today?"
-            ></textarea>
-          </div>
-
-          <div class="form__alert form__section--full-width" id="stage-one-guidance" role="note">
-            <svg class="form__alert-icon" aria-hidden="true" viewBox="0 0 24 24" fill="none">
-              <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.75" />
-              <path d="M12 10.5v5" stroke="currentColor" stroke-linecap="round" stroke-width="1.75" />
-              <circle cx="12" cy="7" r="1" fill="currentColor" />
-            </svg>
-            <p class="form__alert-text">Enter as much information as possible in order for us to route your inquiry promptly.</p>
-          </div>
-
           <h2 class="form__section-title" data-review-title id="review-personal-details" hidden>Personal details</h2>
 
           <div class="form__field">
@@ -697,6 +678,26 @@
               >
             </div>
             <span id="email-validation-status" class="visually-hidden" aria-live="polite"></span>
+          </div>
+
+          <div class="form__field form__section--full-width">
+            <label class="form__label" for="message">Inquiry</label>
+            <textarea
+              class="form__input"
+              id="message"
+              name="message"
+              rows="3"
+              placeholder="How can we help you today?"
+            ></textarea>
+          </div>
+
+          <div class="form__alert form__section--full-width" id="stage-one-guidance" role="note">
+            <svg class="form__alert-icon" aria-hidden="true" viewBox="0 0 24 24" fill="none">
+              <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.75" />
+              <path d="M12 10.5v5" stroke="currentColor" stroke-linecap="round" stroke-width="1.75" />
+              <circle cx="12" cy="7" r="1" fill="currentColor" />
+            </svg>
+            <p class="form__alert-text">Enter as much information as possible in order for us to route your inquiry promptly.</p>
           </div>
         </div>
 
@@ -866,6 +867,13 @@
         </div>
 
         <div class="form-page form__section form__section--three-columns" id="enriched-fields" hidden>
+          <div class="form__alert form__section--full-width" id="gdpr-consent-note" role="note">
+            <svg class="form__alert-icon" aria-hidden="true" viewBox="0 0 24 24" fill="none">
+              <rect x="5" y="10" width="14" height="10" rx="2" stroke="currentColor" stroke-width="1.75" />
+              <path d="M8 10V7a4 4 0 0 1 8 0v3" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" />
+            </svg>
+            <p class="form__alert-text">I agree and understand that by completing this form, my personal data will be processed for the purpose of receiving emails under Article 6(1)(a) of the GDPR,</p>
+          </div>
           <h2 class="form__section-title">Hidden</h2>
 
           <div class="form__field form__section--full-width">
