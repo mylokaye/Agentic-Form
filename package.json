@@ -2,8 +2,9 @@
   "name": "forms-v2",
   "version": "1.0.0",
   "private": true,
+  "type": "module",
   "description": "Static forms-v2 Sites deployment metadata",
   "scripts": {
-    "build": "echo \"Static deployment worker is ready.\""
+    "build": "node scripts/build-site.mjs"
   }
 }

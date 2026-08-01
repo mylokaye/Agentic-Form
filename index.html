@@ -977,7 +977,10 @@
     const formMessageText = document.getElementById("form-message-text");
 
     // 2. Configuration
-    const COMPANY_ENRICHMENT_ENDPOINT = "http://127.0.0.1:8787/enrich-company";
+    const COMPANY_ENRICHMENT_ENDPOINT =
+      window.location.hostname === "127.0.0.1" || window.location.hostname === "localhost"
+        ? "http://127.0.0.1:8787/enrich-company"
+        : "/enrich-company";
     const COMPANY_ENRICHMENT_TIMEOUT_MS = 20000;
     const FIELD_CONFIG = {
       email: { field: emailField, tracksStatus: true },

@@ -1,12 +1,13 @@
 # Forms v2
 
-Forms v2 is a lightweight, portable inquiry form. Its UI, styles, and browser logic live in one readable file: `index.html`. No framework, build step, or frontend dependency is required. `package.json` contains only deployment metadata required by the hosting service; its dependency-free build command confirms that the committed static worker is ready to deploy.
+Forms v2 is a lightweight, portable inquiry form. Its UI, styles, and browser logic live in one readable file: `index.html`. No framework or frontend dependency is required. `package.json` and `scripts/build-site.mjs` build the small server-side Sites worker that serves the form and protects its DeepSeek integration.
 
 ## Project Files
 
 - `index.html` — the form implementation.
 - `dev-proxy.mjs` — optional local company-enrichment proxy.
-- `package.json` — dependency-free hosting metadata.
+- `scripts/build-site.mjs` — creates the dependency-free Sites worker with the hosted enrichment route.
+- `package.json` — dependency-free deployment build command.
 - `README.md` — this guide.
 - `AGENTS.md` — project implementation standards.
 
@@ -24,13 +25,15 @@ The progress indicator sits below the white form container. Every section title 
 
 - Email uses light browser validation. A valid email derives First name, Last name, Website, and Company name.
 - On the personal-details step, Continue requires First name, Last name, Website, and Company name.
-- Completing the Inquiry step calls the local proxy with the email-derived company URL and inquiry message. Stage 2 detail edits do not interrupt the request; it times out after 20 seconds in the browser and ignores stale responses.
+- Completing the Inquiry step calls the same-origin hosted `/enrich-company` route with the email-derived company URL and inquiry message. Stage 2 detail edits do not interrupt the request; it times out after 20 seconds in the browser and ignores stale responses.
 - The proxy can return `industry`, `about`, `urgency`, `sentiment`, and `query` as strings. If required enrichment information is unavailable, enrichment is skipped and the form continues for manual review. Unavailable-proxy, timeout, and other enrichment failures are logged generically to the browser console without form data.
 - Submit Inquiry currently logs a local prototype confirmation to the browser console only; it does not send the form to a backend.
 
 ## Local Enrichment Setup
 
-The form works as static HTML. To use company enrichment, start the form server and proxy separately:
+The published Sites form uses its server-side `/enrich-company` route. Add the DeepSeek key in Sites as a secret named `DEEPSEEK_API_KEY` (preferred) or retain the existing secret named `deepseek`; it is never sent to the browser. The route accepts only bounded JSON requests, rejects non-public company URLs, uses an 8-second DeepSeek timeout, and applies a per-IP request limit.
+
+For local development, start the form server and proxy separately:
 
 ```sh
 python3 -m http.server 8000
