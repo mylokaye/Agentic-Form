@@ -1,13 +1,15 @@
 # Forms v2
 
-Forms v2 is a lightweight, portable inquiry form. Its UI, styles, and browser logic live in one readable file: `index.html`. No framework or frontend dependency is required. `package.json` and `scripts/build-site.mjs` build the small server-side Sites worker that serves the form and protects its DeepSeek integration.
+Forms v2 is a lightweight, portable inquiry form. Its UI, styles, and browser logic live in one readable file: `index.html`. No frontend framework is required. `package.json` and `scripts/build-site.mjs` build the small server-side Sites worker that serves the form and protects its DeepSeek integration.
 
 ## Project Files
 
 - `index.html` — the form implementation.
 - `dev-proxy.mjs` — optional local company-enrichment proxy.
 - `scripts/build-site.mjs` — creates the dependency-free Sites worker with the hosted enrichment route.
-- `package.json` — dependency-free deployment build command.
+- `tests/form-flow.spec.mjs` — Playwright regression coverage for the main form flow.
+- `playwright.config.mjs` — local and live-browser test configuration.
+- `package.json` — deployment build and browser-test commands.
 - `README.md` — this guide.
 - `AGENTS.md` — project implementation standards.
 
@@ -23,7 +25,7 @@ The progress indicator sits below the white form container. Every section title 
 
 ## Validation and Enrichment
 
-- Email uses light browser validation. A valid email derives First name, Last name, Website, and Company name.
+- Email uses light browser validation. A valid email suggests First name, Last name, Website, and Company name only when those fields are empty; manually entered values are preserved.
 - On the personal-details step, Continue requires First name, Last name, Website, and Company name.
 - Completing the Inquiry step calls the same-origin hosted `/enrich-company` route with the email-derived company URL and inquiry message. Stage 2 detail edits do not interrupt the request; it times out after 20 seconds in the browser and ignores stale responses.
 - The proxy can return `industry`, `about`, `urgency`, `sentiment`, and `query` as strings. If required enrichment information is unavailable, enrichment is skipped and the form continues for manual review. Unavailable-proxy, timeout, and other enrichment failures are logged generically to the browser console without form data.
@@ -52,7 +54,25 @@ The browser posts to `http://127.0.0.1:8787/enrich-company`. Keep the API key ou
 - The optional newsletter opt-in is unchecked by default and is not sent to a backend. No analytics, cookies, tracking pixels, localStorage, or sessionStorage are implemented.
 - Do not log personal data or submission payloads to the console.
 - DeepSeek output and email-derived details are suggestions and should be reviewed.
-- The form has no live submission backend and no automated test suite.
+- The form has no live submission backend. Playwright regression tests cover preserving edited names through the three-stage journey, GDPR-note rendering, and horizontal-overflow checks on desktop and mobile Chrome.
+
+## Browser Regression Tests
+
+Install test dependencies once, then run the suite against a local server or the live site:
+
+```sh
+npm install
+python3 -m http.server 8000
+npm run test:e2e
+```
+
+To test the published form, use its URL explicitly:
+
+```sh
+BASE_URL="https://forms-v2-mylo.v6pdwnhvws.chatgpt.site" npm run test:e2e
+```
+
+The suite uses temporary non-personal test input and intentionally stops before Submit Inquiry.
 
 ## Design and Browser Support
 
@@ -72,3 +92,5 @@ Keep all browser-facing HTML, CSS, and JavaScript in `index.html`. Preserve visi
 - Replaced the compact newsletter alert with a benefit-led subscription card using the approved copy.
 - Simplified this guide around the three-step user flow and removed the redundant field-by-field inventory.
 - Documented the current responsive action-button sizes, shared green token, feedback placement, and Manager/Assistant Role selector.
+- Preserved manually entered Stage 1 name and company details when email-derived suggestions are applied.
+- Added repeatable Playwright browser regression coverage for the main form flow.

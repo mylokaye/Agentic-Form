@@ -1133,6 +1133,12 @@
       return field ? field.value.trim() : "";
     }
 
+    function setFieldValueIfEmpty(field, value) {
+      if (!field || getFieldValue(field) || !value) return;
+
+      field.value = value;
+    }
+
     function getWebsiteUrl(value) {
       const trimmedValue = value.trim();
 
@@ -1348,10 +1354,11 @@
       const emailParts = getEmailParts(emailField.value);
       const nameParts = getNameParts(emailParts.localPart);
 
-      firstNameField.value = nameParts.firstName;
-      lastNameField.value = nameParts.lastName;
-      websiteField.value = emailParts.domain;
-      companyNameField.value = getCompanyName(emailParts.domain);
+      // Suggested details must never replace a value the person has entered.
+      setFieldValueIfEmpty(firstNameField, nameParts.firstName);
+      setFieldValueIfEmpty(lastNameField, nameParts.lastName);
+      setFieldValueIfEmpty(websiteField, emailParts.domain);
+      setFieldValueIfEmpty(companyNameField, getCompanyName(emailParts.domain));
       updateFieldStatuses();
       updateVerifiedButtonState();
     }

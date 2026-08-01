@@ -5,6 +5,10 @@
   "type": "module",
   "description": "Static forms-v2 Sites deployment metadata",
   "scripts": {
-    "build": "node scripts/build-site.mjs"
+    "build": "node scripts/build-site.mjs",
+    "test:e2e": "playwright test"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.56.1"
   }
 }
