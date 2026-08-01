@@ -192,6 +192,7 @@ async function handleEnrichment(request, env) {
 
     return json(createEnrichmentResponse(companyResult, messageResult));
   } catch (error) {
+    console.error("DeepSeek enrichment failed:", error?.message || "unknown error");
     const message = error?.name === "AbortError"
       ? "DeepSeek request timed out. Please try again."
       : "Company enrichment failed. Please try again.";
