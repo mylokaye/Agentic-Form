@@ -57,7 +57,20 @@
       --height-button: 50px;
       --width-button-continue-stage-one: calc((100% - (var(--space-lg) * 2)) / 3);
       --width-button-continue: calc((100% - var(--space-lg)) * 2 / 3);
-      --shadow-sm: 0 1px 2px rgba(16, 24, 40, 0.06);
+      --color-elevation-ring: rgba(16, 24, 40, 0.08);
+      --shadow-elevation-depth-sm: 0 1px 2px rgba(16, 24, 40, 0.06);
+      --shadow-elevation-sm: 0 0 0 1px var(--color-elevation-ring), var(--shadow-elevation-depth-sm);
+      --shadow-control: 0 0 0 1px var(--color-border), var(--shadow-elevation-depth-sm);
+      --shadow-control-focus: 0 0 0 1px var(--color-primary), 0 0 0 4px var(--color-focus), var(--shadow-elevation-depth-sm);
+      --shadow-control-valid: 0 0 0 2px var(--color-success), var(--shadow-elevation-depth-sm);
+      --shadow-control-valid-focus: 0 0 0 2px var(--color-success), 0 0 0 5px var(--color-focus), var(--shadow-elevation-depth-sm);
+      --shadow-alert: 0 0 0 1px var(--color-border), var(--shadow-elevation-depth-sm);
+      --shadow-alert-success: 0 0 0 1px var(--color-success-border), var(--shadow-elevation-depth-sm);
+      --shadow-alert-error: 0 0 0 1px var(--color-error-border), var(--shadow-elevation-depth-sm);
+      --shadow-button: 0 0 0 1px var(--color-button-muted-border), var(--shadow-elevation-depth-sm);
+      --shadow-button-primary: 0 0 0 1px var(--color-green), var(--shadow-elevation-depth-sm);
+      --shadow-button-focus: 0 0 0 1px var(--color-button-muted-border), 0 0 0 4px var(--color-focus), var(--shadow-elevation-depth-sm);
+      --shadow-button-primary-focus: 0 0 0 1px var(--color-green), 0 0 0 4px var(--color-focus), var(--shadow-elevation-depth-sm);
     }
 
     /* 2. Reset / base styles */
@@ -97,10 +110,12 @@
       display: grid;
       gap: var(--space-sm);
       padding: var(--space-lg);
+    }
+
+    .elevated-surface {
       background: var(--color-surface);
-      border: 1px solid var(--color-border);
       border-radius: var(--radius);
-      box-shadow: var(--shadow-sm);
+      box-shadow: var(--shadow-elevation-sm);
     }
 
     .progress {
@@ -265,8 +280,9 @@
       padding: var(--padding-alert-block) var(--padding-alert-inline);
       color: var(--color-title);
       background: var(--color-surface);
-      border: 1px solid var(--color-border);
+      border: 0;
       border-radius: var(--radius);
+      box-shadow: var(--shadow-alert);
     }
 
     .form__alert-icon {
@@ -312,13 +328,13 @@
       resize: vertical;
       color: var(--color-text);
       background: var(--color-surface);
-      border: 1px solid var(--color-border);
+      border: 0;
       border-radius: var(--radius);
+      box-shadow: var(--shadow-control);
     }
 
     .form__input.is-valid {
-      border-width: 2px;
-      border-color: var(--color-success);
+      box-shadow: var(--shadow-control-valid);
     }
 
     select.form__input {
@@ -332,9 +348,12 @@
     }
 
     .form__input:focus {
-      border-color: var(--color-primary);
-      box-shadow: 0 0 0 3px var(--color-focus);
+      box-shadow: var(--shadow-control-focus);
       outline: none;
+    }
+
+    .form__input.is-valid:focus {
+      box-shadow: var(--shadow-control-valid-focus);
     }
 
     textarea.form__input {
@@ -342,19 +361,49 @@
       line-height: 1.45;
     }
 
+    .newsletter-group {
+      padding: var(--space-lg);
+      background: var(--color-surface);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow-elevation-sm);
+    }
+
+    .newsletter-card {
+      display: grid;
+      gap: var(--space-md);
+    }
+
+    .newsletter-card__title {
+      margin: 0;
+      color: var(--color-title);
+      font-size: var(--font-size-title);
+      font-weight: var(--font-weight-title);
+      line-height: var(--line-height-title);
+    }
+
+    .newsletter-card__benefits {
+      margin: 0;
+      color: var(--color-muted);
+      font-size: var(--font-size-body);
+      line-height: var(--line-height-body);
+    }
+
     .newsletter-option {
-      display: flex;
-      align-items: flex-start;
-      gap: var(--gap-alert-content);
-      min-height: 2.75rem;
-      padding-top: 0.55rem;
+      display: inline-flex;
+      gap: var(--space-sm);
+      align-items: center;
+      min-height: 1.5rem;
+      padding: 0;
       color: var(--color-text);
+      font-size: var(--font-size-body);
+      font-weight: var(--font-weight-regular);
+      line-height: var(--line-height-body);
       cursor: pointer;
     }
 
     .newsletter-option__input {
-      width: 1.125rem;
-      height: 1.125rem;
+      width: 1.5rem;
+      height: 1.5rem;
       margin: 0;
       accent-color: var(--color-green);
     }
@@ -362,61 +411,6 @@
     .newsletter-option__input:focus-visible {
       outline: 3px solid var(--color-focus);
       outline-offset: 2px;
-    }
-
-    .newsletter-option__icon,
-    .newsletter-option__text--review {
-      display: none;
-    }
-
-    .form:not(.form--inquiry) .newsletter-group {
-      display: flex;
-      align-items: center;
-      min-height: var(--height-message-alert);
-      padding: var(--padding-alert-block) var(--padding-alert-inline);
-      color: var(--color-success-text);
-      background: var(--color-success-surface);
-      border: 1px solid var(--color-success-border);
-      border-radius: var(--radius);
-    }
-
-    .form:not(.form--inquiry) .newsletter-group .form__section-title {
-      display: none;
-    }
-
-    .form:not(.form--inquiry) .newsletter-group .form__group-grid {
-      display: block;
-      flex: 1;
-    }
-
-    .form:not(.form--inquiry) .newsletter-group .newsletter-field {
-      display: block;
-    }
-
-    .form:not(.form--inquiry) .newsletter-group .newsletter-option {
-      align-items: center;
-      min-height: 0;
-      padding: 0;
-    }
-
-    .form:not(.form--inquiry) .newsletter-option__icon {
-      display: block;
-      flex: 0 0 auto;
-      width: 1.5rem;
-      height: 1.5rem;
-    }
-
-    .form:not(.form--inquiry) .newsletter-option__text--stage-two {
-      display: none;
-    }
-
-    .form:not(.form--inquiry) .newsletter-option__text--review {
-      display: block;
-    }
-
-    .form:not(.form--inquiry) .newsletter-option__input {
-      order: 1;
-      margin-left: auto;
     }
 
     .visually-hidden {
@@ -446,8 +440,9 @@
       line-height: var(--line-height-label);
       text-align: center;
       background: var(--color-button-muted);
-      border: 1px solid var(--color-button-muted-border);
+      border: 0;
       border-radius: var(--radius);
+      box-shadow: var(--shadow-button);
       cursor: pointer;
     }
 
@@ -463,32 +458,36 @@
 
     .button:hover {
       background: var(--color-button-muted-hover);
-      border-color: var(--color-button-muted-hover);
+      box-shadow: var(--shadow-button);
     }
 
     .button--ready {
       background: var(--color-green);
-      border-color: var(--color-green);
+      box-shadow: var(--shadow-button-primary);
     }
 
     .button--ready:hover {
       background: var(--color-green);
-      border-color: var(--color-green);
+      box-shadow: var(--shadow-button-primary);
     }
 
     .button--secondary {
       background: var(--color-button-muted);
-      border-color: var(--color-button-muted-border);
+      box-shadow: var(--shadow-button);
     }
 
     .button--secondary:hover {
       background: var(--color-button-muted-hover);
-      border-color: var(--color-button-muted-hover);
+      box-shadow: var(--shadow-button);
     }
 
     .button:focus {
-      box-shadow: 0 0 0 3px var(--color-focus);
+      box-shadow: var(--shadow-button-focus);
       outline: none;
+    }
+
+    .button--ready:focus {
+      box-shadow: var(--shadow-button-primary-focus);
     }
 
     .button:disabled {
@@ -516,8 +515,9 @@
       padding: var(--padding-alert-block) var(--padding-alert-inline);
       color: var(--color-error-text);
       background: var(--color-error-surface);
-      border: 1px solid var(--color-error-border);
+      border: 0;
       border-radius: var(--radius);
+      box-shadow: var(--shadow-alert-error);
     }
 
     .form__message-icon {
@@ -557,6 +557,24 @@
 
     .form__actions .button--secondary {
       font-weight: var(--font-weight-medium);
+    }
+
+    @media (max-width: 47.999rem) {
+      .form__actions:has(#back-button:not([hidden])) {
+        flex-direction: row;
+      }
+
+      .form__actions:has(#back-button:not([hidden])) .button {
+        width: auto;
+      }
+
+      #back-button:not([hidden]) {
+        flex: 1 1 0;
+      }
+
+      #back-button:not([hidden]) ~ #verify-button {
+        flex: 2 1 0;
+      }
     }
 
     /* 7. Responsive rules */
@@ -614,7 +632,7 @@
   <body>
   <main class="page-shell">
     <h1 class="visually-hidden" id="form-title">Inquiry form</h1>
-    <section class="form-shell">
+    <section class="form-shell elevated-surface">
       <form class="form form--inquiry" aria-labelledby="form-title" novalidate>
         <div class="form-page form__section form__section--three-columns" id="page-1">
           <h2 class="form__section-title form__section-title--primary" data-review-title id="review-heading" tabindex="-1" hidden>Confirm your inquiry</h2>
@@ -804,26 +822,21 @@
             </div>
           </fieldset>
 
-          <fieldset class="form__group newsletter-group" aria-label="Subscribe to newsletter">
-            <legend class="form__section-title">Subscribe to newsletter</legend>
-            <div class="form__group-grid">
-              <div class="form__field form__section--full-width newsletter-field">
-                <label class="newsletter-option" for="newsletter">
-                  <svg class="newsletter-option__icon" aria-hidden="true" viewBox="0 0 24 24" fill="none">
-                    <rect x="3.5" y="5.5" width="17" height="13" rx="1.5" stroke="currentColor" stroke-width="1.75" />
-                    <path d="m4.5 7 7.5 5.5L19.5 7" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" />
-                  </svg>
-                  <input
-                    class="newsletter-option__input"
-                    id="newsletter"
-                    name="newsletter"
-                    type="checkbox"
-                    value="newsletter"
-                  >
-                  <span class="newsletter-option__text--stage-two">News, events and other content</span>
-                  <span class="newsletter-option__text--review">Subscribe to news, events and other content.</span>
-                </label>
-              </div>
+          <fieldset class="form__group newsletter-group">
+            <legend class="visually-hidden">Subscribe to our newsletter</legend>
+            <div class="newsletter-card">
+              <h3 class="newsletter-card__title">Subscribe to our newsletter</h3>
+              <p class="newsletter-card__benefits">News, events &amp; more, you decide. Unsubscribe anytime.</p>
+              <label class="newsletter-option" for="newsletter">
+                <input
+                  class="newsletter-option__input"
+                  id="newsletter"
+                  name="newsletter"
+                  type="checkbox"
+                  value="newsletter"
+                >
+                <span>Subscribe</span>
+              </label>
             </div>
           </fieldset>
         </div>

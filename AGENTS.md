@@ -134,6 +134,25 @@ Recommended CSS order:
 /* 7. Responsive rules */
 ```
 
+## Elevated Surfaces
+
+For surfaces raised above the page, such as form shells, cards, dialogs, popovers, menus, tooltips, sheets, and toasts, use a shared elevation token that combines the hairline edge and shadow in one `box-shadow` value.
+
+Do not pair a visible `border` or outline ring with a drop shadow on an elevated surface: the separate painted edges create a heavy double-border effect. Define the edge colour and combined elevation tokens in `:root`, then apply only the matching elevation token to the surface. Do not add a second border or ring unless the design explicitly needs one. In this form, inputs, alerts, buttons, and validation states also use the matching combined shadow-ring tokens instead of visible borders; preserve semantic colours by choosing the appropriate token.
+
+Example:
+
+```css
+:root {
+  --color-elevation-ring: rgba(16, 24, 40, 0.08);
+  --shadow-elevation-sm: 0 0 0 1px var(--color-elevation-ring), 0 1px 2px rgba(16, 24, 40, 0.06);
+}
+
+.form-shell {
+  box-shadow: var(--shadow-elevation-sm);
+}
+```
+
 Example CSS variables:
 
 ```css
@@ -155,7 +174,8 @@ Example CSS variables:
 
   --radius: 10px;
 
-  --shadow-sm: 0 1px 2px rgba(16, 24, 40, 0.06);
+  --color-elevation-ring: rgba(16, 24, 40, 0.08);
+  --shadow-elevation-sm: 0 0 0 1px var(--color-elevation-ring), 0 1px 2px rgba(16, 24, 40, 0.06);
 }
 ```
 
@@ -521,8 +541,8 @@ const showError = (f, m) => document.getElementById(f.dataset.err).innerHTML = m
 2. Keep every section title on the same shared title-to-first-field spacing.
 3. Start enrichment after Stage 1. It must degrade gracefully when data or the local proxy is unavailable, and Stage 2 edits must not cancel an in-flight request.
 4. For this prototype, keep submission local-only and log generic technical/prototype outcomes to the console without personal data.
-5. Use a green validation border only for Email. Do not add validation icons or validation borders to other fields unless requested.
-6. Preserve the mobile-first layouts: actions fill the width on mobile, while desktop Continue uses the shared 190px width.
+5. Use a green validation edge only for Email, through its shared validation shadow-ring token. Do not add validation icons or validation edges to other fields unless requested.
+6. Preserve the mobile-first layouts: a lone action fills the width on mobile; when Back and Continue are both visible, keep them in one mobile row with a one-third/two-thirds split. Desktop Continue uses the shared 190px width.
 7. Keep Stage 3 grouped semantically, move focus to the newly displayed stage, and use three columns below the full-width About field at desktop widths.
 
 ## Final Instruction
