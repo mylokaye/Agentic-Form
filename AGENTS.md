@@ -426,6 +426,17 @@ Do not use browser APIs without checking support.
 6. Keep CSS selectors simple.
 7. Avoid large embedded images or base64 assets unless explicitly required.
 
+## Automated Regression Testing
+
+Run the Playwright regression suite before every Sites publish and whenever the user asks for a full review. Run the local suite during implementation, then run the same suite against the deployed URL after publishing:
+
+```sh
+npm run test:e2e
+BASE_URL="https://forms-v2-mylo.v6pdwnhvws.chatgpt.site" npm run test:e2e
+```
+
+Do not publish or describe a full review as complete if the applicable regression run fails. Report the failing test and fix or explicitly defer the issue with the user.
+
 ## Testing Checklist
 
 Before finishing any task, check:
@@ -451,6 +462,7 @@ Before finishing any task, check:
 19. Debug logging, if present, is disabled by default.
 20. README.md was updated if features, fields, validation, consent, submission behaviour, or usage changed.
 21. If README.md was not updated, the change summary explains why.
+22. Before each publish or full review, the applicable Playwright regression suite passes.
 
 ## Code Formatting
 

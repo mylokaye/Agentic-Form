@@ -521,6 +521,17 @@
       box-shadow: var(--shadow-alert-error);
     }
 
+    .form__message--success {
+      display: flex;
+      align-items: center;
+      min-height: var(--height-message-alert);
+      padding: var(--padding-alert-block) var(--padding-alert-inline);
+      color: var(--color-success-text);
+      background: var(--color-success-surface);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow-alert-success);
+    }
+
     .form__message-icon {
       flex: 0 0 auto;
       width: 1.5rem;
@@ -553,7 +564,7 @@
     }
 
     .form__actions.is-final .button:last-child {
-      width: 100%;
+      width: var(--width-button-continue);
     }
 
     .form__actions .button--secondary {
@@ -622,7 +633,7 @@
       }
 
       .form__actions.is-final .button:last-child {
-        width: 100%;
+        width: var(--width-button-continue);
       }
 
     }
@@ -648,6 +659,9 @@
               name="firstName"
               type="text"
               autocomplete="given-name"
+              required
+              aria-describedby="form-message"
+              aria-invalid="false"
             >
           </div>
 
@@ -659,6 +673,9 @@
               name="lastName"
               type="text"
               autocomplete="family-name"
+              required
+              aria-describedby="form-message"
+              aria-invalid="false"
             >
           </div>
 
@@ -670,10 +687,10 @@
                 id="email"
                 name="email"
                 type="email"
-                autocomplete="email"
-                inputmode="email"
-                value="mylo.kaye@google.com"
-                aria-describedby="email-validation-status"
+              autocomplete="email"
+              inputmode="email"
+              required
+              aria-describedby="email-validation-status form-message"
                 aria-invalid="false"
               >
             </div>
@@ -872,9 +889,9 @@
               <rect x="5" y="10" width="14" height="10" rx="2" stroke="currentColor" stroke-width="1.75" />
               <path d="M8 10V7a4 4 0 0 1 8 0v3" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" />
             </svg>
-            <p class="form__alert-text">I agree and understand that by completing this form, my personal data will be processed for the purpose of receiving emails under Article 6(1)(a) of the GDPR,</p>
+            <p class="form__alert-text">By submitting this form, your personal data will be processed for the purpose of receiving emails under Article 6(1)(a) of the GDPR.</p>
           </div>
-          <h2 class="form__section-title">Hidden</h2>
+          <h2 class="form__section-title">Enriched details</h2>
 
           <div class="form__field form__section--full-width">
             <label class="form__label" for="about">About</label>
@@ -1040,7 +1057,8 @@
       currentPage: 1,
       enrichmentController: null,
       enrichmentRequestId: 0,
-      isEnrichmentLoading: false
+      isEnrichmentLoading: false,
+      isSubmitted: false
     };
 
     // 3. Utility functions
@@ -1174,14 +1192,16 @@
     }
 
     // 5. State / UI functions
-    function setFormMessage(message, isError = false) {
+    function setFormMessage(message, isError = false, isSuccess = false) {
       if (!formMessage || !formMessageText) return;
 
       const hasError = Boolean(message) && isError;
+      const hasSuccess = Boolean(message) && isSuccess;
 
       formMessageText.textContent = message;
       formMessage.classList.toggle("form__message--empty", !message);
       formMessage.classList.toggle("form__message--error", hasError);
+      formMessage.classList.toggle("form__message--success", hasSuccess);
 
       if (formMessageIcon) {
         formMessageIcon.hidden = !hasError;
@@ -1190,7 +1210,7 @@
 
     function isPrimaryReady() {
       if (formState.currentPage === 1) {
-        return Boolean(emailField && isValidEmail(emailField.value));
+        return hasStageOneEntries();
       }
 
       if (formState.currentPage === 2) {
@@ -1202,7 +1222,7 @@
 
     function updateNavigationState() {
       if (backButton) {
-        backButton.hidden = formState.currentPage !== 2;
+        backButton.hidden = formState.currentPage === 1;
         backButton.disabled = formState.isEnrichmentLoading;
       }
 
@@ -1336,6 +1356,29 @@
       if (validationStatus) {
         validationStatus.textContent = "";
       }
+    }
+
+    function hasStageOneEntries() {
+      return Boolean(
+        emailField &&
+        firstNameField &&
+        lastNameField &&
+        isValidEmail(emailField.value) &&
+        getFieldValue(firstNameField) &&
+        getFieldValue(lastNameField)
+      );
+    }
+
+    function updateStageOneValidation() {
+      const hasFirstName = Boolean(getFieldValue(firstNameField));
+      const hasLastName = Boolean(getFieldValue(lastNameField));
+      const hasValidEmail = Boolean(emailField && isValidEmail(emailField.value));
+
+      firstNameField?.setAttribute("aria-invalid", String(!hasFirstName));
+      lastNameField?.setAttribute("aria-invalid", String(!hasLastName));
+      emailField?.setAttribute("aria-invalid", String(!hasValidEmail));
+
+      return hasFirstName && hasLastName && hasValidEmail;
     }
 
     function populateVerifiedFields() {
@@ -1544,12 +1587,25 @@
     }
 
     function handleVerifiedFieldInput() {
+      if (formState.currentPage === 1) {
+        firstNameField?.setAttribute("aria-invalid", String(!getFieldValue(firstNameField)));
+        lastNameField?.setAttribute("aria-invalid", String(!getFieldValue(lastNameField)));
+
+        if (hasStageOneEntries()) {
+          setFormMessage("");
+        }
+      }
+
       updateVerifiedButtonState();
     }
 
     async function handlePrimaryAction() {
       if (formState.currentPage === 3) {
-        setFormMessage("");
+        if (formState.isSubmitted) return;
+
+        formState.isSubmitted = true;
+        verifyButton.disabled = true;
+        setFormMessage("Your inquiry has been recorded for this prototype. No information was sent.", false, true);
         console.info("[Form] Inquiry submitted (prototype).");
         return;
       }
@@ -1566,12 +1622,12 @@
         return;
       }
 
-      updateEmailValidation();
-
-      if (!emailField || !isValidEmail(emailField.value)) {
-        setFormMessage("Enter a valid email address.", true);
+      if (!updateStageOneValidation()) {
+        setFormMessage("Enter your first name, last name, and a valid email address.", true);
         return;
       }
+
+      updateEmailValidation();
 
       showPage(2);
       focusCurrentStage(2);
@@ -1584,6 +1640,8 @@
       }
 
       if (formState.currentPage === 3) {
+        formState.isSubmitted = false;
+        verifyButton.disabled = false;
         showPage(2);
         setFormMessage("");
         focusCurrentStage(2);

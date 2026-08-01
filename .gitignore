@@ -1,3 +1,10 @@
 .env
 .env.local
 .env.*.local
+node_modules/
+
+# Playwright-generated browser state, reports, and test artifacts
+.playwright-cli/
+test-results/
+playwright-report/
+blob-report/
