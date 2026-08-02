@@ -22,12 +22,15 @@ async function completeStageOne(page) {
 async function completeStagesOneAndTwo(page) {
   await completeStageOne(page);
   await page.getByRole("button", { name: "Continue" }).click();
-  await expect(page.getByRole("heading", { name: "Confirm your inquiry" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Final step" })).toBeVisible();
 }
 
 test("requires first name, last name, and email on Stage 1", async ({ page }) => {
   await page.goto("/");
 
+  await expect(page.locator("#stage-one-guidance")).not.toBeVisible();
+  await page.getByRole("textbox", { name: "First name" }).fill("");
+  await page.getByRole("textbox", { name: "Last name" }).fill("");
   await page.getByRole("textbox", { name: "Email address" }).fill("test.user@example.com");
   await page.getByRole("button", { name: "Continue" }).press("Enter");
 
@@ -37,14 +40,22 @@ test("requires first name, last name, and email on Stage 1", async ({ page }) =>
   await expect(page.getByRole("group", { name: "Personal details" })).not.toBeVisible();
 });
 
-test("preserves edited names through the three-step form flow", async ({ page }) => {
+test("does not repeat completed stage fields on confirmation", async ({ page }) => {
   await page.goto("/");
   await completeStagesOneAndTwo(page);
 
-  await expect(page.getByRole("textbox", { name: "First name" })).toHaveValue("Avery");
-  await expect(page.getByRole("textbox", { name: "Last name" })).toHaveValue("Jordan");
+  await expect(page.getByRole("textbox", { name: "First name" })).not.toBeVisible();
+  await expect(page.getByRole("textbox", { name: "Last name" })).not.toBeVisible();
+  await expect(page.getByRole("group", { name: "Personal details" })).not.toBeVisible();
+  await expect(page.getByRole("group", { name: "Company details" })).not.toBeVisible();
   await expect(page.getByText("By submitting this form, your personal data will be processed")).toBeVisible();
   await expect(page.getByRole("heading", { name: "Enriched details" })).toBeVisible();
+  await expect(page.locator("#enriched-details")).not.toHaveAttribute("open", "");
+  await expect(page.getByRole("textbox", { name: "About" })).not.toBeVisible();
+
+  await page.locator("#enriched-details > summary").click();
+  await expect(page.locator("#enriched-details")).toHaveAttribute("open", "");
+  await expect(page.getByRole("textbox", { name: "About" })).toBeVisible();
 });
 
 test("allows edits from confirmation and confirms the prototype submission", async ({ page }) => {
@@ -61,17 +72,35 @@ test("allows edits from confirmation and confirms the prototype submission", asy
   await expect(page.getByRole("button", { name: "Submit Inquiry" })).toBeDisabled();
 });
 
+test("makes Back 20% smaller than its former mobile action share", async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto("/");
+  await completeStagesOneAndTwo(page);
+
+  const actionWidths = await page.locator(".form__actions").evaluate((actions) => {
+    const backButton = actions.querySelector("#back-button");
+    const continueButton = actions.querySelector("#verify-button");
+
+    return {
+      back: backButton.getBoundingClientRect().width,
+      continue: continueButton.getBoundingClientRect().width
+    };
+  });
+
+  expect(actionWidths.back / (actionWidths.back + actionWidths.continue)).toBeCloseTo(0.8 / 3, 2);
+});
+
 test("maps a successful enrichment response into Enriched details", async ({ page }) => {
   await page.route("**/enrich-company", (route) => route.fulfill({ json: enrichmentResponse }));
   await page.goto("/");
   await completeStageOne(page);
   await page.getByRole("button", { name: "Continue" }).click();
 
-  await expect(page.getByRole("textbox", { name: "About" })).toHaveValue(enrichmentResponse.about);
-  await expect(page.getByRole("textbox", { name: "Urgency" })).toHaveValue(enrichmentResponse.urgency);
-  await expect(page.getByRole("textbox", { name: "Sentiment" })).toHaveValue(enrichmentResponse.sentiment);
-  await expect(page.getByRole("textbox", { name: "Query" })).toHaveValue(enrichmentResponse.query);
-  await expect(page.getByRole("textbox", { name: "Enriched industry" })).toHaveValue(enrichmentResponse.industry);
+  await expect(page.locator("#about")).toHaveValue(enrichmentResponse.about);
+  await expect(page.locator("#urgency")).toHaveValue(enrichmentResponse.urgency);
+  await expect(page.locator("#sentiment")).toHaveValue(enrichmentResponse.sentiment);
+  await expect(page.locator("#query")).toHaveValue(enrichmentResponse.query);
+  await expect(page.locator("#industry")).toHaveValue(enrichmentResponse.industry);
 });
 
 test("ignores a stale enrichment response after the company URL changes", async ({ page }) => {
@@ -100,18 +129,20 @@ test("ignores a stale enrichment response after the company URL changes", async 
 
   await expect(page.getByRole("button", { name: "Continue" })).toBeEnabled({ timeout: 25000 });
   await page.getByRole("button", { name: "Continue" }).click();
-  await expect(page.getByRole("textbox", { name: "About" })).toHaveValue("");
+  await expect(page.locator("#about")).toHaveValue("");
 });
 
-test("preserves newsletter consent through confirmation and Back", async ({ page }) => {
+test("preserves newsletter consent after returning from confirmation", async ({ page }) => {
   await page.goto("/");
   await completeStageOne(page);
 
-  await page.getByRole("checkbox", { name: "Subscribe" }).check();
   await page.getByRole("button", { name: "Continue" }).click();
-  await expect(page.getByRole("checkbox", { name: "Subscribe" })).toBeChecked();
+  await expect(page.getByRole("checkbox", { name: "Subscribe" })).toBeVisible();
+  await page.getByRole("checkbox", { name: "Subscribe" }).check();
 
   await page.getByRole("button", { name: "Back" }).click();
+  await expect(page.getByRole("checkbox", { name: "Subscribe" })).not.toBeVisible();
+  await page.getByRole("button", { name: "Continue" }).click();
   await expect(page.getByRole("checkbox", { name: "Subscribe" })).toBeChecked();
 });
 
@@ -121,7 +152,7 @@ test("moves keyboard focus to the current stage after navigation", async ({ page
   await expect(page.locator("#verified-fields")).toBeFocused();
 
   await page.getByRole("button", { name: "Continue" }).click();
-  await expect(page.getByRole("heading", { name: "Confirm your inquiry" })).toBeFocused();
+  await expect(page.getByRole("heading", { name: "Final step" })).toBeFocused();
 
   await page.getByRole("button", { name: "Back" }).click();
   await expect(page.locator("#verified-fields")).toBeFocused();

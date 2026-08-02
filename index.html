@@ -4,14 +4,19 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Inquiry Form</title>
-
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap">
+        <meta type="xrm/designer/setting" name="type" value="marketing-designer-content-editor-document">
+        <meta type="xrm/designer/setting" name="layout-editable" value="marketing-designer-layout-editable">
   <style>
     /* 1. Design tokens */
     :root {
       --color-bg: #f6f8fb;
       --color-surface: #ffffff;
-      --color-text: #333333;
-      --color-title: #4d4c4c;
+      --color-text: #4A5565;
+      --color-title: #4A5565;
+      --color-label: #101828;
       --color-muted: #777777;
       --color-border: #d0d5dd;
       --color-primary: #005eb8;
@@ -33,10 +38,11 @@
       --space-md: 1rem;
       --space-lg: 1.5rem;
       --space-xl: 2rem;
+      --space-final-step-to-newsletter: 0.75rem;
 
       --radius: 10px;
 
-      --font-family: Arial, Helvetica, sans-serif;
+      --font-family: "Inter", Arial, Helvetica, sans-serif;
       --font-size-body: 14px;
       --font-size-message: 14px;
       --line-height-body: 20px;
@@ -52,6 +58,9 @@
       --line-height-label: 16px;
       --font-weight-regular: 400;
       --font-weight-medium: 500;
+      --font-weight-label: var(--font-weight-regular);
+      --padding-newsletter-block: 0.75rem;
+      --padding-newsletter-inline: 0.75rem;
 
       --height-button: 50px;
       --width-button-continue-stage-one: calc((100% - (var(--space-lg) * 2)) / 3);
@@ -244,12 +253,58 @@
     }
 
     .form__section-title--primary {
+      padding-bottom: var(--space-final-step-to-newsletter);
       color: var(--color-green);
       font-size: var(--font-size-title-primary);
     }
 
     .form-page > .form__section-title {
       margin-bottom: calc(var(--space-lg) * -1);
+    }
+
+    .form__accordion {
+      margin: 0;
+    }
+
+    .form__accordion-summary {
+      display: flex;
+      gap: var(--space-md);
+      align-items: center;
+      justify-content: space-between;
+      cursor: pointer;
+      list-style: none;
+    }
+
+    .form__accordion-summary::-webkit-details-marker {
+      display: none;
+    }
+
+    .form__accordion-summary:focus-visible {
+      outline: 2px solid var(--color-primary);
+      outline-offset: 0.25rem;
+      border-radius: var(--radius);
+    }
+
+    .form__accordion-summary .form__section-title {
+      padding-bottom: 0;
+    }
+
+    .form__accordion-icon {
+      flex: 0 0 auto;
+      width: 1.25rem;
+      height: 1.25rem;
+      color: var(--color-title);
+      transition: transform 160ms ease;
+    }
+
+    .form__accordion[open] .form__accordion-icon {
+      transform: rotate(180deg);
+    }
+
+    .form__accordion-content {
+      display: grid;
+      gap: var(--space-lg);
+      padding-top: var(--space-md);
     }
 
     .form__group {
@@ -286,6 +341,10 @@
       box-shadow: var(--shadow-alert);
     }
 
+    .form__alert[hidden] {
+      display: none;
+    }
+
     .form__alert-icon {
       flex: 0 0 auto;
       width: 1.5rem;
@@ -309,9 +368,9 @@
       z-index: 1;
       max-width: calc(100% - 1.5rem);
       overflow: hidden;
-      color: var(--color-text);
+      color: var(--color-label);
       font-size: var(--font-size-label);
-      font-weight: var(--font-weight-medium);
+      font-weight: var(--font-weight-label);
       line-height: var(--line-height-label);
       pointer-events: none;
       text-overflow: ellipsis;
@@ -363,7 +422,7 @@
     }
 
     .newsletter-group {
-      padding: var(--space-lg);
+      padding: 0;
       background: var(--color-surface);
       border-radius: var(--radius);
       box-shadow: var(--shadow-elevation-sm);
@@ -371,15 +430,23 @@
 
     .newsletter-card {
       display: grid;
-      gap: var(--space-md);
+      grid-template-columns: minmax(0, 1fr);
+      align-items: center;
+      gap: 0;
     }
 
-    .newsletter-card__title {
-      margin: 0;
-      color: var(--color-title);
-      font-size: var(--font-size-title);
-      font-weight: var(--font-weight-title);
-      line-height: var(--line-height-title);
+    .newsletter-card__image {
+      display: block;
+      width: 100%;
+      aspect-ratio: 3 / 1;
+      border-radius: var(--radius) var(--radius) 0 0;
+      object-fit: cover;
+    }
+
+    .newsletter-card__content {
+      display: grid;
+      gap: var(--space-md);
+      padding: var(--padding-newsletter-block) var(--padding-newsletter-inline);
     }
 
     .newsletter-card__benefits {
@@ -581,11 +648,14 @@
       }
 
       #back-button:not([hidden]) {
-        flex: 1 1 0;
+        flex: 0 0 calc(26.6667% - 4.267px);
+        gap: var(--space-xs);
+        padding-inline: var(--space-sm);
       }
 
       #back-button:not([hidden]) ~ #verify-button {
-        flex: 2 1 0;
+        flex: 1 1 0;
+        min-width: 0;
       }
     }
 
@@ -604,10 +674,6 @@
       }
 
       .company-location-field {
-        grid-column: 1;
-      }
-
-      .company-inquiry-field {
         grid-column: 1;
       }
 
@@ -646,12 +712,11 @@
     <h1 class="visually-hidden" id="form-title">Inquiry form</h1>
     <section class="form-shell elevated-surface">
       <form class="form form--inquiry" aria-labelledby="form-title" novalidate>
+        <h2 class="form__section-title form__section-title--primary" data-review-title id="review-heading" tabindex="-1" hidden>Final step</h2>
         <div class="form-page form__section form__section--three-columns" id="page-1">
-          <h2 class="form__section-title form__section-title--primary" data-review-title id="review-heading" tabindex="-1" hidden>Confirm your inquiry</h2>
-
           <h2 class="form__section-title" data-review-title id="review-personal-details" hidden>Personal details</h2>
 
-          <div class="form__field">
+          <div class="form__field" data-editorblocktype="TextFormField" data-targetaudience="contact" data-targetproperty="firstname" data-prefill="false">
             <label class="form__label" for="first-name">First name</label>
             <input
               class="form__input"
@@ -659,6 +724,7 @@
               name="firstName"
               type="text"
               autocomplete="given-name"
+              value="Mylo"
               required
               aria-describedby="form-message"
               aria-invalid="false"
@@ -673,6 +739,7 @@
               name="lastName"
               type="text"
               autocomplete="family-name"
+              value="Kaye"
               required
               aria-describedby="form-message"
               aria-invalid="false"
@@ -687,10 +754,11 @@
                 id="email"
                 name="email"
                 type="email"
-              autocomplete="email"
-              inputmode="email"
-              required
-              aria-describedby="email-validation-status form-message"
+                autocomplete="email"
+                value="mylomrk@icloud.com"
+                inputmode="email"
+                required
+                aria-describedby="email-validation-status form-message"
                 aria-invalid="false"
               >
             </div>
@@ -708,7 +776,40 @@
             ></textarea>
           </div>
 
-          <div class="form__alert form__section--full-width" id="stage-one-guidance" role="note">
+          <div class="form__field">
+            <label class="form__label" for="business">Business</label>
+            <select
+              class="form__input"
+              id="business"
+              name="business"
+            >
+              <option value="Google" selected>Google</option>
+            </select>
+          </div>
+
+          <div class="form__field">
+            <label class="form__label" for="inquiry-type">Inquiry type</label>
+            <select
+              class="form__input"
+              id="inquiry-type"
+              name="inquiryType"
+            >
+              <option value="Aftermarket" selected>Aftermarket</option>
+            </select>
+          </div>
+
+          <div class="form__field">
+            <label class="form__label" for="inquiry-subtype">Inquiry subtype</label>
+            <select
+              class="form__input"
+              id="inquiry-subtype"
+              name="inquirySubtype"
+            >
+              <option value="Spare parts" selected>Spare parts</option>
+            </select>
+          </div>
+
+          <div class="form__alert form__section--full-width" id="stage-one-guidance" role="note" hidden>
             <svg class="form__alert-icon" aria-hidden="true" viewBox="0 0 24 24" fill="none">
               <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.75" />
               <path d="M12 10.5v5" stroke="currentColor" stroke-linecap="round" stroke-width="1.75" />
@@ -805,45 +906,16 @@
                 </select>
               </div>
 
-              <div class="form__field company-inquiry-field">
-                <label class="form__label" for="business">Business</label>
-                <select
-                  class="form__input"
-                  id="business"
-                  name="business"
-                >
-                  <option value="Google" selected>Google</option>
-                </select>
-              </div>
-
-              <div class="form__field">
-                <label class="form__label" for="inquiry-type">Inquiry type</label>
-                <select
-                  class="form__input"
-                  id="inquiry-type"
-                  name="inquiryType"
-                >
-                  <option value="Aftermarket" selected>Aftermarket</option>
-                </select>
-              </div>
-
-              <div class="form__field">
-                <label class="form__label" for="inquiry-subtype">Inquiry subtype</label>
-                <select
-                  class="form__input"
-                  id="inquiry-subtype"
-                  name="inquirySubtype"
-                >
-                  <option value="Spare parts" selected>Spare parts</option>
-                </select>
-              </div>
             </div>
           </fieldset>
 
-          <fieldset class="form__group newsletter-group">
-            <legend class="visually-hidden">Subscribe to our newsletter</legend>
-            <div class="newsletter-card">
-              <h3 class="newsletter-card__title">Subscribe to our newsletter</h3>
+        </div>
+
+        <fieldset class="form__group newsletter-group" id="stage-three-newsletter" hidden>
+          <legend class="visually-hidden">Subscribe and stay informed</legend>
+          <div class="newsletter-card">
+            <img class="newsletter-card__image" src="Newsletter.png" alt="">
+            <div class="newsletter-card__content">
               <p class="newsletter-card__benefits">News, events &amp; more, you decide. Unsubscribe anytime.</p>
               <label class="newsletter-option" for="newsletter">
                 <input
@@ -856,20 +928,20 @@
                 <span>Subscribe</span>
               </label>
             </div>
-          </fieldset>
-        </div>
+          </div>
+        </fieldset>
 
         <div class="form__actions">
           <button
             class="button button--secondary"
             type="button"
-          id="back-button"
-          hidden
+            id="back-button"
+            aria-label="Back"
+            hidden
           >
             <svg class="button__icon" aria-hidden="true" viewBox="0 0 16 16" fill="none">
-              <path d="M10 3 5 8l5 5" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" />
+              <path d="M13.5 8h-10M7.5 4l-4 4 4 4" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" />
             </svg>
-            <span class="button__label">Back</span>
           </button>
           <button
             class="button"
@@ -878,12 +950,12 @@
           >
             <span class="button__label">Continue</span>
             <svg class="button__icon" aria-hidden="true" viewBox="0 0 16 16" fill="none">
-              <path d="M6 3l5 5-5 5" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" />
+              <path d="M2.5 8h10M8.5 4l4 4-4 4" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" />
             </svg>
           </button>
         </div>
 
-        <div class="form-page form__section form__section--three-columns" id="enriched-fields" hidden>
+        <div class="form-page form__section" id="enriched-fields" hidden>
           <div class="form__alert form__section--full-width" id="gdpr-consent-note" role="note">
             <svg class="form__alert-icon" aria-hidden="true" viewBox="0 0 24 24" fill="none">
               <rect x="5" y="10" width="14" height="10" rx="2" stroke="currentColor" stroke-width="1.75" />
@@ -891,72 +963,81 @@
             </svg>
             <p class="form__alert-text">By submitting this form, your personal data will be processed for the purpose of receiving emails under Article 6(1)(a) of the GDPR.</p>
           </div>
-          <h2 class="form__section-title">Enriched details</h2>
+          <details class="form__accordion form__section--full-width" id="enriched-details">
+            <summary class="form__accordion-summary">
+              <h2 class="form__section-title">Enriched details</h2>
+              <svg class="form__accordion-icon" aria-hidden="true" viewBox="0 0 16 16" fill="none">
+                <path d="m3 6 5 5 5-5" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" />
+              </svg>
+            </summary>
 
-          <div class="form__field form__section--full-width">
-            <label class="form__label" for="about">About</label>
-            <textarea
-              class="form__input"
-              id="about"
-              name="about"
-              rows="4"
-            ></textarea>
-          </div>
+            <div class="form__accordion-content form__section--three-columns">
+              <div class="form__field form__section--full-width">
+                <label class="form__label" for="about">About</label>
+                <textarea
+                  class="form__input"
+                  id="about"
+                  name="about"
+                  rows="4"
+                ></textarea>
+              </div>
 
-          <div class="form__field">
-            <label class="form__label" for="urgency">Urgency</label>
-            <input
-              class="form__input"
-              id="urgency"
-              name="urgency"
-              type="text"
-              autocomplete="off"
-            >
-          </div>
+              <div class="form__field">
+                <label class="form__label" for="urgency">Urgency</label>
+                <input
+                  class="form__input"
+                  id="urgency"
+                  name="urgency"
+                  type="text"
+                  autocomplete="off"
+                >
+              </div>
 
-          <div class="form__field">
-            <label class="form__label" for="sentiment">Sentiment</label>
-            <input
-              class="form__input"
-              id="sentiment"
-              name="sentiment"
-              type="text"
-              autocomplete="off"
-            >
-          </div>
+              <div class="form__field">
+                <label class="form__label" for="sentiment">Sentiment</label>
+                <input
+                  class="form__input"
+                  id="sentiment"
+                  name="sentiment"
+                  type="text"
+                  autocomplete="off"
+                >
+              </div>
 
-          <div class="form__field">
-            <label class="form__label" for="query">Query</label>
-            <input
-              class="form__input"
-              id="query"
-              name="query"
-              type="text"
-              autocomplete="off"
-            >
-          </div>
+              <div class="form__field">
+                <label class="form__label" for="query">Query</label>
+                <input
+                  class="form__input"
+                  id="query"
+                  name="query"
+                  type="text"
+                  autocomplete="off"
+                >
+              </div>
 
-          <div class="form__field">
-            <label class="form__label" for="industry">Enriched industry</label>
-            <input
-              class="form__input"
-              id="industry"
-              name="industry"
-              type="text"
-              autocomplete="off"
-            >
-          </div>
+              <div class="form__field">
+                <label class="form__label" for="industry">Enriched industry</label>
+                <input
+                  class="form__input"
+                  id="industry"
+                  name="industry"
+                  type="text"
+                  autocomplete="off"
+                >
+              </div>
 
-          <div class="form__field">
-            <label class="form__label" for="website">Website</label>
-            <input
-              class="form__input"
-              id="website"
-              name="website"
-              type="url"
-              autocomplete="url"
-            >
-          </div>
+              <div class="form__field">
+                <label class="form__label" for="website">Website</label>
+                <input
+                  class="form__input"
+                  id="website"
+                  name="website"
+                  type="url"
+                  autocomplete="url"
+                >
+              </div>
+            </div>
+          </details>
         </div>
       </form>
 
@@ -969,7 +1050,7 @@
       <li class="progress__item" data-progress-step="2" aria-label="Step 2 of 3: Personal and company details">
         <span class="progress__marker" aria-hidden="true">2</span>
       </li>
-      <li class="progress__item" data-progress-step="3" aria-label="Step 3 of 3: Confirm your inquiry">
+      <li class="progress__item" data-progress-step="3" aria-label="Step 3 of 3: Final step">
         <span class="progress__marker" aria-hidden="true">3</span>
       </li>
     </ol>
@@ -981,7 +1062,6 @@
     const form = document.querySelector(".form");
     const validationStatus = document.getElementById("email-validation-status");
     const pageOne = document.getElementById("page-1");
-    const stageOneGuidance = document.getElementById("stage-one-guidance");
     const progressSteps = document.querySelectorAll("[data-progress-step]");
     const reviewTitles = document.querySelectorAll("[data-review-title]");
     const stageTwoPersonalTitles = document.querySelectorAll("[data-stage-two-personal-title]");
@@ -991,6 +1071,7 @@
     const verifyButtonLabel = verifyButton?.querySelector(".button__label");
     const formActions = document.querySelector(".form__actions");
     const verifiedFields = document.getElementById("verified-fields");
+    const stageThreeNewsletter = document.getElementById("stage-three-newsletter");
     const firstNameField = document.getElementById("first-name");
     const lastNameField = document.getElementById("last-name");
     const phoneField = document.getElementById("phone");
@@ -1003,6 +1084,7 @@
     const inquiryTypeField = document.getElementById("inquiry-type");
     const inquirySubtypeField = document.getElementById("inquiry-subtype");
     const enrichedFields = document.getElementById("enriched-fields");
+    const enrichedDetails = document.getElementById("enriched-details");
     const industryField = document.getElementById("industry");
     const roleField = document.getElementById("role");
     const aboutField = document.getElementById("about");
@@ -1273,15 +1355,15 @@
       }
 
       if (pageOne) {
-        pageOne.hidden = pageNumber === 2;
-      }
-
-      if (stageOneGuidance) {
-        stageOneGuidance.hidden = pageNumber !== 1;
+        pageOne.hidden = pageNumber !== 1;
       }
 
       if (verifiedFields) {
-        verifiedFields.hidden = pageNumber === 1;
+        verifiedFields.hidden = pageNumber !== 2;
+      }
+
+      if (stageThreeNewsletter) {
+        stageThreeNewsletter.hidden = pageNumber !== 3;
       }
 
       if (enrichedFields) {
@@ -1315,10 +1397,8 @@
     function placeFormMessage(pageNumber) {
       if (!formMessage || !pageOne) return;
 
-      const hiddenTitle = enrichedFields?.querySelector(".form__section-title");
-
-      if (pageNumber === 3 && hiddenTitle) {
-        hiddenTitle.after(formMessage);
+      if (pageNumber === 3 && enrichedDetails) {
+        enrichedDetails.after(formMessage);
         return;
       }
 

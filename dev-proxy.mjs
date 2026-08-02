@@ -6,6 +6,10 @@ const PORT = 8787;
 const DEEPSEEK_API_URL = "https://api.deepseek.com/v1/chat/completions";
 const MODEL = "deepseek-v4-flash";
 const ENV_FILES = [".env.local", ".env"];
+const ALLOWED_ORIGINS = new Set([
+  "http://127.0.0.1:8000",
+  "http://localhost:8000"
+]);
 const DEFAULT_SYSTEM_PROMPT = "Return valid JSON only. Do not include markdown or extra commentary.";
 const DEEPSEEK_REQUEST_TIMEOUT_MS = 8000;
 const ENRICHMENT_RESPONSE_FIELDS = [
@@ -53,13 +57,20 @@ function loadLocalEnv() {
 
 loadLocalEnv();
 
-function sendJson(response, statusCode, payload) {
-  response.writeHead(statusCode, {
-    "Access-Control-Allow-Origin": "http://127.0.0.1:8000",
+function sendJson(request, response, statusCode, payload) {
+  const origin = request.headers.origin;
+  const headers = {
     "Access-Control-Allow-Headers": "Content-Type",
     "Access-Control-Allow-Methods": "POST, OPTIONS",
     "Content-Type": "application/json"
-  });
+  };
+
+  if (ALLOWED_ORIGINS.has(origin)) {
+    headers["Access-Control-Allow-Origin"] = origin;
+    headers.Vary = "Origin";
+  }
+
+  response.writeHead(statusCode, headers);
   response.end(JSON.stringify(payload));
 }
 
@@ -239,7 +250,7 @@ async function handleEnrichmentRequest(request, response) {
   const message = String(body.message || "").trim();
 
   if (!companyUrl) {
-    sendJson(response, 400, {
+    sendJson(request, response, 400, {
       error: "companyUrl is required."
     });
     return;
@@ -247,17 +258,17 @@ async function handleEnrichmentRequest(request, response) {
 
   const companyResult = await enrichCompany(companyUrl);
   const messageResult = await analyzeMessage(message);
-  sendJson(response, 200, createEnrichmentResponse(companyResult, messageResult));
+  sendJson(request, response, 200, createEnrichmentResponse(companyResult, messageResult));
 }
 
 const server = http.createServer(async (request, response) => {
   if (request.method === "OPTIONS") {
-    sendJson(response, 204, {});
+    sendJson(request, response, 204, {});
     return;
   }
 
   if (request.method !== "POST" || request.url !== "/enrich-company") {
-    sendJson(response, 404, {
+    sendJson(request, response, 404, {
       error: "Not found."
     });
     return;
@@ -266,7 +277,7 @@ const server = http.createServer(async (request, response) => {
   try {
     await handleEnrichmentRequest(request, response);
   } catch (error) {
-    sendJson(response, 500, {
+    sendJson(request, response, 500, {
       error: getPublicErrorMessage(error)
     });
   }
