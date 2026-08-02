@@ -86,7 +86,7 @@ Keep all browser-facing HTML, CSS, and JavaScript in `index.html`. Preserve visi
 
 ## Recent Changes
 
-- Added `Newsletter.png` to the generated Sites worker asset map so the hosted newsletter card can load its banner.
+- Added `Newsletter.png` to the generated Sites worker asset map and versioned its card URL so the hosted newsletter banner bypasses the prior cached 404.
 - Fixed the first-name field markup and enabled the local enrichment proxy for both `127.0.0.1:8000` and `localhost:8000`.
 - Hid the Stage 1 routing guidance prompt while retaining it in the source for later reuse.
 - Reduced the mobile Back action by 20% and allocated the remaining row space to Continue.
