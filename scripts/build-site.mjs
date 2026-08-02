@@ -4,8 +4,11 @@ import { fileURLToPath } from "node:url";
 
 const projectDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const html = await readFile(path.join(projectDir, "index.html"), "utf8");
+const newsletterImage = await readFile(path.join(projectDir, "Newsletter.png"));
 const encodedHtml = Buffer.from(html, "utf8").toString("base64");
-const worker = `const assets = {"/":"${encodedHtml}","/index.html":"${encodedHtml}"};
+const encodedNewsletterImage = newsletterImage.toString("base64");
+const worker = `const assets = {"/":"${encodedHtml}","/index.html":"${encodedHtml}","/Newsletter.png":"${encodedNewsletterImage}"};
+const assetContentTypes = {"/":"text/html; charset=utf-8","/index.html":"text/html; charset=utf-8","/Newsletter.png":"image/png"};
 const DEEPSEEK_API_URL = "https://api.deepseek.com/v1/chat/completions";
 const MODEL = "deepseek-v4-flash";
 const REQUEST_TIMEOUT_MS = 8000;
@@ -230,7 +233,7 @@ export default {
 
     return new Response(decode(asset), {
       headers: {
-        "content-type": "text/html; charset=utf-8",
+        "content-type": assetContentTypes[path],
         "x-content-type-options": "nosniff",
         "referrer-policy": "strict-origin-when-cross-origin",
         "x-frame-options": "DENY"

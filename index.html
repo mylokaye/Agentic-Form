@@ -22,7 +22,7 @@
       --color-primary: #005eb8;
       --color-button-muted: #667085;
       --color-button-muted-border: #667085;
-      --color-button-muted-hover: #667085;
+      --color-button-muted-hover: #56647a;
       --color-error-surface: #fff9e6;
       --color-error-border: #f2cf66;
       --color-error-text: #8a3c00;
@@ -31,6 +31,7 @@
       --color-success-text: #0c5f45;
       --color-focus: #7cc4ff;
       --color-green: #00B77D;
+      --color-button-primary-hover: #00a971;
       --color-progress: var(--color-button-muted);
       --color-success: var(--color-green);
 
@@ -524,17 +525,7 @@
       display: none;
     }
 
-    .button:hover {
-      background: var(--color-button-muted-hover);
-      box-shadow: var(--shadow-button);
-    }
-
     .button--ready {
-      background: var(--color-green);
-      box-shadow: var(--shadow-button-primary);
-    }
-
-    .button--ready:hover {
       background: var(--color-green);
       box-shadow: var(--shadow-button-primary);
     }
@@ -544,9 +535,17 @@
       box-shadow: var(--shadow-button);
     }
 
-    .button--secondary:hover {
-      background: var(--color-button-muted-hover);
-      box-shadow: var(--shadow-button);
+
+    @media (hover: hover) {
+      .button:not(:disabled):hover {
+        background: var(--color-button-muted-hover);
+        box-shadow: var(--shadow-button);
+      }
+
+      .button--ready:not(:disabled):hover {
+        background: var(--color-button-primary-hover);
+        box-shadow: var(--shadow-button-primary);
+      }
     }
 
     .button:focus {
