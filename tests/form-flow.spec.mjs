@@ -151,6 +151,12 @@ test("moves keyboard focus to the current stage after navigation", async ({ page
   await completeStageOne(page);
   await expect(page.locator("#verified-fields")).toBeFocused();
 
+  await page.getByRole("button", { name: "Back" }).click();
+  await expect(page.getByRole("textbox", { name: "First name" })).toBeFocused();
+
+  await page.getByRole("button", { name: "Continue" }).click();
+  await expect(page.locator("#verified-fields")).toBeFocused();
+
   await page.getByRole("button", { name: "Continue" }).click();
   await expect(page.getByRole("heading", { name: "Final step" })).toBeFocused();
 

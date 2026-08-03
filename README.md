@@ -21,6 +21,7 @@ The newsletter card uses `Newsletter.png` as a full-width banner, with its opt-i
 ## Validation and enrichment
 
 - First name, last name, and email are required before leaving Stage 1.
+- Returning from Stage 2 places keyboard focus on First name, the first field in Stage 1.
 - Email-derived suggestions only fill empty fields; manual edits remain unchanged.
 - Enrichment requests return `industry`, `about`, `urgency`, `sentiment`, and `query` when available.
 - Requests time out after 20 seconds, stale responses are ignored, and failures allow the form to continue.
