@@ -2,6 +2,8 @@ import http from "node:http";
 import fs from "node:fs";
 import path from "node:path";
 
+// F7 — Local enrichment adapter. It keeps the DeepSeek key outside browser code and mirrors
+// the hosted five-field response contract at POST /enrich-company for localhost development.
 const PORT = 8787;
 const DEEPSEEK_API_URL = "https://api.deepseek.com/v1/chat/completions";
 const MODEL = "deepseek-v4-flash";
@@ -20,6 +22,7 @@ const ENRICHMENT_RESPONSE_FIELDS = [
   "query"
 ];
 
+// F7 support — Load uncommitted local environment files without replacing exported variables.
 function loadLocalEnv() {
   ENV_FILES.forEach((fileName) => {
     const filePath = path.join(process.cwd(), fileName);
@@ -57,6 +60,7 @@ function loadLocalEnv() {
 
 loadLocalEnv();
 
+// F7 support — Only the two documented local form origins receive CORS permission.
 function sendJson(request, response, statusCode, payload) {
   const origin = request.headers.origin;
   const headers = {
@@ -74,6 +78,7 @@ function sendJson(request, response, statusCode, payload) {
   response.end(JSON.stringify(payload));
 }
 
+// F7 support — Reject malformed JSON and bodies above 10 KB before enrichment.
 function readJsonBody(request) {
   return new Promise((resolve, reject) => {
     let body = "";
@@ -99,12 +104,14 @@ function readJsonBody(request) {
   });
 }
 
+// F7 contract — Company enrichment supplies Industry and About.
 function getCompanyPrompt(companyUrl) {
   return `Visit ${companyUrl}, return a JSON result with two fields:
 - "industry": the company's industry in one or two broad words (e.g. "Manufacturing", "Financial Services")
 - "about": a short 1-2 sentence description of what the company does`;
 }
 
+// F7 contract — Optional inquiry analysis supplies Urgency, Sentiment, and Query.
 function getMessageAnalysisPrompt(message) {
   return `Analyse this customer message and classify it into exactly these three fields:
 - "urgency": one of "Low", "Medium", or "High"
@@ -115,6 +122,7 @@ Message:
 ${message}`;
 }
 
+// F7 support — Normalise model output to strings before it reaches the browser contract.
 function parseDeepSeekJson(content) {
   const trimmedContent = content.trim();
   const jsonMatch = trimmedContent.match(/\{[\s\S]*\}/);
@@ -129,6 +137,7 @@ function parseDeepSeekJson(content) {
   };
 }
 
+// F7 support — Always return all five registered fields, using empty strings when unavailable.
 function createEnrichmentResponse(companyResult, messageResult) {
   const result = {
     ...companyResult,
@@ -141,6 +150,7 @@ function createEnrichmentResponse(companyResult, messageResult) {
   }, {});
 }
 
+// F7 support — Convert technical failures to concise local-development responses without secrets.
 function getPublicErrorMessage(error) {
   if (error?.name === "AbortError") {
     return "DeepSeek request timed out. Please try again.";
@@ -153,6 +163,7 @@ function getPublicErrorMessage(error) {
   return error?.message || "Company enrichment failed.";
 }
 
+// F7 support — The server-side request is deterministic, abortable, and requires a local secret.
 async function callDeepSeek({
   prompt,
   systemPrompt = DEFAULT_SYSTEM_PROMPT
@@ -210,12 +221,14 @@ async function callDeepSeek({
   }
 }
 
+// F7 support — Company analysis is required for a successful enrichment response.
 async function enrichCompany(companyUrl) {
   return callDeepSeek({
     prompt: getCompanyPrompt(companyUrl)
   });
 }
 
+// F7 support — Message classification may fail independently without losing company enrichment.
 async function analyzeMessage(message) {
   if (!message) {
     return {
@@ -244,6 +257,7 @@ async function analyzeMessage(message) {
   }
 }
 
+// F7 endpoint — Company URL is required; Inquiry is optional.
 async function handleEnrichmentRequest(request, response) {
   const body = await readJsonBody(request);
   const companyUrl = String(body.companyUrl || "").trim();
@@ -261,6 +275,7 @@ async function handleEnrichmentRequest(request, response) {
   sendJson(request, response, 200, createEnrichmentResponse(companyResult, messageResult));
 }
 
+// F7 local route — Only OPTIONS and POST /enrich-company are supported.
 const server = http.createServer(async (request, response) => {
   if (request.method === "OPTIONS") {
     sendJson(request, response, 204, {});
@@ -284,5 +299,6 @@ const server = http.createServer(async (request, response) => {
 });
 
 server.listen(PORT, "127.0.0.1", () => {
+  // F7 support — This message reports only the local technical endpoint.
   console.log(`DeepSeek dev proxy running at http://127.0.0.1:${PORT}`);
 });

@@ -26,6 +26,7 @@
       --color-error-surface: #fff9e6;
       --color-error-border: #f2cf66;
       --color-error-text: #8a3c00;
+      --color-control-invalid: #d92d20;
       --color-success-surface: #e7f8f1;
       --color-success-border: #86daba;
       --color-success-text: #0c5f45;
@@ -33,13 +34,11 @@
       --color-green: #00B77D;
       --color-button-primary-hover: #00a971;
       --color-progress: var(--color-button-muted);
-      --color-success: var(--color-green);
 
       --space-sm: 0.5rem;
       --space-md: 1rem;
       --space-lg: 1.5rem;
       --space-xl: 2rem;
-      --space-final-step-to-newsletter: 0.75rem;
 
       --radius: 10px;
 
@@ -51,8 +50,8 @@
       --padding-alert-block: var(--space-sm);
       --padding-alert-inline: var(--space-md);
       --gap-alert-content: var(--space-sm);
+      --space-stage-two-actions: 45px;
       --font-size-title: 16px;
-      --font-size-title-primary: 20px;
       --line-height-title: 20px;
       --font-weight-title: 700;
       --font-size-label: 13px;
@@ -74,8 +73,8 @@
       --shadow-elevation-sm: 0 0 0 1px var(--color-elevation-ring), var(--shadow-elevation-depth-sm);
       --shadow-control: 0 0 0 1px var(--color-border), var(--shadow-elevation-depth-sm);
       --shadow-control-focus: 0 0 0 1px var(--color-primary), 0 0 0 4px var(--color-focus), var(--shadow-elevation-depth-sm);
-      --shadow-control-valid: 0 0 0 2px var(--color-success), var(--shadow-elevation-depth-sm);
-      --shadow-control-valid-focus: 0 0 0 2px var(--color-success), 0 0 0 5px var(--color-focus), var(--shadow-elevation-depth-sm);
+      --shadow-control-invalid: 0 0 0 2px var(--color-control-invalid), var(--shadow-elevation-depth-sm);
+      --shadow-control-invalid-focus: 0 0 0 2px var(--color-control-invalid), 0 0 0 5px var(--color-focus), var(--shadow-elevation-depth-sm);
       --shadow-alert: 0 0 0 1px var(--color-border), var(--shadow-elevation-depth-sm);
       --shadow-alert-success: 0 0 0 1px var(--color-success-border), var(--shadow-elevation-depth-sm);
       --shadow-alert-error: 0 0 0 1px var(--color-error-border), var(--shadow-elevation-depth-sm);
@@ -253,12 +252,6 @@
       display: none;
     }
 
-    .form__section-title--primary {
-      padding-bottom: var(--space-final-step-to-newsletter);
-      color: var(--color-green);
-      font-size: var(--font-size-title-primary);
-    }
-
     .form-page > .form__section-title {
       margin-bottom: calc(var(--space-lg) * -1);
     }
@@ -329,6 +322,10 @@
       display: grid;
     }
 
+    .form__field[hidden] {
+      display: none;
+    }
+
     .form__alert {
       display: flex;
       gap: var(--gap-alert-content);
@@ -382,6 +379,12 @@
       color: var(--color-primary);
     }
 
+    /* Textareas can scroll their content under an internal label, so the label has its own surface. */
+    .form__field--textarea .form__label {
+      padding-inline: var(--space-xs);
+      background: var(--color-surface);
+    }
+
     .form__input {
       width: 100%;
       min-height: 4.25rem;
@@ -392,10 +395,6 @@
       border: 0;
       border-radius: var(--radius);
       box-shadow: var(--shadow-control);
-    }
-
-    .form__input.is-valid {
-      box-shadow: var(--shadow-control-valid);
     }
 
     select.form__input {
@@ -413,13 +412,18 @@
       outline: none;
     }
 
-    .form__input.is-valid:focus {
-      box-shadow: var(--shadow-control-valid-focus);
+    .form__input.is-invalid {
+      box-shadow: var(--shadow-control-invalid);
+    }
+
+    .form__input.is-invalid:focus {
+      box-shadow: var(--shadow-control-invalid-focus);
     }
 
     textarea.form__input {
       min-height: 7.5rem;
       line-height: 1.45;
+      scroll-padding-top: 1.85rem;
     }
 
     .newsletter-group {
@@ -620,6 +624,11 @@
       justify-content: space-between;
     }
 
+    /* Stage 2 actions stay 45px below the final visible company field. */
+    .form__actions--stage-two {
+      margin-top: calc(var(--space-stage-two-actions) - var(--space-lg));
+    }
+
     .form__actions .button {
       width: 100%;
     }
@@ -677,7 +686,11 @@
       }
 
       .company-location-field {
-        grid-column: 1;
+        grid-column: 3;
+      }
+
+      .company-state-field {
+        grid-column: 3;
       }
 
       .form__actions {
@@ -715,7 +728,6 @@
     <h1 class="visually-hidden" id="form-title">Inquiry form</h1>
     <section class="form-shell elevated-surface">
       <form class="form form--inquiry" aria-labelledby="form-title" novalidate>
-        <h2 class="form__section-title form__section-title--primary" data-review-title id="review-heading" tabindex="-1" hidden>Final step</h2>
         <div class="form-page form__section form__section--three-columns" id="page-1">
           <h2 class="form__section-title" data-review-title id="review-personal-details" hidden>Personal details</h2>
 
@@ -768,7 +780,7 @@
             <span id="email-validation-status" class="visually-hidden" aria-live="polite"></span>
           </div>
 
-          <div class="form__field form__section--full-width">
+          <div class="form__field form__field--textarea form__section--full-width">
             <label class="form__label" for="message">Inquiry</label>
             <textarea
               class="form__input"
@@ -858,6 +870,17 @@
                   <option value="Assistant">Assistant</option>
                 </select>
               </div>
+
+              <div class="form__field">
+                <label class="form__label" for="language">Language</label>
+                <input
+                  class="form__input"
+                  id="language"
+                  name="language"
+                  type="text"
+                  autocomplete="language"
+                >
+              </div>
             </div>
           </fieldset>
 
@@ -898,7 +921,7 @@
                 </select>
               </div>
 
-              <div class="form__field">
+              <div class="form__field company-state-field" hidden>
                 <label class="form__label" for="state">State</label>
                 <select
                   class="form__input"
@@ -968,7 +991,7 @@
           </div>
           <details class="form__accordion form__section--full-width" id="enriched-details">
             <summary class="form__accordion-summary">
-              <h2 class="form__section-title">Enriched details</h2>
+              <h2 class="form__section-title">Hidden</h2>
               <svg class="form__accordion-icon" aria-hidden="true" viewBox="0 0 16 16" fill="none">
                 <path d="m3 6 5 5 5-5" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" />
               </svg>
@@ -1053,14 +1076,17 @@
       <li class="progress__item" data-progress-step="2" aria-label="Step 2 of 3: Personal and company details">
         <span class="progress__marker" aria-hidden="true">2</span>
       </li>
-      <li class="progress__item" data-progress-step="3" aria-label="Step 3 of 3: Final step">
+      <li class="progress__item" data-progress-step="3" aria-label="Step 3 of 3: Review and submit">
         <span class="progress__marker" aria-hidden="true">3</span>
       </li>
     </ol>
   </main>
 
   <script>
-    // 1. DOM references
+    // Feature IDs F1-F8 are stable behaviour identifiers defined in AGENTS.md.
+    // Shared helpers name every feature they directly support; infrastructure is not assigned an ID.
+
+    // 1. Shared DOM references (F1-F8)
     const emailField = document.getElementById("email");
     const form = document.querySelector(".form");
     const validationStatus = document.getElementById("email-validation-status");
@@ -1068,7 +1094,6 @@
     const progressSteps = document.querySelectorAll("[data-progress-step]");
     const reviewTitles = document.querySelectorAll("[data-review-title]");
     const stageTwoPersonalTitles = document.querySelectorAll("[data-stage-two-personal-title]");
-    const reviewHeading = document.getElementById("review-heading");
     const backButton = document.getElementById("back-button");
     const verifyButton = document.getElementById("verify-button");
     const verifyButtonLabel = verifyButton?.querySelector(".button__label");
@@ -1078,11 +1103,14 @@
     const firstNameField = document.getElementById("first-name");
     const lastNameField = document.getElementById("last-name");
     const phoneField = document.getElementById("phone");
+    const newsletterField = document.getElementById("newsletter");
+    const languageField = document.getElementById("language");
     const websiteField = document.getElementById("website");
     const companyNameField = document.getElementById("company-name");
     const companyIndustryField = document.getElementById("company-industry");
     const countryField = document.getElementById("country");
     const stateField = document.getElementById("state");
+    const stateFieldContainer = stateField?.closest(".form__field");
     const businessField = document.getElementById("business");
     const inquiryTypeField = document.getElementById("inquiry-type");
     const inquirySubtypeField = document.getElementById("inquiry-subtype");
@@ -1100,13 +1128,18 @@
     const formMessageText = document.getElementById("form-message-text");
 
     // 2. Configuration
+    // F7 — Company and inquiry enrichment uses the local proxy during development and the hosted route elsewhere.
     const COMPANY_ENRICHMENT_ENDPOINT =
       window.location.hostname === "127.0.0.1" || window.location.hostname === "localhost"
         ? "http://127.0.0.1:8787/enrich-company"
         : "/enrich-company";
     const COMPANY_ENRICHMENT_TIMEOUT_MS = 20000;
+
+    // F1 — Approximate-location prefill has its own public endpoint and short, non-blocking timeout.
     const F1_COUNTRY_LOOKUP_ENDPOINT = "https://free.freeipapi.com/api/json";
     const F1_COUNTRY_LOOKUP_TIMEOUT_MS = 5000;
+
+    // F2 — Country and State controls use a fixed ISO country-code allowlist rendered as English names.
     const COUNTRY_CODES = [
       "AD", "AE", "AF", "AG", "AI", "AL", "AM", "AO", "AQ", "AR", "AS", "AT", "AU", "AW", "AX", "AZ",
       "BA", "BB", "BD", "BE", "BF", "BG", "BH", "BI", "BJ", "BL", "BM", "BN", "BO", "BQ", "BR", "BS",
@@ -1125,13 +1158,15 @@
       "TR", "TT", "TV", "TW", "TZ", "UA", "UG", "UM", "US", "UY", "UZ", "VA", "VC", "VE", "VG", "VI",
       "VN", "VU", "WF", "WS", "XK", "YE", "YT", "ZA", "ZM", "ZW"
     ];
+    // Shared field metadata drives F4 validation, F6 navigation readiness, and F7 enrichment/reset handling.
     const FIELD_CONFIG = {
-      email: { field: emailField, tracksStatus: true },
+      email: { field: emailField },
       message: { field: messageField },
       firstName: { field: firstNameField, detail: true },
       lastName: { field: lastNameField, detail: true },
       phone: { field: phoneField, detail: true },
       role: { field: roleField, detail: true },
+      language: { field: languageField, detail: true },
       website: { field: websiteField, detail: true },
       companyName: { field: companyNameField, detail: true },
       companyIndustry: { field: companyIndustryField, detail: true },
@@ -1146,9 +1181,6 @@
       sentiment: { field: sentimentField, enrichment: true, resetWhenEmailChanges: true },
       query: { field: queryField, enrichment: true, resetWhenEmailChanges: true }
     };
-    const STATUS_FIELDS = Object.values(FIELD_CONFIG)
-      .filter(({ field, tracksStatus }) => field && tracksStatus)
-      .map(({ field }) => field);
     const DETAIL_FIELDS = Object.values(FIELD_CONFIG)
       .filter(({ field, detail }) => field && detail)
       .map(({ field }) => field);
@@ -1158,6 +1190,7 @@
     const RESET_FIELD_NAMES = Object.entries(FIELD_CONFIG)
       .filter(([, { resetWhenEmailChanges }]) => resetWhenEmailChanges)
       .map(([name]) => name);
+    // Shared state is limited to navigation and asynchronous ownership for F1, F6, F7, and F8.
     const formState = {
       currentPage: 1,
       enrichmentController: null,
@@ -1165,16 +1198,21 @@
       isEnrichmentLoading: false,
       isSubmitted: false,
       countryLookupController: null,
-      hasCountryBeenEdited: false
+      hasCountryBeenEdited: false,
+      suggestedWebsite: "",
+      suggestedCompanyName: ""
     };
 
-    // 3. Utility functions
+    // 3. Feature and shared utility functions
+
+    // F5 — Email-domain suggestions normalise company-label words before filling empty fields.
     function capitaliseWord(value) {
       if (!value) return "";
 
       return value.charAt(0).toUpperCase() + value.slice(1).toLowerCase();
     }
 
+    // F6 — Navigation progress creates decorative completion icons without inserting HTML strings.
     function createIconPath(d) {
       const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
 
@@ -1193,22 +1231,36 @@
       return svg;
     }
 
-    function updateFieldStatus(field) {
-      if (!field) return;
+    // F2 — State is visible and enabled only for the United States; otherwise it cannot be submitted.
+    function updateStateVisibility() {
+      if (!countryField || !stateField || !stateFieldContainer) return;
 
-      const hasValue = field === emailField
-        ? isValidEmail(field.value)
-        : Boolean(getFieldValue(field));
+      const isUnitedStates = countryField.value === "US";
 
-      field.classList.toggle("is-valid", hasValue);
+      stateFieldContainer.hidden = !isUnitedStates;
+      stateField.disabled = !isUnitedStates;
     }
 
-    function updateFieldStatuses() {
-      STATUS_FIELDS.forEach(updateFieldStatus);
+    // F3 — Browser-language prefill converts navigator.language to an editable English language name.
+    function prefillLanguageFromBrowser() {
+      if (!languageField || languageField.value.trim() || !window.Intl?.DisplayNames) return;
+
+      const languageCode = navigator.language?.split("-")[0];
+
+      if (!languageCode) return;
+
+      try {
+        const languageName = new Intl.DisplayNames(["en"], { type: "language" }).of(languageCode);
+
+        if (languageName) {
+          languageField.value = languageName;
+        }
+      } catch {
+        // Leave the optional field empty when the browser does not recognise its locale.
+      }
     }
 
-    // F1 populates Country from a best-effort geolocation lookup. It only uses
-    // the returned country code and never replaces a selection the visitor made.
+    // F2 — Country options stay blank by default and are generated in English alphabetical order.
     function populateCountryOptions() {
       if (!countryField || !window.Intl?.DisplayNames) return;
 
@@ -1220,11 +1272,15 @@
       placeholderOption.textContent = "";
       options.appendChild(placeholderOption);
 
-      COUNTRY_CODES.forEach((code) => {
+      const sortedCountries = COUNTRY_CODES
+        .map((code) => ({ code, name: countryNames.of(code) }))
+        .sort((first, second) => first.name.localeCompare(second.name, "en"));
+
+      sortedCountries.forEach(({ code, name }) => {
         const option = document.createElement("option");
 
         option.value = code;
-        option.textContent = countryNames.of(code);
+        option.textContent = name;
         options.appendChild(option);
       });
 
@@ -1232,11 +1288,12 @@
       countryField.value = "";
     }
 
-    // F1 messages deliberately report only technical outcomes, never IP addresses or locations.
+    // F1 — Logs report technical lookup outcomes only, never IP addresses, locations, or form values.
     function logF1CountryLookup(status) {
       console.info(`[F1] Country lookup ${status}.`);
     }
 
+    // F1 — Only recognised ISO country codes from the lookup response can reach the Country field.
     function getF1CountryCode(result) {
       const countryCode = result?.countryCode;
 
@@ -1247,13 +1304,14 @@
       return countryCode;
     }
 
-    // F1 uses the first valid international dialling code only while Phone number is empty.
+    // F1 — The first valid international dialling code is used only while Phone number is empty.
     function getF1PhonePrefix(result) {
       const phoneCode = String(result?.phoneCodes?.[0] ?? "").trim();
 
       return /^\d{1,4}$/.test(phoneCode) ? `+${phoneCode} ` : "";
     }
 
+    // F1 — The lookup is best-effort, times out safely, and never overwrites a visitor's Country edit.
     async function lookupCountryForF1() {
       if (!countryField || !window.Intl?.DisplayNames) return;
 
@@ -1280,12 +1338,12 @@
         }
 
         countryField.value = countryCode;
+        updateStateVisibility();
 
         if (phoneField && !phoneField.value.trim() && phonePrefix) {
           phoneField.value = phonePrefix;
         }
 
-        updateFieldStatuses();
         logF1CountryLookup("applied");
       } catch (error) {
         logF1CountryLookup(error?.name === "AbortError" ? "timed out" : "unavailable");
@@ -1298,41 +1356,24 @@
       }
     }
 
-    // 4. Validation functions
+    // 4. Validation and data-contract functions
+
+    // F4 — Required-field validation uses a deliberately light email-shape check for stage progression.
     function isValidEmail(value) {
       return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value.trim());
     }
 
-    function getEmailParts(value) {
+    // F5 — Domain suggestions read the address without claiming mailbox verification.
+    function getEmailDomain(value) {
       const trimmedValue = value.trim();
       const atIndex = trimmedValue.indexOf("@");
 
-      if (atIndex === -1) {
-        return {
-          localPart: "",
-          domain: ""
-        };
-      }
-
-      return {
-        localPart: trimmedValue.slice(0, atIndex),
-        domain: trimmedValue.slice(atIndex + 1).toLowerCase()
-      };
+      return atIndex === -1
+        ? ""
+        : trimmedValue.slice(atIndex + 1).toLowerCase();
     }
 
-    function getNameParts(localPart) {
-      // Auto-fill is heuristic until a real verification data source is connected.
-      const parts = localPart
-        .split(/[._-]+/)
-        .map((part) => part.replace(/[^a-zA-Z]/g, ""))
-        .filter(Boolean);
-
-      return {
-        firstName: capitaliseWord(parts[0] || ""),
-        lastName: capitaliseWord(parts.slice(1).join(" "))
-      };
-    }
-
+    // F5 — Company suggestions use the first domain label and common word separators.
     function getCompanyName(domain) {
       const hostName = domain
         .replace(/^www\./, "")
@@ -1345,16 +1386,49 @@
         .join(" ");
     }
 
+    // Shared F4, F5, F6, F7 utility — Read a field defensively and trim surrounding whitespace.
     function getFieldValue(field) {
       return field ? field.value.trim() : "";
     }
 
+    // F5 — Derived suggestions populate empty controls only.
     function setFieldValueIfEmpty(field, value) {
-      if (!field || getFieldValue(field) || !value) return;
+      if (!field || getFieldValue(field) || !value) return false;
 
       field.value = value;
+      return true;
     }
 
+    // F5 — Clear only suggestions still owned by F5; manual edits survive an Email change.
+    function clearEmailDomainSuggestions() {
+      const suggestions = [
+        { field: websiteField, stateKey: "suggestedWebsite" },
+        { field: companyNameField, stateKey: "suggestedCompanyName" }
+      ];
+
+      suggestions.forEach(({ field, stateKey }) => {
+        const suggestedValue = formState[stateKey];
+
+        if (field && suggestedValue && getFieldValue(field) === suggestedValue) {
+          field.value = "";
+        }
+
+        formState[stateKey] = "";
+      });
+    }
+
+    // F5 — Any direct visitor edit ends F5 ownership for that field, even if text still matches.
+    function releaseEmailDomainSuggestion(field) {
+      if (field === websiteField) {
+        formState.suggestedWebsite = "";
+      }
+
+      if (field === companyNameField) {
+        formState.suggestedCompanyName = "";
+      }
+    }
+
+    // F7 — Enrichment normalises a bare domain to HTTPS without altering explicit HTTP(S) input.
     function getWebsiteUrl(value) {
       const trimmedValue = value.trim();
 
@@ -1365,11 +1439,13 @@
         : `https://${trimmedValue}`;
     }
 
+    // F4 — Stage 2 requires identity and company URL/name values before progression.
     function hasVerifiedFieldEntries() {
       return [firstNameField, lastNameField, websiteField, companyNameField]
         .every((field) => getFieldValue(field));
     }
 
+    // F7 — A request snapshot binds enrichment to the exact inputs that produced it.
     function getEnrichmentSnapshot(companyUrl) {
       return {
         email: getFieldValue(emailField),
@@ -1378,6 +1454,7 @@
       };
     }
 
+    // F7 — Results are current only while request ownership, stage, and source inputs still match.
     function isCurrentEnrichmentRequest(requestId, controller, snapshot) {
       return (
         formState.enrichmentRequestId === requestId &&
@@ -1390,6 +1467,8 @@
     }
 
     // 5. State / UI functions
+
+    // F4, F6, F7, F8 — One message surface reports validation, navigation, enrichment, and submission outcomes.
     function setFormMessage(message, isError = false, isSuccess = false) {
       if (!formMessage || !formMessageText) return;
 
@@ -1406,6 +1485,7 @@
       }
     }
 
+    // F4 and F6 — Action readiness is derived from the active stage's exact progression requirements.
     function isPrimaryReady() {
       if (formState.currentPage === 1) {
         return hasStageOneEntries();
@@ -1418,6 +1498,7 @@
       return true;
     }
 
+    // F6 — Navigation owns Back visibility, action labels, stage spacing, and ready-state styling.
     function updateNavigationState() {
       if (backButton) {
         backButton.hidden = formState.currentPage === 1;
@@ -1426,6 +1507,7 @@
 
       if (formActions) {
         formActions.classList.toggle("is-final", formState.currentPage === 3);
+        formActions.classList.toggle("form__actions--stage-two", formState.currentPage === 2);
       }
 
       if (!verifyButton) return;
@@ -1437,6 +1519,7 @@
       verifyButton.classList.toggle("button--ready", isPrimaryReady());
     }
 
+    // F6 — Progress exposes the current stage to assistive technology and marks completed stages.
     function updateProgress() {
       progressSteps.forEach((step) => {
         const stepNumber = Number(step.dataset.progressStep);
@@ -1463,6 +1546,7 @@
       });
     }
 
+    // F6 — Exactly one form stage is visible at a time; shared status and progress move with it.
     function showPage(pageNumber) {
       formState.currentPage = pageNumber;
 
@@ -1500,16 +1584,18 @@
       updateNavigationState();
     }
 
+    // F6 — Focus moves to the first meaningful control whenever navigation reveals a stage.
     function focusCurrentStage(pageNumber) {
       const target = pageNumber === 2
         ? verifiedFields
         : pageNumber === 3
-          ? reviewHeading
+          ? newsletterField
           : firstNameField;
 
       window.requestAnimationFrame(() => target?.focus());
     }
 
+    // F6 — The shared message remains adjacent to the currently actionable stage.
     function placeFormMessage(pageNumber) {
       if (!formMessage || !pageOne) return;
 
@@ -1521,6 +1607,7 @@
       pageOne.after(formMessage);
     }
 
+    // F7 — Enriched values are cleared when their source email context is reset.
     function clearEnrichmentFields() {
       if (enrichedFields) {
         enrichedFields.hidden = true;
@@ -1535,6 +1622,7 @@
       });
     }
 
+    // F4, F5, F7 — Editing Email returns the flow to Stage 1 and clears derived/enriched state.
     function hideVerifiedFields() {
       if (verifiedFields) {
         verifiedFields.hidden = true;
@@ -1544,16 +1632,18 @@
       showPage(1);
     }
 
+    // F4 — Validation feedback resets while the visitor edits before the next progression attempt.
     function resetValidationFeedback() {
-      if (emailField) {
-        emailField.setAttribute("aria-invalid", "false");
-      }
+      [firstNameField, lastNameField, emailField].forEach((field) => {
+        setFieldInvalidState(field, false);
+      });
 
       if (validationStatus) {
         validationStatus.textContent = "";
       }
     }
 
+    // F4 — Stage 1 requires First name, Last name, and a valid-looking Email address.
     function hasStageOneEntries() {
       return Boolean(
         emailField &&
@@ -1565,23 +1655,35 @@
       );
     }
 
+    // F4 — Keep the visible validation edge and screen-reader invalid state in sync.
+    function setFieldInvalidState(field, isInvalid) {
+      if (!field) return;
+
+      field.setAttribute("aria-invalid", String(isInvalid));
+      field.classList.toggle("is-invalid", isInvalid);
+    }
+
+    // F4 — A failed Stage 1 attempt marks each invalid required field and announces Email guidance.
     function updateStageOneValidation() {
       const hasFirstName = Boolean(getFieldValue(firstNameField));
       const hasLastName = Boolean(getFieldValue(lastNameField));
       const hasValidEmail = Boolean(emailField && isValidEmail(emailField.value));
 
-      firstNameField?.setAttribute("aria-invalid", String(!hasFirstName));
-      lastNameField?.setAttribute("aria-invalid", String(!hasLastName));
-      emailField?.setAttribute("aria-invalid", String(!hasValidEmail));
+      setFieldInvalidState(firstNameField, !hasFirstName);
+      setFieldInvalidState(lastNameField, !hasLastName);
+      setFieldInvalidState(emailField, !hasValidEmail);
+
+      if (validationStatus) {
+        validationStatus.textContent = hasValidEmail ? "" : "Enter a valid email address.";
+      }
 
       return hasFirstName && hasLastName && hasValidEmail;
     }
 
+    // F5 — Valid Email input suggests Website and Company name only where fields are empty.
     function populateVerifiedFields() {
       if (
         !emailField ||
-        !firstNameField ||
-        !lastNameField ||
         !websiteField ||
         !companyNameField ||
         !verifiedFields ||
@@ -1590,24 +1692,28 @@
         return;
       }
 
-      const emailParts = getEmailParts(emailField.value);
-      const nameParts = getNameParts(emailParts.localPart);
+      const emailDomain = getEmailDomain(emailField.value);
+      const companyName = getCompanyName(emailDomain);
 
-      // Suggested details must never replace a value the person has entered.
-      setFieldValueIfEmpty(firstNameField, nameParts.firstName);
-      setFieldValueIfEmpty(lastNameField, nameParts.lastName);
-      setFieldValueIfEmpty(websiteField, emailParts.domain);
-      setFieldValueIfEmpty(companyNameField, getCompanyName(emailParts.domain));
-      updateFieldStatuses();
+      // F5 suggestions must never replace a value the person has entered.
+      if (setFieldValueIfEmpty(websiteField, emailDomain)) {
+        formState.suggestedWebsite = emailDomain;
+      }
+
+      if (setFieldValueIfEmpty(companyNameField, companyName)) {
+        formState.suggestedCompanyName = companyName;
+      }
+
       updateVerifiedButtonState();
     }
 
+    // F4 and F5 — Email validation controls whether suggestions are populated or discarded.
     function updateEmailValidation() {
       if (!emailField || !validationStatus) return;
 
       const isValid = isValidEmail(emailField.value);
 
-      emailField.setAttribute("aria-invalid", String(!isValid));
+      setFieldInvalidState(emailField, !isValid);
       validationStatus.textContent = isValid
         ? "Email address looks valid."
         : "Enter a valid email address.";
@@ -1619,6 +1725,7 @@
       }
     }
 
+    // F7 — Enrichment loading temporarily locks navigation to prevent conflicting stage changes.
     function setVerifyLoading(isLoading) {
       formState.isEnrichmentLoading = isLoading;
 
@@ -1639,6 +1746,7 @@
       }
     }
 
+    // F7 — Cancellation invalidates the request ID before aborting, preventing stale results from applying.
     function cancelEnrichmentRequest() {
       formState.enrichmentRequestId += 1;
 
@@ -1652,6 +1760,7 @@
       }
     }
 
+    // F7 — Every enrichment response must contain the complete five-string browser contract.
     function getEnrichmentResult(result) {
       if (!result || typeof result !== "object" || Array.isArray(result)) {
         throw new Error("Company enrichment returned an invalid response.");
@@ -1669,6 +1778,7 @@
       }, {});
     }
 
+    // F7 — Validated enrichment values populate only their registered Hidden fields.
     function applyEnrichmentResult(result) {
       ENRICHMENT_FIELD_NAMES.forEach((name) => {
         const field = FIELD_CONFIG[name].field;
@@ -1679,6 +1789,7 @@
       });
     }
 
+    // F7 — Enrichment is non-blocking, timed, stale-response safe, and optional to progression.
     async function enrichCompanyDetails() {
       if (
         !websiteField ||
@@ -1735,7 +1846,6 @@
         }
 
         applyEnrichmentResult(getEnrichmentResult(result));
-        updateFieldStatuses();
         return true;
       } catch (error) {
         if (!isCurrentEnrichmentRequest(requestId, controller, snapshot)) {
@@ -1764,28 +1874,35 @@
       }
     }
 
+    // F4, F5, F7 — Email edits recalculate readiness and invalidate all prior derived request context.
     function updateVerifyButtonState() {
       if (!emailField || !verifyButton) return;
 
       cancelEnrichmentRequest();
+      clearEmailDomainSuggestions();
       verifyButton.classList.toggle("button--ready", isValidEmail(emailField.value));
-      updateFieldStatuses();
       resetValidationFeedback();
       hideVerifiedFields();
       setFormMessage("");
     }
 
+    // F4 and F6 — Detail edits immediately recalculate the active stage's action readiness.
     function updateVerifiedButtonState() {
       if (!verifyButton) return;
 
-      updateFieldStatuses();
       updateNavigationState();
     }
 
-    function handleVerifiedFieldInput() {
+    // F4 — Corrected required values clear their invalid state without showing success decoration.
+    function handleVerifiedFieldInput(event) {
+      releaseEmailDomainSuggestion(event?.target);
+
       if (formState.currentPage === 1) {
-        firstNameField?.setAttribute("aria-invalid", String(!getFieldValue(firstNameField)));
-        lastNameField?.setAttribute("aria-invalid", String(!getFieldValue(lastNameField)));
+        const hasFirstName = Boolean(getFieldValue(firstNameField));
+        const hasLastName = Boolean(getFieldValue(lastNameField));
+
+        setFieldInvalidState(firstNameField, !hasFirstName);
+        setFieldInvalidState(lastNameField, !hasLastName);
 
         if (hasStageOneEntries()) {
           setFormMessage("");
@@ -1795,8 +1912,10 @@
       updateVerifiedButtonState();
     }
 
+    // F4, F6, F7, F8 — The primary action validates, advances, enriches, or confirms by active stage.
     async function handlePrimaryAction() {
       if (formState.currentPage === 3) {
+        // F8 — Submission is intentionally local-only and idempotent for this prototype.
         if (formState.isSubmitted) return;
 
         formState.isSubmitted = true;
@@ -1807,6 +1926,7 @@
       }
 
       if (formState.currentPage === 2) {
+        // F4 and F6 — Stage 2 cannot advance until its four required derived/detail values exist.
         if (!hasVerifiedFieldEntries()) {
           setFormMessage("Enter first name, last name, website, and company name before continuing.", true);
           return;
@@ -1819,7 +1939,6 @@
       }
 
       if (!updateStageOneValidation()) {
-        setFormMessage("Enter your first name, last name, and a valid email address.", true);
         return;
       }
 
@@ -1830,6 +1949,7 @@
       void enrichCompanyDetails();
     }
 
+    // F6 and F7 — Back navigation preserves visitor input and cannot interrupt active enrichment.
     function handleBack() {
       if (formState.isEnrichmentLoading) {
         return;
@@ -1849,40 +1969,44 @@
       focusCurrentStage(1);
     }
 
-    // 7. Event listeners
+    // 7. Feature event listeners
     if (emailField) {
+      // F4, F5, F7
       emailField.addEventListener("input", updateVerifyButtonState);
     }
 
-    if (messageField) {
-      messageField.addEventListener("input", updateFieldStatuses);
-    }
-
     if (countryField) {
+      // F1 and F2
       countryField.addEventListener("change", () => {
         formState.hasCountryBeenEdited = true;
+        updateStateVisibility();
       });
     }
 
     DETAIL_FIELDS.forEach((field) => {
+        // F4 and F6
         field.addEventListener("input", handleVerifiedFieldInput);
     });
 
     if (backButton) {
+      // F6 and F7
       backButton.addEventListener("click", handleBack);
     }
 
     if (form) {
+      // F4, F6, F7, F8
       form.addEventListener("submit", (event) => {
         event.preventDefault();
         void handlePrimaryAction();
       });
     }
 
-    updateFieldStatuses();
-    showPage(1);
-    populateCountryOptions();
-    void lookupCountryForF1();
+    // 8. Explicit feature initialisation
+    showPage(1);                  // F6
+    populateCountryOptions();     // F2
+    updateStateVisibility();      // F2
+    prefillLanguageFromBrowser(); // F3
+    void lookupCountryForF1();    // F1
   </script>
 </body>
 </html>

@@ -13,8 +13,8 @@ A portable, three-step inquiry form built with plain HTML, CSS, and JavaScript. 
 ## Form flow
 
 1. **Inquiry** — First name, last name, email, inquiry, business, inquiry type, and inquiry subtype. The three personal fields have configured defaults. Continue derives company details and starts enrichment.
-2. **Personal details** — Phone, role, company name, industry, country, and state. Defaults include Manager, Aerospace, and Alabama; Country starts empty. F1 can prefill Country and an international Phone prefix from the visitor's approximate IP country.
-3. **Final step** — Newsletter opt-in, Submit Inquiry, GDPR note, and a closed-by-default **Enriched details** accordion. It does not duplicate earlier fields.
+2. **Personal details** — Phone, role, language, company name, industry, country, and State. Country sits beside Industry on wider screens and its list is alphabetised; State appears directly below it only when United States is selected and is disabled otherwise, so it is excluded from form submissions. Defaults include Manager, Aerospace, and Alabama; Country starts empty. Language is prefilled from the browser locale when recognised, and F1 can prefill Country and an international Phone prefix from the visitor's approximate IP country.
+3. **Review and submit** — Newsletter opt-in, Submit Inquiry, GDPR note, and a closed-by-default **Hidden** accordion containing enrichment fields. It does not duplicate earlier fields.
 
 On screens below 48rem, the GDPR note text is 12px; its desktop size remains 14px.
 
@@ -23,13 +23,20 @@ The newsletter card uses `Newsletter.png` as a full-width banner, with its opt-i
 ## Validation and enrichment
 
 - First name, last name, and email are required before leaving Stage 1.
+- A failed required-field validation uses a red edge on the affected field, which clears once it is corrected; Stage 1 does not show a generic validation banner.
 - Returning from Stage 2 places keyboard focus on First name, the first field in Stage 1.
-- Email-derived suggestions only fill empty fields; manual edits remain unchanged.
+- Email-domain suggestions fill only empty Website and Company name fields. Untouched suggestions refresh when Email changes, manual edits remain unchanged, and personal names are not inferred.
 - Enrichment requests return `industry`, `about`, `urgency`, `sentiment`, and `query` when available.
 - Requests time out after 20 seconds, stale responses are ignored, and failures allow the form to continue.
 - **F1 country lookup** makes one best-effort browser request to FreeIPAPI when the form loads. It uses a recognised ISO country code to prefill Country and the first valid international dialling code to prefill an empty Phone number. It leaves both fields empty on failure and never overwrites a visitor's entered Country or Phone number.
 - F1 writes generic `[F1]` technical status messages to the browser console. Those messages never include an IP address, country, form value, or submission data.
+- Language uses the browser's local `navigator.language` preference, converting its base locale to an English language name (for example, `de-DE` becomes German). It makes no network request and remains editable.
 - Submit Inquiry is a local prototype confirmation only. No form data is sent to a submission backend.
+
+## Known limitations
+
+- F1 location and dialling-prefix suggestions are approximate, depend on FreeIPAPI availability, and can be affected by VPNs, mobile networks, or shared connections.
+- Browser language is a device preference, not a confirmed language preference; visitors can edit the suggested value.
 
 ## Run locally
 
@@ -61,7 +68,7 @@ Test the hosted form:
 BASE_URL="https://forms-v2-mylo.v6pdwnhvws.chatgpt.site" npm run test:e2e
 ```
 
-The suite covers validation, F1 country lookup recovery and manual overrides, enrichment recovery, consent persistence, focus movement, and responsive overflow across Chrome, mobile Chrome, Firefox, and WebKit.
+The suite covers validation, browser-language prefill, F1 country lookup recovery and manual overrides, enrichment recovery, consent persistence, focus movement, and responsive overflow across Chrome, mobile Chrome, Firefox, and WebKit.
 
 ## Privacy and support
 
@@ -73,7 +80,7 @@ The suite covers validation, F1 country lookup recovery and manual overrides, en
 
 ## Design notes
 
-The form uses Inter, shared colour and elevation tokens, and a mobile-first layout. On mobile, paired Back and Continue actions stay on one row: Back uses a smaller share and Continue fills the remaining space. At wider widths, fields use responsive grids and the Enriched details fields use three columns below About.
+The form uses Inter, shared colour and elevation tokens, and a mobile-first layout. On mobile, paired Back and Continue actions stay on one row: Back uses a smaller share and Continue fills the remaining space. Stage 2 actions sit 45px below the final visible company field. At wider widths, fields use responsive grids and the enrichment fields use three columns below About.
 
 ## Maintenance
 

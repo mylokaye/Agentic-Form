@@ -2,13 +2,18 @@ import { mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
+// Build infrastructure — Package the current HTML and newsletter image into the Sites worker.
+// This packaging is not a user-facing feature and therefore has no feature ID.
 const projectDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const html = await readFile(path.join(projectDir, "index.html"), "utf8");
 const newsletterImage = await readFile(path.join(projectDir, "Newsletter.png"));
 const encodedHtml = Buffer.from(html, "utf8").toString("base64");
 const encodedNewsletterImage = newsletterImage.toString("base64");
-const worker = `const assets = {"/":"${encodedHtml}","/index.html":"${encodedHtml}","/Newsletter.png":"${encodedNewsletterImage}"};
+const worker = `// Build infrastructure — Static assets embedded by scripts/build-site.mjs.
+const assets = {"/":"${encodedHtml}","/index.html":"${encodedHtml}","/Newsletter.png":"${encodedNewsletterImage}"};
 const assetContentTypes = {"/":"text/html; charset=utf-8","/index.html":"text/html; charset=utf-8","/Newsletter.png":"image/png"};
+
+// F7 — Hosted enrichment adapter configuration and five-field response contract.
 const DEEPSEEK_API_URL = "https://api.deepseek.com/v1/chat/completions";
 const MODEL = "deepseek-v4-flash";
 const REQUEST_TIMEOUT_MS = 8000;
@@ -18,6 +23,7 @@ const RATE_LIMIT_MAX_REQUESTS = 12;
 const ENRICHMENT_RESPONSE_FIELDS = ["industry", "about", "urgency", "sentiment", "query"];
 const rateLimits = new Map();
 
+// Build infrastructure — Decode embedded static assets without changing their bytes.
 function decode(value) {
   const binary = atob(value);
   const bytes = new Uint8Array(binary.length);
@@ -29,6 +35,7 @@ function decode(value) {
   return bytes;
 }
 
+// Shared hosted infrastructure — Return non-cacheable JSON with basic content protections.
 function json(payload, status = 200) {
   return new Response(JSON.stringify(payload), {
     status,
@@ -40,10 +47,12 @@ function json(payload, status = 200) {
   });
 }
 
+// F7 support — Cloudflare's connection IP is used only for ephemeral, in-memory rate limiting.
 function getClientIp(request) {
   return request.headers.get("CF-Connecting-IP") || "unknown";
 }
 
+// F7 support — Limit each worker instance to 12 requests per client in ten minutes.
 function isRateLimited(request) {
   const now = Date.now();
   const clientIp = getClientIp(request);
@@ -65,12 +74,14 @@ function isRateLimited(request) {
   return existing.count > RATE_LIMIT_MAX_REQUESTS;
 }
 
+// F7 contract — Company enrichment supplies Industry and About.
 function getCompanyPrompt(companyUrl) {
   return "Visit " + companyUrl + ", return a JSON result with two fields:\\n" +
     "- \\\"industry\\\": the company's industry in one or two broad words (e.g. \\\"Manufacturing\\\", \\\"Financial Services\\\")\\n" +
     "- \\\"about\\\": a short 1-2 sentence description of what the company does";
 }
 
+// F7 contract — Optional inquiry analysis supplies Urgency, Sentiment, and Query.
 function getMessageAnalysisPrompt(message) {
   return "Analyse this customer message and classify it into exactly these three fields:\\n" +
     "- \\\"urgency\\\": one of \\\"Low\\\", \\\"Medium\\\", or \\\"High\\\"\\n" +
@@ -79,6 +90,7 @@ function getMessageAnalysisPrompt(message) {
     "Message:\\n" + message;
 }
 
+// F7 support — Normalise model output to the complete five-string browser contract.
 function parseDeepSeekJson(content) {
   const trimmedContent = String(content || "").trim();
   const jsonMatch = trimmedContent.match(/\\{[\\s\\S]*\\}/);
@@ -90,6 +102,7 @@ function parseDeepSeekJson(content) {
   }, {});
 }
 
+// F7 support — Always return all five registered fields, using empty strings when unavailable.
 function createEnrichmentResponse(companyResult, messageResult) {
   const merged = { ...companyResult, ...messageResult };
 
@@ -99,6 +112,7 @@ function createEnrichmentResponse(companyResult, messageResult) {
   }, {});
 }
 
+// F7 support — Hosted requests accept only public HTTP(S) company URLs.
 function isPublicCompanyUrl(value) {
   let url;
 
@@ -116,6 +130,7 @@ function isPublicCompanyUrl(value) {
   return !blockedHosts.includes(hostname) && !hostname.endsWith(".localhost");
 }
 
+// F7 support — Secrets remain in worker bindings and requests time out after eight seconds.
 async function callDeepSeek(env, prompt) {
   const apiKey = env.DEEPSEEK_API_KEY || env.deepseek;
 
@@ -159,6 +174,7 @@ async function callDeepSeek(env, prompt) {
   }
 }
 
+// F7 endpoint — Validate, rate-limit, enrich, and degrade message classification independently.
 async function handleEnrichment(request, env) {
   if (isRateLimited(request)) {
     return json({ error: "Too many enrichment requests. Please try again shortly." }, 429);
@@ -216,10 +232,12 @@ async function handleEnrichment(request, env) {
   }
 }
 
+// Hosted worker entrypoint — Owns the F7 API route and static asset delivery.
 export default {
   async fetch(request, env) {
     const path = new URL(request.url).pathname;
 
+    // F7 route — The enrichment API accepts POST only.
     if (path === "/enrich-company") {
       if (request.method !== "POST") return json({ error: "Not found." }, 404);
       return handleEnrichment(request, env);

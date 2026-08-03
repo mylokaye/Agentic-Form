@@ -2,13 +2,13 @@
 
 ## Project Purpose
 
-This project is a lightweight single-file HTML form experience. The goal is to keep the form portable, readable, accessible, responsive, and easy to maintain without adding frameworks, build tooling, or separate asset pipelines.
+This project is a lightweight single-file browser form experience. The goal is to keep the browser implementation portable, readable, accessible, responsive, and easy to maintain without client frameworks or a browser-side build pipeline. Narrow Node support files exist only for local enrichment, regression testing, and Sites packaging.
 
 ## Core Rules
 
 1. Use plain HTML, CSS, and JavaScript only.
-2. Keep all HTML, CSS, and JavaScript inside a single `.html` file.
-3. Do not create separate `.css` or `.js` files.
+2. Keep all browser-facing HTML, CSS, and JavaScript inside `index.html`.
+3. Do not create separate browser `.css` or `.js` files. Existing Node `.mjs` files are approved only for the documented local proxy, tests, and Sites build adapter.
 4. Do not add frameworks, bundlers, TypeScript, React, Vue, Tailwind, or external libraries without explicit approval.
 5. Prioritise simple, maintainable code over clever abstractions.
 6. Preserve existing behaviour unless the task explicitly asks to change it.
@@ -38,23 +38,38 @@ The README should usually include:
 8. Known limitations
 9. Recent changes or version notes
 
-## Required Single-File Structure
+## Required Project Structure
 
-The project should normally use one file:
+The browser experience remains single-file. The current approved support files and their roles are:
 
 ```txt
 /
 ├─ index.html
 ├─ README.md
-└─ AGENTS.md
+├─ AGENTS.md
+├─ Newsletter.png
+├─ dev-proxy.mjs
+├─ package.json
+├─ package-lock.json
+├─ playwright.config.mjs
+├─ tests/
+│  └─ form-flow.spec.mjs
+├─ scripts/
+│  └─ build-site.mjs
+└─ .openai/
+   └─ hosting.json
 ```
 
 Before building or changing the form, confirm these setup requirements:
 
 1. `AGENTS.md` contains the project rules.
 2. `README.md` describes the current form behaviour and limitations.
-3. `index.html` is the only implementation file once the form exists.
-4. No separate CSS, JavaScript, framework, build, or asset files are required unless explicitly approved.
+3. `index.html` is the only browser implementation file.
+4. `Newsletter.png` is the approved form image asset.
+5. `dev-proxy.mjs` supports only local F7 enrichment and keeps credentials server-side.
+6. `tests/form-flow.spec.mjs` and `playwright.config.mjs` contain regression testing only.
+7. `scripts/build-site.mjs` and `.openai/hosting.json` contain Sites packaging/hosting support only.
+8. No additional browser CSS, browser JavaScript, framework, build layer, or asset is introduced without explicit approval.
 
 The `index.html` file should contain:
 
@@ -196,8 +211,8 @@ Recommended class naming pattern:
 
 ## JavaScript Rules
 
-1. All JavaScript must be placed inside a single `<script>` block before the closing `</body>` tag.
-2. Do not use external JavaScript files.
+1. All browser JavaScript must be placed inside a single `<script>` block before the closing `</body>` tag.
+2. Do not use external browser JavaScript files. The approved Node support files listed in Required Project Structure are not browser assets.
 3. Do not use inline event handlers such as `onclick`, `onchange`, or `onsubmit`.
 4. Use modern vanilla JavaScript.
 5. Use `const` by default and `let` only when reassignment is needed.
@@ -237,6 +252,25 @@ function getFieldValue(form, fieldName) {
   return field.value.trim();
 }
 ```
+
+## JavaScript Feature Register
+
+Feature IDs are stable behaviour identifiers, not release numbers or priorities. Do not renumber or reuse an existing ID. When adding or materially changing JavaScript behaviour, update its inline `F#` comment, this register, the README when user-visible behaviour changes, and the relevant regression test.
+
+Use the inline format `// F# — Canonical feature name: intent or constraint.` Shared helpers may list multiple IDs only when they directly support each named feature. Generic DOM references, build packaging, and other infrastructure must be labelled as shared or infrastructure rather than assigned a misleading feature ID.
+
+| ID | Canonical feature | Exact behaviour contract | Code ownership |
+| --- | --- | --- | --- |
+| F1 | Approximate-location prefill | On initial load, make one best-effort FreeIPAPI request with a 5-second timeout. Accept only a recognised ISO country code. Fill Country only if the visitor has not edited it, and fill the first valid international dialling prefix only while Phone number is empty. Fail silently in the UI and log generic `[F1]` technical outcomes without IP, location, or form data. | Browser code in `index.html`. |
+| F2 | Country and State controls | Start Country empty, render recognised countries by English display name in alphabetical order, and keep the value as its ISO code. Show and enable State only when Country is `US`; otherwise hide and disable State so it is excluded from submission. | Browser code in `index.html`. |
+| F3 | Browser-language prefill | On initial load, convert the base of `navigator.language` to an English language name through `Intl.DisplayNames`. Keep Language editable and leave it empty when the API, locale, or field is unavailable. Make no network request. | Browser code in `index.html`. |
+| F4 | Progression validation | Stage 1 requires First name, Last name, and a valid-looking Email address. Failed Stage 1 fields receive the shared red invalid edge and matching `aria-invalid`; both clear when corrected. Stage 2 requires First name, Last name, Website, and Company name and reports missing values through the shared message. Validation controls action readiness but does not claim identity or mailbox verification. | Browser code in `index.html`. |
+| F5 | Email-domain suggestions | After Stage 1 Email validation succeeds, derive Website and Company name from the email domain. Track ownership of generated values: refresh a value when Email changes only while it remains untouched, and preserve it once the visitor edits it. Fill empty fields only and do not infer a person's name from their email address. | Browser code in `index.html`. |
+| F6 | Three-stage navigation | Keep exactly one stage visible, update Back/Continue/Submit labels and progress semantics, place the shared message beside the active stage, and move focus to the first meaningful control after navigation. Preserve entered values and newsletter choice while moving between stages. Back cannot interrupt active F7 enrichment. | Browser code in `index.html`. |
+| F7 | Company and inquiry enrichment | Start after successful Stage 1 progression. Send only normalised `companyUrl` and optional `message` to the local or hosted `/enrich-company` adapter. Accept exactly five string fields: `industry`, `about`, `urgency`, `sentiment`, and `query`. Use request IDs, input snapshots, abort controllers, and timeouts so stale or failed requests never overwrite current state or block progression. Keep DeepSeek credentials server-side. | Browser code in `index.html`, local adapter in `dev-proxy.mjs`, and hosted adapter generated by `scripts/build-site.mjs`. |
+| F8 | Local prototype submission | On Stage 3, accept one Submit Inquiry action, disable repeat submission, show the explicit local-only confirmation, and emit only a generic technical console message. Do not send a submission payload to a backend. | Browser code in `index.html`. |
+
+F1 is reserved for the existing FreeIPAPI behaviour. The next new JavaScript feature must use F9 unless this register already contains it.
 
 ## Commenting Rules
 
@@ -551,10 +585,10 @@ const showError = (f, m) => document.getElementById(f.dataset.err).innerHTML = m
 
 1. Apply spacing, widths, colours, and typography through shared tokens or reusable selectors; avoid one-off per-stage overrides.
 2. Keep every section title on the same shared title-to-first-field spacing.
-3. Start enrichment after Stage 1. It must degrade gracefully when data or the local proxy is unavailable, and Stage 2 edits must not cancel an in-flight request.
-4. For this prototype, keep submission local-only and log generic technical/prototype outcomes to the console without personal data.
-5. Use a green validation edge only for Email, through its shared validation shadow-ring token. Do not add validation icons or validation edges to other fields unless requested.
-6. Preserve the mobile-first layouts: a lone action fills the width on mobile; when Back and Continue are both visible, keep them in one mobile row with a one-third/two-thirds split. Desktop Continue uses the shared 190px width.
+3. F7 starts enrichment after Stage 1. It must degrade gracefully when data or the local proxy is unavailable, and Stage 2 edits must not cancel an in-flight request.
+4. F8 keeps submission local-only and logs generic technical/prototype outcomes to the console without personal data.
+5. Use the shared red invalid validation shadow-ring token for fields that fail required or email validation. Clear the invalid state as soon as the field is corrected; do not add validation icons or a green success edge unless requested.
+6. Preserve the mobile-first layouts: a lone action fills the width on mobile; when Back and Continue are both visible, keep them in one mobile row with a one-third/two-thirds split. Use the shared responsive width tokens for desktop actions rather than a fixed Continue width.
 7. Keep Stage 3 grouped semantically, move focus to the newly displayed stage, and use three columns below the full-width About field at desktop widths.
 
 ## Final Instruction
