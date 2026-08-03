@@ -570,13 +570,6 @@
       font-size: var(--font-size-message);
     }
 
-    .form__lookup-status {
-      margin: var(--space-xs) 0 0;
-      color: var(--color-muted);
-      font-size: 0.75rem;
-      line-height: 1.4;
-    }
-
     .form:not(.form--inquiry) .form__message--empty {
       display: none;
     }
@@ -903,9 +896,6 @@
                 >
                   <option value="" selected></option>
                 </select>
-                <p class="form__lookup-status" id="country-lookup-status" role="status" hidden>
-                  Country set from your approximate location. You can change it.
-                </p>
               </div>
 
               <div class="form__field">
@@ -1092,7 +1082,6 @@
     const companyNameField = document.getElementById("company-name");
     const companyIndustryField = document.getElementById("company-industry");
     const countryField = document.getElementById("country");
-    const countryLookupStatus = document.getElementById("country-lookup-status");
     const stateField = document.getElementById("state");
     const businessField = document.getElementById("business");
     const inquiryTypeField = document.getElementById("inquiry-type");
@@ -1248,13 +1237,6 @@
       console.info(`[F1] Country lookup ${status}.`);
     }
 
-    // The visible F1 confirmation makes the silent prefill understandable without exposing location data.
-    function setF1CountryLookupStatus(isVisible) {
-      if (!countryLookupStatus) return;
-
-      countryLookupStatus.hidden = !isVisible;
-    }
-
     function getF1CountryCode(result) {
       const countryCode = result?.countryCode;
 
@@ -1291,7 +1273,6 @@
 
         countryField.value = countryCode;
         updateFieldStatuses();
-        setF1CountryLookupStatus(true);
         logF1CountryLookup("applied");
       } catch (error) {
         logF1CountryLookup(error?.name === "AbortError" ? "timed out" : "unavailable");
@@ -1867,7 +1848,6 @@
     if (countryField) {
       countryField.addEventListener("change", () => {
         formState.hasCountryBeenEdited = true;
-        setF1CountryLookupStatus(false);
       });
     }
 
