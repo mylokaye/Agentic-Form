@@ -16,6 +16,8 @@ A portable, three-step inquiry form built with plain HTML, CSS, and JavaScript. 
 2. **Personal details** — Phone, role, company name, industry, country, and state. Defaults include Manager, Aerospace, United States, and Alabama.
 3. **Final step** — Newsletter opt-in, Submit Inquiry, GDPR note, and a closed-by-default **Enriched details** accordion. It does not duplicate earlier fields.
 
+On screens below 48rem, the GDPR note text is 12px; its desktop size remains 14px.
+
 The newsletter card uses `Newsletter.png` as a full-width banner, with its opt-in content below. The checkbox is optional and unchecked by default.
 
 ## Validation and enrichment
