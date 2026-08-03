@@ -901,7 +901,7 @@
                   id="country"
                   name="country"
                 >
-                  <option value="US" selected>United States</option>
+                  <option value="" selected></option>
                 </select>
                 <p class="form__lookup-status" id="country-lookup-status" role="status" hidden>
                   Country set from your approximate location. You can change it.
@@ -1225,6 +1225,11 @@
 
       const countryNames = new Intl.DisplayNames(["en"], { type: "region" });
       const options = document.createDocumentFragment();
+      const placeholderOption = document.createElement("option");
+
+      placeholderOption.value = "";
+      placeholderOption.textContent = "";
+      options.appendChild(placeholderOption);
 
       COUNTRY_CODES.forEach((code) => {
         const option = document.createElement("option");
@@ -1235,7 +1240,7 @@
       });
 
       countryField.replaceChildren(options);
-      countryField.value = "US";
+      countryField.value = "";
     }
 
     // F1 messages deliberately report only technical outcomes, never IP addresses or locations.

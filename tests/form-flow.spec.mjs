@@ -35,6 +35,14 @@ test("F1 prefills Country from FreeIPAPI", async ({ page }) => {
   await expect(page.locator("#country-lookup-status")).toBeVisible();
 });
 
+test("F1 leaves Country empty when FreeIPAPI is unavailable", async ({ page }) => {
+  await page.route("**free.freeipapi.com/api/json", (route) => route.abort());
+  await page.goto("/");
+
+  await expect(page.locator("#country")).toHaveValue("");
+  await expect(page.locator("#country-lookup-status")).not.toBeVisible();
+});
+
 test("F1 keeps a visitor's Country selection when its lookup finishes later", async ({ page }) => {
   let fulfillLookup;
   await page.route("**free.freeipapi.com/api/json", async (route) => {
