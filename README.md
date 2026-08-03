@@ -27,7 +27,7 @@ The newsletter card uses `Newsletter.png` as a full-width banner, with its opt-i
 - Email-derived suggestions only fill empty fields; manual edits remain unchanged.
 - Enrichment requests return `industry`, `about`, `urgency`, `sentiment`, and `query` when available.
 - Requests time out after 20 seconds, stale responses are ignored, and failures allow the form to continue.
-- **F1 country lookup** makes one best-effort browser request to FreeIPAPI when the form loads. It uses only a recognised ISO country code to prefill Country, times out after 5 seconds, retains the United States default on failure, and never overwrites a visitor's Country selection.
+- **F1 country lookup** makes one best-effort browser request to FreeIPAPI when the form loads. It uses only a recognised ISO country code to prefill Country, shows a short confirmation below the field, times out after 5 seconds, retains the United States default on failure, and never overwrites a visitor's Country selection.
 - F1 writes generic `[F1]` technical status messages to the browser console. Those messages never include an IP address, country, form value, or submission data.
 - Submit Inquiry is a local prototype confirmation only. No form data is sent to a submission backend.
 

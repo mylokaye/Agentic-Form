@@ -32,6 +32,7 @@ test("F1 prefills Country from FreeIPAPI", async ({ page }) => {
   await page.goto("/");
 
   await expect(page.locator("#country")).toHaveValue("GB");
+  await expect(page.locator("#country-lookup-status")).toBeVisible();
 });
 
 test("F1 keeps a visitor's Country selection when its lookup finishes later", async ({ page }) => {
@@ -51,6 +52,7 @@ test("F1 keeps a visitor's Country selection when its lookup finishes later", as
   await fulfillLookup();
 
   await expect(page.locator("#country")).toHaveValue("DE");
+  await expect(page.locator("#country-lookup-status")).not.toBeVisible();
 });
 
 test("requires first name, last name, and email on Stage 1", async ({ page }) => {
