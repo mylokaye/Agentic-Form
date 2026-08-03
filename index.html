@@ -1971,8 +1971,11 @@
 
     // 7. Feature event listeners
     if (emailField) {
-      // F4, F5, F7
-      emailField.addEventListener("input", updateVerifyButtonState);
+      // F4 and F5 — A new Email value releases only F5-owned suggestions before the next Stage 1 attempt.
+      emailField.addEventListener("input", () => {
+        clearEmailDomainSuggestions();
+        updateVerifyButtonState();
+      });
     }
 
     if (countryField) {
