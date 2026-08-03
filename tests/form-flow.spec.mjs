@@ -25,6 +25,34 @@ async function completeStagesOneAndTwo(page) {
   await expect(page.getByRole("heading", { name: "Final step" })).toBeVisible();
 }
 
+test("F1 prefills Country from FreeIPAPI", async ({ page }) => {
+  await page.route("**free.freeipapi.com/api/json", (route) => route.fulfill({
+    json: { countryCode: "GB" }
+  }));
+  await page.goto("/");
+
+  await expect(page.locator("#country")).toHaveValue("GB");
+});
+
+test("F1 keeps a visitor's Country selection when its lookup finishes later", async ({ page }) => {
+  let fulfillLookup;
+  await page.route("**free.freeipapi.com/api/json", async (route) => {
+    await new Promise((resolve) => {
+      fulfillLookup = async () => {
+        await route.fulfill({ json: { countryCode: "GB" } });
+        resolve();
+      };
+    });
+  });
+  await page.goto("/");
+  await expect.poll(() => Boolean(fulfillLookup)).toBe(true);
+
+  await page.locator("#country").selectOption("DE");
+  await fulfillLookup();
+
+  await expect(page.locator("#country")).toHaveValue("DE");
+});
+
 test("requires first name, last name, and email on Stage 1", async ({ page }) => {
   await page.goto("/");
 

@@ -894,7 +894,7 @@
                   id="country"
                   name="country"
                 >
-                  <option value="United States" selected>United States</option>
+                  <option value="US" selected>United States</option>
                 </select>
               </div>
 
@@ -1105,6 +1105,26 @@
         ? "http://127.0.0.1:8787/enrich-company"
         : "/enrich-company";
     const COMPANY_ENRICHMENT_TIMEOUT_MS = 20000;
+    const F1_COUNTRY_LOOKUP_ENDPOINT = "https://free.freeipapi.com/api/json";
+    const F1_COUNTRY_LOOKUP_TIMEOUT_MS = 5000;
+    const COUNTRY_CODES = [
+      "AD", "AE", "AF", "AG", "AI", "AL", "AM", "AO", "AQ", "AR", "AS", "AT", "AU", "AW", "AX", "AZ",
+      "BA", "BB", "BD", "BE", "BF", "BG", "BH", "BI", "BJ", "BL", "BM", "BN", "BO", "BQ", "BR", "BS",
+      "BT", "BV", "BW", "BY", "BZ", "CA", "CC", "CD", "CF", "CG", "CH", "CI", "CK", "CL", "CM", "CN",
+      "CO", "CR", "CU", "CV", "CW", "CX", "CY", "CZ", "DE", "DJ", "DK", "DM", "DO", "DZ", "EC", "EE",
+      "EG", "EH", "ER", "ES", "ET", "FI", "FJ", "FK", "FM", "FO", "FR", "GA", "GB", "GD", "GE", "GF",
+      "GG", "GH", "GI", "GL", "GM", "GN", "GP", "GQ", "GR", "GS", "GT", "GU", "GW", "GY", "HK", "HM",
+      "HN", "HR", "HT", "HU", "ID", "IE", "IL", "IM", "IN", "IO", "IQ", "IR", "IS", "IT", "JE", "JM",
+      "JO", "JP", "KE", "KG", "KH", "KI", "KM", "KN", "KP", "KR", "KW", "KY", "KZ", "LA", "LB", "LC",
+      "LI", "LK", "LR", "LS", "LT", "LU", "LV", "LY", "MA", "MC", "MD", "ME", "MF", "MG", "MH", "MK",
+      "ML", "MM", "MN", "MO", "MP", "MQ", "MR", "MS", "MT", "MU", "MV", "MW", "MX", "MY", "MZ", "NA",
+      "NC", "NE", "NF", "NG", "NI", "NL", "NO", "NP", "NR", "NU", "NZ", "OM", "PA", "PE", "PF", "PG",
+      "PH", "PK", "PL", "PM", "PN", "PR", "PS", "PT", "PW", "PY", "QA", "RE", "RO", "RS", "RU", "RW",
+      "SA", "SB", "SC", "SD", "SE", "SG", "SH", "SI", "SJ", "SK", "SL", "SM", "SN", "SO", "SR", "SS",
+      "ST", "SV", "SX", "SY", "SZ", "TC", "TD", "TF", "TG", "TH", "TJ", "TK", "TL", "TM", "TN", "TO",
+      "TR", "TT", "TV", "TW", "TZ", "UA", "UG", "UM", "US", "UY", "UZ", "VA", "VC", "VE", "VG", "VI",
+      "VN", "VU", "WF", "WS", "XK", "YE", "YT", "ZA", "ZM", "ZW"
+    ];
     const FIELD_CONFIG = {
       email: { field: emailField, tracksStatus: true },
       message: { field: messageField },
@@ -1143,7 +1163,9 @@
       enrichmentController: null,
       enrichmentRequestId: 0,
       isEnrichmentLoading: false,
-      isSubmitted: false
+      isSubmitted: false,
+      countryLookupController: null,
+      hasCountryBeenEdited: false
     };
 
     // 3. Utility functions
@@ -1183,6 +1205,79 @@
 
     function updateFieldStatuses() {
       STATUS_FIELDS.forEach(updateFieldStatus);
+    }
+
+    // F1 populates Country from a best-effort geolocation lookup. It only uses
+    // the returned country code and never replaces a selection the visitor made.
+    function populateCountryOptions() {
+      if (!countryField || !window.Intl?.DisplayNames) return;
+
+      const countryNames = new Intl.DisplayNames(["en"], { type: "region" });
+      const options = document.createDocumentFragment();
+
+      COUNTRY_CODES.forEach((code) => {
+        const option = document.createElement("option");
+
+        option.value = code;
+        option.textContent = countryNames.of(code);
+        options.appendChild(option);
+      });
+
+      countryField.replaceChildren(options);
+      countryField.value = "US";
+    }
+
+    // F1 messages deliberately report only technical outcomes, never IP addresses or locations.
+    function logF1CountryLookup(status) {
+      console.info(`[F1] Country lookup ${status}.`);
+    }
+
+    function getF1CountryCode(result) {
+      const countryCode = result?.countryCode;
+
+      if (typeof countryCode !== "string" || !COUNTRY_CODES.includes(countryCode)) {
+        throw new Error("F1 returned an unrecognised country.");
+      }
+
+      return countryCode;
+    }
+
+    async function lookupCountryForF1() {
+      if (!countryField || !window.Intl?.DisplayNames) return;
+
+      const controller = new AbortController();
+      const timeoutId = window.setTimeout(() => controller.abort(), F1_COUNTRY_LOOKUP_TIMEOUT_MS);
+
+      formState.countryLookupController = controller;
+      logF1CountryLookup("started");
+
+      try {
+        const response = await fetch(F1_COUNTRY_LOOKUP_ENDPOINT, { signal: controller.signal });
+        const result = await response.json();
+
+        if (!response.ok) {
+          throw new Error("F1 country lookup failed.");
+        }
+
+        const countryCode = getF1CountryCode(result);
+
+        if (formState.hasCountryBeenEdited) {
+          logF1CountryLookup("skipped after a visitor edit");
+          return;
+        }
+
+        countryField.value = countryCode;
+        updateFieldStatuses();
+        logF1CountryLookup("applied");
+      } catch (error) {
+        logF1CountryLookup(error?.name === "AbortError" ? "timed out" : "unavailable");
+      } finally {
+        window.clearTimeout(timeoutId);
+
+        if (formState.countryLookupController === controller) {
+          formState.countryLookupController = null;
+        }
+      }
     }
 
     // 4. Validation functions
@@ -1745,6 +1840,12 @@
       messageField.addEventListener("input", updateFieldStatuses);
     }
 
+    if (countryField) {
+      countryField.addEventListener("change", () => {
+        formState.hasCountryBeenEdited = true;
+      });
+    }
+
     DETAIL_FIELDS.forEach((field) => {
         field.addEventListener("input", handleVerifiedFieldInput);
     });
@@ -1762,6 +1863,8 @@
 
     updateFieldStatuses();
     showPage(1);
+    populateCountryOptions();
+    void lookupCountryForF1();
   </script>
 </body>
 </html>

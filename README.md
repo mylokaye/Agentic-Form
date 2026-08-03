@@ -13,7 +13,7 @@ A portable, three-step inquiry form built with plain HTML, CSS, and JavaScript. 
 ## Form flow
 
 1. **Inquiry** — First name, last name, email, inquiry, business, inquiry type, and inquiry subtype. The three personal fields have configured defaults. Continue derives company details and starts enrichment.
-2. **Personal details** — Phone, role, company name, industry, country, and state. Defaults include Manager, Aerospace, United States, and Alabama.
+2. **Personal details** — Phone, role, company name, industry, country, and state. Defaults include Manager, Aerospace, United States, and Alabama. F1 can prefill Country from the visitor's approximate IP country.
 3. **Final step** — Newsletter opt-in, Submit Inquiry, GDPR note, and a closed-by-default **Enriched details** accordion. It does not duplicate earlier fields.
 
 On screens below 48rem, the GDPR note text is 12px; its desktop size remains 14px.
@@ -27,6 +27,8 @@ The newsletter card uses `Newsletter.png` as a full-width banner, with its opt-i
 - Email-derived suggestions only fill empty fields; manual edits remain unchanged.
 - Enrichment requests return `industry`, `about`, `urgency`, `sentiment`, and `query` when available.
 - Requests time out after 20 seconds, stale responses are ignored, and failures allow the form to continue.
+- **F1 country lookup** makes one best-effort browser request to FreeIPAPI when the form loads. It uses only a recognised ISO country code to prefill Country, times out after 5 seconds, retains the United States default on failure, and never overwrites a visitor's Country selection.
+- F1 writes generic `[F1]` technical status messages to the browser console. Those messages never include an IP address, country, form value, or submission data.
 - Submit Inquiry is a local prototype confirmation only. No form data is sent to a submission backend.
 
 ## Run locally
@@ -59,11 +61,12 @@ Test the hosted form:
 BASE_URL="https://forms-v2-mylo.v6pdwnhvws.chatgpt.site" npm run test:e2e
 ```
 
-The suite covers validation, enrichment recovery, consent persistence, focus movement, and responsive overflow across Chrome, mobile Chrome, Firefox, and WebKit.
+The suite covers validation, F1 country lookup recovery and manual overrides, enrichment recovery, consent persistence, focus movement, and responsive overflow across Chrome, mobile Chrome, Firefox, and WebKit.
 
 ## Privacy and support
 
-- No analytics, cookies, tracking pixels, localStorage, or sessionStorage are used.
+- No first-party analytics, cookies, tracking pixels, localStorage, or sessionStorage are used.
+- F1 makes a direct request to FreeIPAPI to infer a country from the visitor's IP address. The form does not retain or log that IP address or the lookup result; FreeIPAPI is a third-party service with its own privacy policy.
 - Do not log personal data or submission payloads.
 - Enrichment is advisory and may be unavailable; review its values before production use.
 - The form supports current Chrome, Edge, Safari, Firefox, Mobile Safari, and Chrome for Android.
