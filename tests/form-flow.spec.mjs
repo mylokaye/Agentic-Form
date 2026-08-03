@@ -27,11 +27,12 @@ async function completeStagesOneAndTwo(page) {
 
 test("F1 prefills Country from FreeIPAPI", async ({ page }) => {
   await page.route("**free.freeipapi.com/api/json", (route) => route.fulfill({
-    json: { countryCode: "GB" }
+    json: { countryCode: "GB", phoneCodes: [44] }
   }));
   await page.goto("/");
 
   await expect(page.locator("#country")).toHaveValue("GB");
+  await expect(page.locator("#phone")).toHaveValue("+44 ");
 });
 
 test("F1 leaves Country empty when FreeIPAPI is unavailable", async ({ page }) => {
@@ -39,6 +40,30 @@ test("F1 leaves Country empty when FreeIPAPI is unavailable", async ({ page }) =
   await page.goto("/");
 
   await expect(page.locator("#country")).toHaveValue("");
+  await expect(page.locator("#phone")).toHaveValue("");
+});
+
+test("F1 does not replace a Phone number entered before lookup completes", async ({ page }) => {
+  let fulfillLookup;
+  await page.route("**free.freeipapi.com/api/json", async (route) => {
+    await new Promise((resolve) => {
+      fulfillLookup = async () => {
+        await route.fulfill({ json: { countryCode: "GB", phoneCodes: [44] } });
+        resolve();
+      };
+    });
+  });
+  await page.goto("/");
+  await expect.poll(() => Boolean(fulfillLookup)).toBe(true);
+
+  await page.locator("#phone").evaluate((field) => {
+    field.value = "+49 30 123456";
+    field.dispatchEvent(new Event("input", { bubbles: true }));
+  });
+  await fulfillLookup();
+
+  await expect(page.locator("#country")).toHaveValue("GB");
+  await expect(page.locator("#phone")).toHaveValue("+49 30 123456");
 });
 
 test("F1 keeps a visitor's Country selection when its lookup finishes later", async ({ page }) => {

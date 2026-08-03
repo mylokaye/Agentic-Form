@@ -13,7 +13,7 @@ A portable, three-step inquiry form built with plain HTML, CSS, and JavaScript. 
 ## Form flow
 
 1. **Inquiry** — First name, last name, email, inquiry, business, inquiry type, and inquiry subtype. The three personal fields have configured defaults. Continue derives company details and starts enrichment.
-2. **Personal details** — Phone, role, company name, industry, country, and state. Defaults include Manager, Aerospace, and Alabama; Country starts empty. F1 can prefill Country from the visitor's approximate IP country.
+2. **Personal details** — Phone, role, company name, industry, country, and state. Defaults include Manager, Aerospace, and Alabama; Country starts empty. F1 can prefill Country and an international Phone prefix from the visitor's approximate IP country.
 3. **Final step** — Newsletter opt-in, Submit Inquiry, GDPR note, and a closed-by-default **Enriched details** accordion. It does not duplicate earlier fields.
 
 On screens below 48rem, the GDPR note text is 12px; its desktop size remains 14px.
@@ -27,7 +27,7 @@ The newsletter card uses `Newsletter.png` as a full-width banner, with its opt-i
 - Email-derived suggestions only fill empty fields; manual edits remain unchanged.
 - Enrichment requests return `industry`, `about`, `urgency`, `sentiment`, and `query` when available.
 - Requests time out after 20 seconds, stale responses are ignored, and failures allow the form to continue.
-- **F1 country lookup** makes one best-effort browser request to FreeIPAPI when the form loads. It uses only a recognised ISO country code to prefill Country, leaves Country empty on failure, and never overwrites a visitor's Country selection.
+- **F1 country lookup** makes one best-effort browser request to FreeIPAPI when the form loads. It uses a recognised ISO country code to prefill Country and the first valid international dialling code to prefill an empty Phone number. It leaves both fields empty on failure and never overwrites a visitor's entered Country or Phone number.
 - F1 writes generic `[F1]` technical status messages to the browser console. Those messages never include an IP address, country, form value, or submission data.
 - Submit Inquiry is a local prototype confirmation only. No form data is sent to a submission backend.
 

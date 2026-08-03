@@ -1247,6 +1247,13 @@
       return countryCode;
     }
 
+    // F1 uses the first valid international dialling code only while Phone number is empty.
+    function getF1PhonePrefix(result) {
+      const phoneCode = String(result?.phoneCodes?.[0] ?? "").trim();
+
+      return /^\d{1,4}$/.test(phoneCode) ? `+${phoneCode} ` : "";
+    }
+
     async function lookupCountryForF1() {
       if (!countryField || !window.Intl?.DisplayNames) return;
 
@@ -1265,6 +1272,7 @@
         }
 
         const countryCode = getF1CountryCode(result);
+        const phonePrefix = getF1PhonePrefix(result);
 
         if (formState.hasCountryBeenEdited) {
           logF1CountryLookup("skipped after a visitor edit");
@@ -1272,6 +1280,11 @@
         }
 
         countryField.value = countryCode;
+
+        if (phoneField && !phoneField.value.trim() && phonePrefix) {
+          phoneField.value = phonePrefix;
+        }
+
         updateFieldStatuses();
         logF1CountryLookup("applied");
       } catch (error) {
