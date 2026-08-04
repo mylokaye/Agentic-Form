@@ -63,7 +63,7 @@ test("[F11] shows the Spare parts newsletter topic only for that inquiry subtype
 
   await expect(newsletterTopics).toContainText("New products & promotions");
   await expect(newsletterTopics).toContainText("Shutdown and critical alerts");
-  await expect(newsletterTopics).toHaveCSS("font-size", "12px");
+  await expect(newsletterTopics).toHaveCSS("font-size", "14px");
   await expect(newsletterTopics).toHaveCSS("color", "rgb(35, 13, 57)");
   await expect(newsletterTopics).toHaveCSS("font-family", /Inter/);
   await expect(sparePartsTopic).toBeVisible();
