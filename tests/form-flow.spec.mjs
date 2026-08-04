@@ -53,6 +53,29 @@ test("[F10] personalizes the Newsletter banner from First name", async ({ page }
   await expect(newsletterHeading).toHaveCSS("font-family", /Inter/);
 });
 
+test("[F11] shows the Spare parts newsletter topic only for that inquiry subtype", async ({ page }) => {
+  await page.route("**free.freeipapi.com/api/json", (route) => route.abort());
+  await page.goto("/");
+  await completeStagesOneAndTwo(page);
+
+  const newsletterTopics = page.locator(".newsletter-card__topics");
+  const sparePartsTopic = page.locator("#newsletter-spare-parts-topic");
+
+  await expect(newsletterTopics).toContainText("New products & promotions");
+  await expect(newsletterTopics).toContainText("Shutdown and critical alerts");
+  await expect(newsletterTopics).toHaveCSS("font-size", "12px");
+  await expect(newsletterTopics).toHaveCSS("color", "rgb(35, 13, 57)");
+  await expect(newsletterTopics).toHaveCSS("font-family", /Inter/);
+  await expect(sparePartsTopic).toBeVisible();
+
+  await page.locator("#inquiry-subtype").evaluate((field) => {
+    field.value = "";
+    field.dispatchEvent(new Event("change", { bubbles: true }));
+  });
+
+  await expect(sparePartsTopic).toBeHidden();
+});
+
 test("[F9] shows the full current form URL in the Debug accordion", async ({ page }) => {
   await page.route("**free.freeipapi.com/api/json", (route) => route.abort());
   await page.route("**/enrich-company", (route) => route.fulfill({ json: enrichmentResponse }));

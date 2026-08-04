@@ -271,8 +271,9 @@ Use the inline format `// F# — Canonical feature name: intent or constraint.` 
 | F8 | Local prototype submission | On Stage 3, accept one Submit Inquiry action, disable repeat submission, show the explicit local-only confirmation, and emit only a generic technical console message. Do not send a submission payload to a backend. | Browser code in `index.html`. |
 | F9 | Current URL capture | On initial load, set the read-only `currentUrl` field in the closed Debug accordion to `window.location.href`, including its query string and hash. Do not log, persist, or transmit the value. | Browser code in `index.html`. |
 | F10 | Personalized newsletter heading | On initial load and whenever First name changes, show `Content tailored for you, First name.` in the Newsletter banner. Use a generic no-name fallback when First name is empty; do not log, persist, or transmit the displayed name. | Browser code in `index.html`. |
+| F11 | Conditional newsletter topics | Always show `New products & promotions` and `Shutdown and critical alerts` in the Newsletter banner. Show `Spare parts & service reminders` only when Inquiry subtype is `Spare parts`. Use Inter at 12px in `#230D39`; do not log, persist, or transmit the subtype. | Browser code in `index.html`. |
 
-F1 is reserved for the existing FreeIPAPI behaviour. The next new JavaScript feature must use F11 unless this register already contains it.
+F1 is reserved for the existing FreeIPAPI behaviour. The next new JavaScript feature must use F12 unless this register already contains it.
 
 ## Commenting Rules
 
