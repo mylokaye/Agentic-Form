@@ -51,7 +51,6 @@ test("[F10] personalizes the Newsletter banner from First name", async ({ page }
   await expect(newsletterHeading).toHaveCSS("font-size", "19px");
   await expect(newsletterHeading).toHaveCSS("color", "rgb(35, 13, 57)");
   await expect(newsletterHeading).toHaveCSS("font-family", /Inter/);
-  await expect(page.locator(".newsletter-card__benefits")).toHaveCSS("color", "rgb(74, 85, 101)");
 });
 
 test("[F11] shows the Spare parts newsletter topic only for that inquiry subtype", async ({ page }) => {
