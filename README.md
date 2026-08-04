@@ -4,7 +4,7 @@ A portable, three-step inquiry form built with plain HTML, CSS, and JavaScript. 
 
 ## Files
 
-- `index.html` — form UI, styles, and browser logic.
+- `index.html` — form UI, styles, browser logic, and the Google Fonts Inter stylesheet link.
 - `dev-proxy.mjs` — local company-enrichment proxy.
 - `scripts/build-site.mjs` — builds the Sites worker and hosted enrichment route.
 - `tests/form-flow.spec.mjs` — Playwright regression tests.
@@ -16,11 +16,11 @@ A portable, three-step inquiry form built with plain HTML, CSS, and JavaScript. 
 2. **Personal details** — Phone, role, language, company name, industry, country, and State. Country sits beside Industry on wider screens and its list is alphabetised; State appears directly below it only when United States is selected and is disabled otherwise, so it is excluded from form submissions. Defaults include Manager, Aerospace, and Alabama; Country starts empty. Language is prefilled from the browser locale when recognised, and F1 can prefill Country and an international Phone prefix from the visitor's approximate IP country.
 3. **Review and submit** — Newsletter opt-in, Submit Inquiry, GDPR note, and a closed-by-default **Debug** accordion containing enrichment fields. It does not duplicate earlier fields.
 
-On screens below 48rem, the GDPR note text is 12px; its desktop size remains 14px.
+The GDPR consent note uses 12px text at every viewport width.
 
 The closed **Debug** accordion includes a read-only `currentUrl` field. F9 sets it to the full URL of the page that loaded the form, including any query string or hash. It is prepared for a future submission integration; the current prototype does not transmit it.
 
-The newsletter card uses a CSS-only white geometric gradient across the full card, with Subscribe directly after and aligned to the newsletter topics. The banner keeps a 3:1 desktop proportion and a mobile-safe 8rem minimum height. F10 personalizes its 22px header as `Content tailored for you, First name.` using the entered First name; it falls back to `Content tailored for you.` when empty. F11 displays New products & promotions and Shutdown and critical alerts in the shared 14px body size; Spare parts & service reminders appears only when Inquiry subtype is Spare parts. The checkbox is optional and unchecked by default.
+The newsletter card uses a CSS-only white geometric gradient across the full card, with Subscribe directly after and aligned to the newsletter topics. The banner and its contents use `#4a5565`; Subscribe has 19px vertical padding. The banner keeps a 3.5:1 desktop proportion and a mobile-safe 8rem minimum height. F10 personalizes its 22px header as `Content tailored for you, First name.` using the entered First name; it falls back to `Content tailored for you.` when empty. F11 displays New products & promotions and Shutdown and critical alerts in the shared 14px body size; Spare parts & service reminders appears only when Inquiry subtype is Spare parts. The checkbox is optional and unchecked by default.
 
 ## Validation and enrichment
 
@@ -78,6 +78,7 @@ The suite covers validation, browser-language prefill, F1 country lookup recover
 ## Privacy and support
 
 - No first-party analytics, cookies, tracking pixels, localStorage, or sessionStorage are used.
+- Inter is loaded from Google Fonts for typography; loading the form makes requests to Google font domains, which are subject to Google's privacy terms.
 - The read-only Current URL value may include query-string or hash content. Do not place personal or sensitive information in form URLs.
 - F1 makes a direct request to FreeIPAPI to infer a country from the visitor's IP address. The form does not retain or log that IP address or the lookup result; FreeIPAPI is a third-party service with its own privacy policy.
 - Do not log personal data or submission payloads.

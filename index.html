@@ -45,6 +45,7 @@
       --font-family: "Inter", Arial, Helvetica, sans-serif;
       --font-size-body: 14px;
       --font-size-message: 14px;
+      --font-size-consent-note: 12px;
       --line-height-body: 20px;
       --height-message-alert: 42px;
       --padding-alert-block: var(--space-sm);
@@ -59,7 +60,7 @@
       --font-weight-regular: 400;
       --font-weight-medium: 500;
       --font-weight-label: var(--font-weight-regular);
-      --padding-newsletter-block: 0.75rem;
+      --padding-newsletter-block: 19px;
       --padding-newsletter-inline: 0.75rem;
 
       --height-button: 50px;
@@ -355,6 +356,10 @@
       line-height: var(--line-height-body);
     }
 
+    #gdpr-consent-note .form__alert-text {
+      font-size: var(--font-size-consent-note);
+    }
+
     .form__control {
       position: relative;
     }
@@ -446,7 +451,7 @@
     .newsletter-card__banner {
       position: relative;
       width: 100%;
-      aspect-ratio: 3 / 1;
+      aspect-ratio: 3.5 / 1;
       min-height: 8rem;
     }
 
@@ -456,7 +461,7 @@
       right: var(--space-md);
       left: clamp(1rem, 3.5vw, 2rem);
       margin: 0;
-      color: #230D39;
+      color: #4a5565;
       font-family: Inter, sans-serif;
       font-size: 22px;
       font-weight: var(--font-weight-title);
@@ -466,14 +471,14 @@
 
     .newsletter-card__topics {
       position: absolute;
-      top: 43%;
+      top: 52%;
       right: var(--space-md);
       left: clamp(1rem, 3.5vw, 2rem);
       display: grid;
       gap: var(--space-sm);
       margin: 0;
       padding: 0;
-      color: #230D39;
+      color: #4a5565;
       font-family: Inter, sans-serif;
       font-size: var(--font-size-body);
       font-weight: var(--font-weight-regular);
@@ -690,10 +695,6 @@
     }
 
     @media (max-width: 47.999rem) {
-      #gdpr-consent-note .form__alert-text {
-        font-size: calc(var(--font-size-message) - 2px);
-      }
-
       .form__actions:has(#back-button:not([hidden])) {
         flex-direction: row;
       }

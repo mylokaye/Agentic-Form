@@ -47,7 +47,6 @@ The browser experience remains single-file. The current approved support files a
 ├─ index.html
 ├─ README.md
 ├─ AGENTS.md
-├─ Newsletter.png
 ├─ dev-proxy.mjs
 ├─ package.json
 ├─ package-lock.json
@@ -65,7 +64,7 @@ Before building or changing the form, confirm these setup requirements:
 1. `AGENTS.md` contains the project rules.
 2. `README.md` describes the current form behaviour and limitations.
 3. `index.html` is the only browser implementation file.
-4. `Newsletter.png` is the approved form image asset.
+4. The newsletter card uses the documented CSS-only background; do not add a replacement image asset without approval.
 5. `dev-proxy.mjs` supports only local F7 enrichment and keeps credentials server-side.
 6. `tests/form-flow.spec.mjs` and `playwright.config.mjs` contain regression testing only.
 7. `scripts/build-site.mjs` and `.openai/hosting.json` contain Sites packaging/hosting support only.
@@ -122,8 +121,8 @@ Example:
 
 ## CSS Rules
 
-1. All CSS must be placed inside a single `<style>` block in the document `<head>`.
-2. Do not use external stylesheets.
+1. All browser-authored CSS must be placed inside a single `<style>` block in the document `<head>`.
+2. External font-provider stylesheets are permitted for typography only. Keep all layout, component, and state styling inside the document `<style>` block, and document the provider in `README.md`.
 3. Do not use inline `style=""` attributes unless explicitly required.
 4. Use CSS custom properties for shared colours, spacing, borders, shadows, and font sizes.
 5. Use mobile-first CSS.

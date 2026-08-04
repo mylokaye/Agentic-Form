@@ -49,7 +49,7 @@ test("[F10] personalizes the Newsletter banner from First name", async ({ page }
 
   await expect(newsletterHeading).toHaveText("Content tailored for you, Avery.");
   await expect(newsletterHeading).toHaveCSS("font-size", "22px");
-  await expect(newsletterHeading).toHaveCSS("color", "rgb(35, 13, 57)");
+  await expect(newsletterHeading).toHaveCSS("color", "rgb(74, 85, 101)");
   await expect(newsletterHeading).toHaveCSS("font-family", /Inter/);
 });
 
@@ -64,7 +64,7 @@ test("[F11] shows the Spare parts newsletter topic only for that inquiry subtype
   await expect(newsletterTopics).toContainText("New products & promotions");
   await expect(newsletterTopics).toContainText("Shutdown and critical alerts");
   await expect(newsletterTopics).toHaveCSS("font-size", "14px");
-  await expect(newsletterTopics).toHaveCSS("color", "rgb(35, 13, 57)");
+  await expect(newsletterTopics).toHaveCSS("color", "rgb(74, 85, 101)");
   await expect(newsletterTopics).toHaveCSS("font-family", /Inter/);
   await expect(sparePartsTopic).toBeVisible();
 
@@ -85,6 +85,7 @@ test("keeps the CSS-only Newsletter banner content inside its mobile layout", as
   const banner = page.locator(".newsletter-card__banner");
   const heading = page.locator("#newsletter-heading");
   const topics = page.locator(".newsletter-card__topics");
+  const newsletterContent = page.locator(".newsletter-card__content");
   const subscribe = page.getByRole("checkbox", { name: "Subscribe" });
   const bannerBox = await banner.boundingBox();
   const headingBox = await heading.boundingBox();
@@ -94,6 +95,8 @@ test("keeps the CSS-only Newsletter banner content inside its mobile layout", as
   expect(await banner.evaluate((element) => element.querySelector("img"))).toBeNull();
   await expect(card).toHaveCSS("background-image", /linear-gradient/);
   await expect(banner).toHaveCSS("min-height", "128px");
+  await expect(newsletterContent).toHaveCSS("padding-top", "19px");
+  await expect(newsletterContent).toHaveCSS("padding-bottom", "19px");
   expect(bannerBox).not.toBeNull();
   expect(headingBox).not.toBeNull();
   expect(topicsBox).not.toBeNull();
@@ -107,6 +110,7 @@ test("keeps the CSS-only Newsletter banner content inside its mobile layout", as
   expect(topicsBox.x + topicsBox.width).toBeLessThanOrEqual(bannerBox.x + bannerBox.width);
   expect(topicsBox.y + topicsBox.height).toBeLessThanOrEqual(bannerBox.y + bannerBox.height);
   expect(subscribeBox.y).toBeGreaterThanOrEqual(topicsBox.y + topicsBox.height);
+  expect(subscribeBox.y - (topicsBox.y + topicsBox.height)).toBeLessThanOrEqual(48);
   expect(subscribeBox.x).toBeCloseTo(topicsBox.x, 0);
 });
 
@@ -308,6 +312,7 @@ test("[F6] does not repeat completed stage fields on confirmation", async ({ pag
   await expect(page.getByRole("group", { name: "Personal details" })).not.toBeVisible();
   await expect(page.getByRole("group", { name: "Company details" })).not.toBeVisible();
   await expect(page.getByText("By submitting this form, your personal data will be processed")).toBeVisible();
+  await expect(page.locator("#gdpr-consent-note .form__alert-text")).toHaveCSS("font-size", "12px");
   await expect(page.getByRole("heading", { name: "Debug" })).toBeVisible();
   await expect(page.locator("#enriched-details")).not.toHaveAttribute("open", "");
   await expect(page.getByRole("textbox", { name: "About" })).not.toBeVisible();
@@ -439,4 +444,19 @@ test("does not horizontally overflow at the configured viewport", async ({ page 
   );
 
   expect(hasHorizontalOverflow).toBe(false);
+});
+
+test("does not horizontally overflow at every required viewport width", async ({ page }) => {
+  await page.route("**free.freeipapi.com/api/json", (route) => route.abort());
+
+  for (const width of [320, 375, 390, 768, 1024]) {
+    await page.setViewportSize({ width, height: 900 });
+    await page.goto("/");
+
+    const hasHorizontalOverflow = await page.evaluate(
+      () => document.documentElement.scrollWidth > window.innerWidth
+    );
+
+    expect(hasHorizontalOverflow).toBe(false);
+  }
 });
