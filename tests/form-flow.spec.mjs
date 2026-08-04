@@ -48,7 +48,7 @@ test("[F10] personalizes the Newsletter banner from First name", async ({ page }
   const newsletterHeading = page.locator("#newsletter-heading");
 
   await expect(newsletterHeading).toHaveText("Content tailored for you, Avery.");
-  await expect(newsletterHeading).toHaveCSS("font-size", "19px");
+  await expect(newsletterHeading).toHaveCSS("font-size", "22px");
   await expect(newsletterHeading).toHaveCSS("color", "rgb(35, 13, 57)");
   await expect(newsletterHeading).toHaveCSS("font-family", /Inter/);
 });
