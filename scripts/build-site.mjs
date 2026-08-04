@@ -6,12 +6,10 @@ import { fileURLToPath } from "node:url";
 // This packaging is not a user-facing feature and therefore has no feature ID.
 const projectDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const html = await readFile(path.join(projectDir, "index.html"), "utf8");
-const newsletterImage = await readFile(path.join(projectDir, "Newsletter.png"));
 const encodedHtml = Buffer.from(html, "utf8").toString("base64");
-const encodedNewsletterImage = newsletterImage.toString("base64");
 const worker = `// Build infrastructure — Static assets embedded by scripts/build-site.mjs.
-const assets = {"/":"${encodedHtml}","/index.html":"${encodedHtml}","/Newsletter.png":"${encodedNewsletterImage}"};
-const assetContentTypes = {"/":"text/html; charset=utf-8","/index.html":"text/html; charset=utf-8","/Newsletter.png":"image/png"};
+const assets = {"/":"${encodedHtml}","/index.html":"${encodedHtml}"};
+const assetContentTypes = {"/":"text/html; charset=utf-8","/index.html":"text/html; charset=utf-8"};
 
 // F7 — Hosted enrichment adapter configuration and five-field response contract.
 const DEEPSEEK_API_URL = "https://api.deepseek.com/v1/chat/completions";

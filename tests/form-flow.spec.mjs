@@ -77,6 +77,34 @@ test("[F11] shows the Spare parts newsletter topic only for that inquiry subtype
   await expect(sparePartsTopic).toBeHidden();
 });
 
+test("keeps the CSS-only Newsletter banner content inside its mobile layout", async ({ page }) => {
+  await page.route("**free.freeipapi.com/api/json", (route) => route.abort());
+  await page.goto("/");
+  await completeStagesOneAndTwo(page);
+
+  const banner = page.locator(".newsletter-card__banner");
+  const heading = page.locator("#newsletter-heading");
+  const topics = page.locator(".newsletter-card__topics");
+  const bannerBox = await banner.boundingBox();
+  const headingBox = await heading.boundingBox();
+  const topicsBox = await topics.boundingBox();
+
+  expect(await banner.evaluate((element) => element.querySelector("img"))).toBeNull();
+  await expect(banner).toHaveCSS("background-image", /linear-gradient/);
+  await expect(banner).toHaveCSS("min-height", "128px");
+  expect(bannerBox).not.toBeNull();
+  expect(headingBox).not.toBeNull();
+  expect(topicsBox).not.toBeNull();
+  expect(headingBox.x).toBeGreaterThanOrEqual(bannerBox.x);
+  expect(headingBox.y).toBeGreaterThanOrEqual(bannerBox.y);
+  expect(headingBox.x + headingBox.width).toBeLessThanOrEqual(bannerBox.x + bannerBox.width);
+  expect(headingBox.y + headingBox.height).toBeLessThanOrEqual(topicsBox.y);
+  expect(topicsBox.x).toBeGreaterThanOrEqual(bannerBox.x);
+  expect(topicsBox.y).toBeGreaterThanOrEqual(bannerBox.y);
+  expect(topicsBox.x + topicsBox.width).toBeLessThanOrEqual(bannerBox.x + bannerBox.width);
+  expect(topicsBox.y + topicsBox.height).toBeLessThanOrEqual(bannerBox.y + bannerBox.height);
+});
+
 test("[F9] shows the full current form URL in the Debug accordion", async ({ page }) => {
   await page.route("**free.freeipapi.com/api/json", (route) => route.abort());
   await page.route("**/enrich-company", (route) => route.fulfill({ json: enrichmentResponse }));
