@@ -81,19 +81,23 @@ test("keeps the CSS-only Newsletter banner content inside its mobile layout", as
   await page.goto("/");
   await completeStagesOneAndTwo(page);
 
+  const card = page.locator(".newsletter-card");
   const banner = page.locator(".newsletter-card__banner");
   const heading = page.locator("#newsletter-heading");
   const topics = page.locator(".newsletter-card__topics");
+  const subscribe = page.getByRole("checkbox", { name: "Subscribe" });
   const bannerBox = await banner.boundingBox();
   const headingBox = await heading.boundingBox();
   const topicsBox = await topics.boundingBox();
+  const subscribeBox = await subscribe.boundingBox();
 
   expect(await banner.evaluate((element) => element.querySelector("img"))).toBeNull();
-  await expect(banner).toHaveCSS("background-image", /linear-gradient/);
+  await expect(card).toHaveCSS("background-image", /linear-gradient/);
   await expect(banner).toHaveCSS("min-height", "128px");
   expect(bannerBox).not.toBeNull();
   expect(headingBox).not.toBeNull();
   expect(topicsBox).not.toBeNull();
+  expect(subscribeBox).not.toBeNull();
   expect(headingBox.x).toBeGreaterThanOrEqual(bannerBox.x);
   expect(headingBox.y).toBeGreaterThanOrEqual(bannerBox.y);
   expect(headingBox.x + headingBox.width).toBeLessThanOrEqual(bannerBox.x + bannerBox.width);
@@ -102,6 +106,7 @@ test("keeps the CSS-only Newsletter banner content inside its mobile layout", as
   expect(topicsBox.y).toBeGreaterThanOrEqual(bannerBox.y);
   expect(topicsBox.x + topicsBox.width).toBeLessThanOrEqual(bannerBox.x + bannerBox.width);
   expect(topicsBox.y + topicsBox.height).toBeLessThanOrEqual(bannerBox.y + bannerBox.height);
+  expect(subscribeBox.y).toBeGreaterThanOrEqual(topicsBox.y + topicsBox.height);
 });
 
 test("[F9] shows the full current form URL in the Debug accordion", async ({ page }) => {
