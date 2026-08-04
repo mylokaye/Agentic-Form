@@ -1411,11 +1411,12 @@
       return field ? field.value.trim() : "";
     }
 
-    // F5 — Derived suggestions populate empty controls only.
+    // F5 — Derived suggestions mark their exact generated value so only untouched fields can refresh.
     function setFieldValueIfEmpty(field, value) {
       if (!field || getFieldValue(field) || !value) return false;
 
       field.value = value;
+      field.dataset.emailDomainSuggestion = value;
       return true;
     }
 
@@ -1427,10 +1428,14 @@
       ];
 
       suggestions.forEach(({ field, stateKey }) => {
-        const suggestedValue = formState[stateKey];
+        const suggestedValue = field?.dataset.emailDomainSuggestion || formState[stateKey];
 
         if (field && suggestedValue && getFieldValue(field) === suggestedValue) {
           field.value = "";
+        }
+
+        if (field) {
+          delete field.dataset.emailDomainSuggestion;
         }
 
         formState[stateKey] = "";
@@ -1439,6 +1444,10 @@
 
     // F5 — Any direct visitor edit ends F5 ownership for that field, even if text still matches.
     function releaseEmailDomainSuggestion(field) {
+      if (field) {
+        delete field.dataset.emailDomainSuggestion;
+      }
+
       if (field === websiteField) {
         formState.suggestedWebsite = "";
       }
