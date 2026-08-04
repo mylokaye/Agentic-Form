@@ -20,7 +20,7 @@ On screens below 48rem, the GDPR note text is 12px; its desktop size remains 14p
 
 The closed **Debug** accordion includes a read-only `currentUrl` field. F9 sets it to the full URL of the page that loaded the form, including any query string or hash. It is prepared for a future submission integration; the current prototype does not transmit it.
 
-The newsletter card uses a CSS-only white geometric gradient across the full card, with Subscribe directly after the newsletter topics. The banner keeps a 3:1 desktop proportion and a mobile-safe 8rem minimum height. F10 personalizes its 22px header as `Content tailored for you, First name.` using the entered First name; it falls back to `Content tailored for you.` when empty. F11 displays New products & promotions and Shutdown and critical alerts in the shared 14px body size; Spare parts & service reminders appears only when Inquiry subtype is Spare parts. The checkbox is optional and unchecked by default.
+The newsletter card uses a CSS-only white geometric gradient across the full card, with Subscribe directly after and aligned to the newsletter topics. The banner keeps a 3:1 desktop proportion and a mobile-safe 8rem minimum height. F10 personalizes its 22px header as `Content tailored for you, First name.` using the entered First name; it falls back to `Content tailored for you.` when empty. F11 displays New products & promotions and Shutdown and critical alerts in the shared 14px body size; Spare parts & service reminders appears only when Inquiry subtype is Spare parts. The checkbox is optional and unchecked by default.
 
 ## Validation and enrichment
 

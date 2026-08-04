@@ -107,6 +107,7 @@ test("keeps the CSS-only Newsletter banner content inside its mobile layout", as
   expect(topicsBox.x + topicsBox.width).toBeLessThanOrEqual(bannerBox.x + bannerBox.width);
   expect(topicsBox.y + topicsBox.height).toBeLessThanOrEqual(bannerBox.y + bannerBox.height);
   expect(subscribeBox.y).toBeGreaterThanOrEqual(topicsBox.y + topicsBox.height);
+  expect(subscribeBox.x).toBeCloseTo(topicsBox.x, 0);
 });
 
 test("[F9] shows the full current form URL in the Debug accordion", async ({ page }) => {
