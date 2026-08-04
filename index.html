@@ -728,7 +728,6 @@
     <h1 class="visually-hidden" id="form-title">Inquiry form</h1>
     <section class="form-shell elevated-surface">
       <form class="form form--inquiry" aria-labelledby="form-title" novalidate>
-        <input id="current-url" name="currentUrl" type="hidden">
         <div class="form-page form__section form__section--three-columns" id="page-1">
           <h2 class="form__section-title" data-review-title id="review-personal-details" hidden>Personal details</h2>
 
@@ -1000,6 +999,18 @@
 
             <div class="form__accordion-content form__section--three-columns">
               <div class="form__field form__section--full-width">
+                <label class="form__label" for="current-url">Current URL</label>
+                <input
+                  class="form__input"
+                  id="current-url"
+                  name="currentUrl"
+                  type="url"
+                  autocomplete="off"
+                  readonly
+                >
+              </div>
+
+              <div class="form__field form__section--full-width">
                 <label class="form__label" for="about">About</label>
                 <textarea
                   class="form__input"
@@ -1207,7 +1218,7 @@
 
     // 3. Feature and shared utility functions
 
-    // F9 — Capture the page URL once for a future submission without transmitting or logging it.
+    // F9 — Capture the page URL once in a read-only review field without transmitting or logging it.
     function populateCurrentUrl() {
       if (!currentUrlField) return;
 

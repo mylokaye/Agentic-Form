@@ -40,10 +40,17 @@ test("[F3] prefills Language from the browser locale", async ({ page }) => {
   await expect(page.locator("#language")).toHaveValue("German");
 });
 
-test("[F9] captures the full current form URL in its hidden field", async ({ page }) => {
+test("[F9] shows the full current form URL in the Hidden accordion", async ({ page }) => {
   await page.route("**free.freeipapi.com/api/json", (route) => route.abort());
+  await page.route("**/enrich-company", (route) => route.fulfill({ json: enrichmentResponse }));
   await page.goto("/?source=regression#inquiry");
+  await completeStagesOneAndTwo(page);
+  await page.locator("#enriched-details").evaluate((details) => {
+    details.open = true;
+  });
 
+  await expect(page.getByLabel("Current URL")).toBeVisible();
+  await expect(page.locator("#current-url")).not.toBeEditable();
   await expect(page.locator("#current-url")).toHaveValue(page.url());
 });
 
