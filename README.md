@@ -20,7 +20,7 @@ On screens below 48rem, the GDPR note text is 12px; its desktop size remains 14p
 
 The closed **Debug** accordion includes a read-only `currentUrl` field. F9 sets it to the full URL of the page that loaded the form, including any query string or hash. It is prepared for a future submission integration; the current prototype does not transmit it.
 
-The newsletter card uses `Newsletter.png` as a full-width banner, with its opt-in content below. The checkbox is optional and unchecked by default.
+The newsletter card uses `Newsletter.png` as a full-width banner, with its opt-in content below. F10 personalizes its header as `Content tailored for you, First name.` using the entered First name; it falls back to `Content tailored for you.` when empty. The checkbox is optional and unchecked by default.
 
 ## Validation and enrichment
 
@@ -35,6 +35,7 @@ The newsletter card uses `Newsletter.png` as a full-width banner, with its opt-i
 - Language uses the browser's local `navigator.language` preference, converting its base locale to an English language name (for example, `de-DE` becomes German). It makes no network request and remains editable.
 - Submit Inquiry is a local prototype confirmation only. No form data is sent to a submission backend.
 - **F9 current URL capture** records the page URL in the read-only `currentUrl` field in the Debug accordion on load. It does not log, store, or send the value.
+- **F10 personalized newsletter heading** updates the Newsletter banner with the editable First name. It does not log, store, or send the name.
 
 ## Known limitations
 

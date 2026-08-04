@@ -40,6 +40,19 @@ test("[F3] prefills Language from the browser locale", async ({ page }) => {
   await expect(page.locator("#language")).toHaveValue("German");
 });
 
+test("[F10] personalizes the Newsletter banner from First name", async ({ page }) => {
+  await page.route("**free.freeipapi.com/api/json", (route) => route.abort());
+  await page.goto("/");
+  await page.getByRole("textbox", { name: "First name" }).fill("Avery");
+
+  const newsletterHeading = page.locator("#newsletter-heading");
+
+  await expect(newsletterHeading).toHaveText("Content tailored for you, Avery.");
+  await expect(newsletterHeading).toHaveCSS("font-size", "19px");
+  await expect(newsletterHeading).toHaveCSS("color", "rgb(35, 13, 57)");
+  await expect(newsletterHeading).toHaveCSS("font-family", /Inter/);
+});
+
 test("[F9] shows the full current form URL in the Debug accordion", async ({ page }) => {
   await page.route("**free.freeipapi.com/api/json", (route) => route.abort());
   await page.route("**/enrich-company", (route) => route.fulfill({ json: enrichmentResponse }));

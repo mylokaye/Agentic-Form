@@ -440,12 +440,30 @@
       gap: 0;
     }
 
+    .newsletter-card__banner {
+      position: relative;
+    }
+
     .newsletter-card__image {
       display: block;
       width: 100%;
       aspect-ratio: 3 / 1;
       border-radius: var(--radius) var(--radius) 0 0;
       object-fit: cover;
+    }
+
+    .newsletter-card__heading {
+      position: absolute;
+      top: clamp(1rem, 3.5vw, 2rem);
+      right: var(--space-md);
+      left: clamp(1rem, 3.5vw, 2rem);
+      margin: 0;
+      color: #230D39;
+      font-family: Inter, sans-serif;
+      font-size: 19px;
+      font-weight: var(--font-weight-title);
+      line-height: 1.25;
+      pointer-events: none;
     }
 
     .newsletter-card__content {
@@ -940,7 +958,10 @@
         <fieldset class="form__group newsletter-group" id="stage-three-newsletter" hidden>
           <legend class="visually-hidden">Subscribe and stay informed</legend>
           <div class="newsletter-card">
-            <img class="newsletter-card__image" src="Newsletter.png?v=2" alt="">
+            <div class="newsletter-card__banner">
+              <img class="newsletter-card__image" src="Newsletter.png?v=3" alt="">
+              <h2 class="newsletter-card__heading" id="newsletter-heading"></h2>
+            </div>
             <div class="newsletter-card__content">
               <p class="newsletter-card__benefits">News, events &amp; more, you decide. Unsubscribe anytime.</p>
               <label class="newsletter-option" for="newsletter">
@@ -1095,10 +1116,10 @@
   </main>
 
   <script>
-    // Feature IDs F1-F9 are stable behaviour identifiers defined in AGENTS.md.
+    // Feature IDs F1-F10 are stable behaviour identifiers defined in AGENTS.md.
     // Shared helpers name every feature they directly support; infrastructure is not assigned an ID.
 
-    // 1. Shared DOM references (F1-F9)
+    // 1. Shared DOM references (F1-F10)
     const emailField = document.getElementById("email");
     const form = document.querySelector(".form");
     const currentUrlField = document.getElementById("current-url");
@@ -1113,6 +1134,7 @@
     const formActions = document.querySelector(".form__actions");
     const verifiedFields = document.getElementById("verified-fields");
     const stageThreeNewsletter = document.getElementById("stage-three-newsletter");
+    const newsletterHeading = document.getElementById("newsletter-heading");
     const firstNameField = document.getElementById("first-name");
     const lastNameField = document.getElementById("last-name");
     const phoneField = document.getElementById("phone");
@@ -1223,6 +1245,17 @@
       if (!currentUrlField) return;
 
       currentUrlField.value = window.location.href;
+    }
+
+    // F10 — Keep the Newsletter banner personal by reflecting the editable First name without persisting it.
+    function updateNewsletterHeading() {
+      if (!newsletterHeading) return;
+
+      const firstName = getFieldValue(firstNameField);
+
+      newsletterHeading.textContent = firstName
+        ? `Content tailored for you, ${firstName}.`
+        : "Content tailored for you.";
     }
 
     // F5 — Email-domain suggestions normalise company-label words before filling empty fields.
@@ -1927,6 +1960,10 @@
     function handleVerifiedFieldInput(event) {
       releaseEmailDomainSuggestion(event?.target);
 
+      if (event?.target === firstNameField) {
+        updateNewsletterHeading();
+      }
+
       if (formState.currentPage === 1) {
         const hasFirstName = Boolean(getFieldValue(firstNameField));
         const hasLastName = Boolean(getFieldValue(lastNameField));
@@ -2040,6 +2077,7 @@
     updateStateVisibility();      // F2
     prefillLanguageFromBrowser(); // F3
     populateCurrentUrl();         // F9
+    updateNewsletterHeading();    // F10
     void lookupCountryForF1();    // F1
   </script>
 </body>
