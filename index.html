@@ -1437,7 +1437,7 @@
       }
     }
 
-    // F7 — Enrichment normalises a bare domain to HTTPS without altering explicit HTTP(S) input.
+    // F5 and F7 — Website suggestions and enrichment normalise bare domains to HTTPS without altering explicit HTTP(S) input.
     function getWebsiteUrl(value) {
       const trimmedValue = value.trim();
 
@@ -1689,7 +1689,7 @@
       return hasFirstName && hasLastName && hasValidEmail;
     }
 
-    // F5 — Valid Email input suggests Website and Company name only where fields are empty.
+    // F5 — Valid Email input suggests an HTTPS Website URL and Company name only where fields are empty.
     function populateVerifiedFields() {
       if (
         !emailField ||
@@ -1702,11 +1702,12 @@
       }
 
       const emailDomain = getEmailDomain(emailField.value);
+      const websiteUrl = getWebsiteUrl(emailDomain);
       const companyName = getCompanyName(emailDomain);
 
       // F5 suggestions must never replace a value the person has entered.
-      if (setFieldValueIfEmpty(websiteField, emailDomain)) {
-        formState.suggestedWebsite = emailDomain;
+      if (setFieldValueIfEmpty(websiteField, websiteUrl)) {
+        formState.suggestedWebsite = websiteUrl;
       }
 
       if (setFieldValueIfEmpty(companyNameField, companyName)) {

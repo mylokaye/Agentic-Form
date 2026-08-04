@@ -55,7 +55,7 @@ test("[F5] derives empty Website and Company name fields from the Email domain",
   await page.getByRole("textbox", { name: "Email address" }).fill("person@example-company.com");
   await page.getByRole("button", { name: "Continue" }).click();
 
-  await expect(page.locator("#website")).toHaveValue("example-company.com");
+  await expect(page.locator("#website")).toHaveValue("https://example-company.com");
   await expect(page.locator("#company-name")).toHaveValue("Example Company");
 
   await page.locator("#company-name").fill("Visitor Company");
@@ -64,7 +64,7 @@ test("[F5] derives empty Website and Company name fields from the Email domain",
   await page.getByRole("textbox", { name: "Email address" }).fill("person@updated-example.org");
   await page.getByRole("button", { name: "Continue" }).click();
 
-  await expect(page.locator("#website")).toHaveValue("updated-example.org");
+  await expect(page.locator("#website")).toHaveValue("https://updated-example.org");
   await expect(page.locator("#company-name")).toHaveValue("Visitor Company");
 });
 

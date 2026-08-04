@@ -27,7 +27,7 @@ The newsletter card uses `Newsletter.png` as a full-width banner, with its opt-i
 - First name, last name, and email are required before leaving Stage 1.
 - A failed required-field validation uses a red edge on the affected field, which clears once it is corrected; Stage 1 does not show a generic validation banner.
 - Returning from Stage 2 places keyboard focus on First name, the first field in Stage 1.
-- Email-domain suggestions fill only empty Website and Company name fields. Untouched suggestions refresh when Email changes, manual edits remain unchanged, and personal names are not inferred.
+- Email-domain suggestions fill only empty Website and Company name fields. Website suggestions use an `https://` URL; untouched suggestions refresh when Email changes, manual edits remain unchanged, and personal names are not inferred.
 - Enrichment requests return `industry`, `about`, `urgency`, `sentiment`, and `query` when available.
 - Requests time out after 20 seconds, stale responses are ignored, and failures allow the form to continue.
 - **F1 country lookup** makes one best-effort browser request to FreeIPAPI when the form loads. It uses a recognised ISO country code to prefill Country and the first valid international dialling code to prefill an empty Phone number. It leaves both fields empty on failure and never overwrites a visitor's entered Country or Phone number.
