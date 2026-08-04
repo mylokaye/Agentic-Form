@@ -18,6 +18,8 @@ A portable, three-step inquiry form built with plain HTML, CSS, and JavaScript. 
 
 On screens below 48rem, the GDPR note text is 12px; its desktop size remains 14px.
 
+The form also contains a non-visible `currentUrl` field. F9 sets it to the full URL of the page that loaded the form, including any query string or hash. It is prepared for a future submission integration; the current prototype does not transmit it.
+
 The newsletter card uses `Newsletter.png` as a full-width banner, with its opt-in content below. The checkbox is optional and unchecked by default.
 
 ## Validation and enrichment
@@ -32,6 +34,7 @@ The newsletter card uses `Newsletter.png` as a full-width banner, with its opt-i
 - F1 writes generic `[F1]` technical status messages to the browser console. Those messages never include an IP address, country, form value, or submission data.
 - Language uses the browser's local `navigator.language` preference, converting its base locale to an English language name (for example, `de-DE` becomes German). It makes no network request and remains editable.
 - Submit Inquiry is a local prototype confirmation only. No form data is sent to a submission backend.
+- **F9 current URL capture** records the page URL in the hidden `currentUrl` field on load. It does not log, store, or send the value.
 
 ## Known limitations
 
@@ -73,6 +76,7 @@ The suite covers validation, browser-language prefill, F1 country lookup recover
 ## Privacy and support
 
 - No first-party analytics, cookies, tracking pixels, localStorage, or sessionStorage are used.
+- The hidden Current URL value may include query-string or hash content. Do not place personal or sensitive information in form URLs.
 - F1 makes a direct request to FreeIPAPI to infer a country from the visitor's IP address. The form does not retain or log that IP address or the lookup result; FreeIPAPI is a third-party service with its own privacy policy.
 - Do not log personal data or submission payloads.
 - Enrichment is advisory and may be unavailable; review its values before production use.

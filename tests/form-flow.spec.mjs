@@ -40,6 +40,13 @@ test("[F3] prefills Language from the browser locale", async ({ page }) => {
   await expect(page.locator("#language")).toHaveValue("German");
 });
 
+test("[F9] captures the full current form URL in its hidden field", async ({ page }) => {
+  await page.route("**free.freeipapi.com/api/json", (route) => route.abort());
+  await page.goto("/?source=regression#inquiry");
+
+  await expect(page.locator("#current-url")).toHaveValue(page.url());
+});
+
 test("[F5] derives empty Website and Company name fields from the Email domain", async ({ page }) => {
   await page.route("**free.freeipapi.com/api/json", (route) => route.abort());
   await page.route("**/enrich-company", (route) => route.fulfill({ json: enrichmentResponse }));

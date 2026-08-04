@@ -728,6 +728,7 @@
     <h1 class="visually-hidden" id="form-title">Inquiry form</h1>
     <section class="form-shell elevated-surface">
       <form class="form form--inquiry" aria-labelledby="form-title" novalidate>
+        <input id="current-url" name="currentUrl" type="hidden">
         <div class="form-page form__section form__section--three-columns" id="page-1">
           <h2 class="form__section-title" data-review-title id="review-personal-details" hidden>Personal details</h2>
 
@@ -1083,12 +1084,13 @@
   </main>
 
   <script>
-    // Feature IDs F1-F8 are stable behaviour identifiers defined in AGENTS.md.
+    // Feature IDs F1-F9 are stable behaviour identifiers defined in AGENTS.md.
     // Shared helpers name every feature they directly support; infrastructure is not assigned an ID.
 
-    // 1. Shared DOM references (F1-F8)
+    // 1. Shared DOM references (F1-F9)
     const emailField = document.getElementById("email");
     const form = document.querySelector(".form");
+    const currentUrlField = document.getElementById("current-url");
     const validationStatus = document.getElementById("email-validation-status");
     const pageOne = document.getElementById("page-1");
     const progressSteps = document.querySelectorAll("[data-progress-step]");
@@ -1204,6 +1206,13 @@
     };
 
     // 3. Feature and shared utility functions
+
+    // F9 — Capture the page URL once for a future submission without transmitting or logging it.
+    function populateCurrentUrl() {
+      if (!currentUrlField) return;
+
+      currentUrlField.value = window.location.href;
+    }
 
     // F5 — Email-domain suggestions normalise company-label words before filling empty fields.
     function capitaliseWord(value) {
@@ -2009,6 +2018,7 @@
     populateCountryOptions();     // F2
     updateStateVisibility();      // F2
     prefillLanguageFromBrowser(); // F3
+    populateCurrentUrl();         // F9
     void lookupCountryForF1();    // F1
   </script>
 </body>
