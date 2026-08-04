@@ -40,7 +40,7 @@ test("[F3] prefills Language from the browser locale", async ({ page }) => {
   await expect(page.locator("#language")).toHaveValue("German");
 });
 
-test("[F9] shows the full current form URL in the Hidden accordion", async ({ page }) => {
+test("[F9] shows the full current form URL in the Debug accordion", async ({ page }) => {
   await page.route("**free.freeipapi.com/api/json", (route) => route.abort());
   await page.route("**/enrich-company", (route) => route.fulfill({ json: enrichmentResponse }));
   await page.goto("/?source=regression#inquiry");
@@ -238,7 +238,7 @@ test("[F6] does not repeat completed stage fields on confirmation", async ({ pag
   await expect(page.getByRole("group", { name: "Personal details" })).not.toBeVisible();
   await expect(page.getByRole("group", { name: "Company details" })).not.toBeVisible();
   await expect(page.getByText("By submitting this form, your personal data will be processed")).toBeVisible();
-  await expect(page.getByRole("heading", { name: "Hidden" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Debug" })).toBeVisible();
   await expect(page.locator("#enriched-details")).not.toHaveAttribute("open", "");
   await expect(page.getByRole("textbox", { name: "About" })).not.toBeVisible();
 
@@ -279,7 +279,7 @@ test("[F6] makes Back 20% smaller than its former mobile action share", async ({
   expect(actionWidths.back / (actionWidths.back + actionWidths.continue)).toBeCloseTo(0.8 / 3, 2);
 });
 
-test("[F7] maps a successful enrichment response into the Hidden accordion", async ({ page }) => {
+test("[F7] maps a successful enrichment response into the Debug accordion", async ({ page }) => {
   await page.route("**/enrich-company", (route) => route.fulfill({ json: enrichmentResponse }));
   await page.goto("/");
   await completeStageOne(page);

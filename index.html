@@ -991,7 +991,7 @@
           </div>
           <details class="form__accordion form__section--full-width" id="enriched-details">
             <summary class="form__accordion-summary">
-              <h2 class="form__section-title">Hidden</h2>
+              <h2 class="form__section-title">Debug</h2>
               <svg class="form__accordion-icon" aria-hidden="true" viewBox="0 0 16 16" fill="none">
                 <path d="m3 6 5 5 5-5" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" />
               </svg>
@@ -1799,7 +1799,7 @@
       }, {});
     }
 
-    // F7 — Validated enrichment values populate only their registered Hidden fields.
+    // F7 — Validated enrichment values populate only their registered Debug fields.
     function applyEnrichmentResult(result) {
       ENRICHMENT_FIELD_NAMES.forEach((name) => {
         const field = FIELD_CONFIG[name].field;

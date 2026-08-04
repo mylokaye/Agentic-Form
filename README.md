@@ -14,11 +14,11 @@ A portable, three-step inquiry form built with plain HTML, CSS, and JavaScript. 
 
 1. **Inquiry** — First name, last name, email, inquiry, business, inquiry type, and inquiry subtype. The three personal fields have configured defaults. Continue derives company details and starts enrichment.
 2. **Personal details** — Phone, role, language, company name, industry, country, and State. Country sits beside Industry on wider screens and its list is alphabetised; State appears directly below it only when United States is selected and is disabled otherwise, so it is excluded from form submissions. Defaults include Manager, Aerospace, and Alabama; Country starts empty. Language is prefilled from the browser locale when recognised, and F1 can prefill Country and an international Phone prefix from the visitor's approximate IP country.
-3. **Review and submit** — Newsletter opt-in, Submit Inquiry, GDPR note, and a closed-by-default **Hidden** accordion containing enrichment fields. It does not duplicate earlier fields.
+3. **Review and submit** — Newsletter opt-in, Submit Inquiry, GDPR note, and a closed-by-default **Debug** accordion containing enrichment fields. It does not duplicate earlier fields.
 
 On screens below 48rem, the GDPR note text is 12px; its desktop size remains 14px.
 
-The closed **Hidden** accordion includes a read-only `currentUrl` field. F9 sets it to the full URL of the page that loaded the form, including any query string or hash. It is prepared for a future submission integration; the current prototype does not transmit it.
+The closed **Debug** accordion includes a read-only `currentUrl` field. F9 sets it to the full URL of the page that loaded the form, including any query string or hash. It is prepared for a future submission integration; the current prototype does not transmit it.
 
 The newsletter card uses `Newsletter.png` as a full-width banner, with its opt-in content below. The checkbox is optional and unchecked by default.
 
@@ -34,7 +34,7 @@ The newsletter card uses `Newsletter.png` as a full-width banner, with its opt-i
 - F1 writes generic `[F1]` technical status messages to the browser console. Those messages never include an IP address, country, form value, or submission data.
 - Language uses the browser's local `navigator.language` preference, converting its base locale to an English language name (for example, `de-DE` becomes German). It makes no network request and remains editable.
 - Submit Inquiry is a local prototype confirmation only. No form data is sent to a submission backend.
-- **F9 current URL capture** records the page URL in the read-only `currentUrl` field in the Hidden accordion on load. It does not log, store, or send the value.
+- **F9 current URL capture** records the page URL in the read-only `currentUrl` field in the Debug accordion on load. It does not log, store, or send the value.
 
 ## Known limitations
 
