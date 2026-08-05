@@ -1,6 +1,6 @@
 # Forms v2
 
-A portable, three-step inquiry form built with plain HTML, CSS, and JavaScript. The browser UI lives in `index.html`; the optional enrichment service runs through a local proxy or the hosted Sites worker.
+A portable, four-step inquiry form built with plain HTML, CSS, and JavaScript. The browser UI lives in `index.html`; the optional enrichment service runs through a local proxy or the hosted Sites worker.
 
 ## Files
 
@@ -14,7 +14,8 @@ A portable, three-step inquiry form built with plain HTML, CSS, and JavaScript. 
 
 1. **Inquiry** — First name, last name, email, inquiry, business, inquiry type, and inquiry subtype. The three personal fields have configured defaults. Continue derives company details and starts enrichment.
 2. **Personal details** — Phone, role, language, company name, industry, country, and State. Country sits beside Industry on wider screens and its list is alphabetised; State appears directly below it only when United States is selected and is disabled otherwise, so it is excluded from form submissions. Defaults include Manager, Aerospace, and Alabama; Country starts empty. Language is prefilled from the browser locale when recognised, and F1 can prefill Country and an international Phone prefix from the visitor's approximate IP country.
-3. **Review and submit** — Newsletter opt-in, Submit Inquiry, GDPR note, and a closed-by-default **Debug** accordion containing enrichment fields. It does not duplicate earlier fields.
+3. **Review and submit** — Newsletter opt-in, GDPR note above the action buttons, Submit Inquiry, and a closed-by-default **Debug** accordion containing enrichment fields. It does not duplicate earlier fields.
+4. **Feedback** — A prototype-only inquiry thank-you screen with five clickable stars. Stage 4 omits the GDPR notice, Debug accordion, and progress bar. Clicking any star changes the screen to `Thank you for your feedback.` without sending or storing the rating.
 
 The GDPR consent note uses 12px text at every viewport width and reads: `Personal information is processed in accordance with GDPR & our Privacy Policy.` The Privacy Policy is currently plain text because no destination URL is configured.
 
@@ -33,7 +34,8 @@ The newsletter card uses a CSS-only white geometric gradient across the full car
 - **F1 country lookup** makes one best-effort browser request to FreeIPAPI when the form loads. It uses a recognised ISO country code to prefill Country and the first valid international dialling code to prefill an empty Phone number. It leaves both fields empty on failure and never overwrites a visitor's entered Country or Phone number.
 - F1 writes generic `[F1]` technical status messages to the browser console. Those messages never include an IP address, country, form value, or submission data.
 - Language uses the browser's local `navigator.language` preference, converting its base locale to an English language name (for example, `de-DE` becomes German). It makes no network request and remains editable.
-- Submit Inquiry is a local prototype confirmation only. No form data is sent to a submission backend.
+- Submit Inquiry is a local prototype action only. It advances to Stage 4 and emits a generic technical console message; no form data is sent to a submission backend.
+- **F13 feedback rating** displays five keyboard-accessible clickable star buttons. Clicking any star reveals the feedback thank-you message; the rating is not recorded, stored, or transmitted.
 - **F9 current URL capture** records the page URL in the read-only `currentUrl` field in the Debug accordion on load. It does not log, store, or send the value.
 - **F10 personalized newsletter heading** updates the Newsletter banner with the editable First name. It does not log, store, or send the name.
 - **F11 conditional newsletter topics** changes the Spare parts topic from the editable Inquiry subtype. It does not log, store, or send the subtype.
@@ -42,6 +44,7 @@ The newsletter card uses a CSS-only white geometric gradient across the full car
 
 - F1 location and dialling-prefix suggestions are approximate, depend on FreeIPAPI availability, and can be affected by VPNs, mobile networks, or shared connections.
 - Browser language is a device preference, not a confirmed language preference; visitors can edit the suggested value.
+- The Stage 4 star rating is a visual prototype only and is not connected to a survey, CRM, analytics, or submission service.
 
 ## Run locally
 
@@ -73,7 +76,7 @@ Test the hosted form:
 BASE_URL="https://forms-v2-mylo.v6pdwnhvws.chatgpt.site" npm run test:e2e
 ```
 
-The suite covers validation, browser-language prefill, F1 country lookup recovery and manual overrides, enrichment recovery, consent persistence, focus movement, and responsive overflow across Chrome, mobile Chrome, Firefox, and WebKit.
+The suite covers validation, browser-language prefill, F1 country lookup recovery and manual overrides, enrichment recovery, consent persistence, focus movement, the prototype feedback transition, and responsive overflow across Chrome, mobile Chrome, Firefox, and WebKit.
 
 ## Privacy and support
 
@@ -87,7 +90,7 @@ The suite covers validation, browser-language prefill, F1 country lookup recover
 
 ## Design notes
 
-The form uses Inter, shared colour and elevation tokens, and a mobile-first layout. A compact full-width footer bar shows one-third, two-thirds, or complete progress with a solid design-token green fill as the visitor moves through the three stages. Stage 1 begins with an Inquiry heading using the shared section-title style and an AI mark at the left of its action row, opposite Continue. Hovering or focusing the mark shows a light explanation; clicking or tapping it keeps the explanation open until it is clicked again or closed by an outside click. Below 768px, form controls use 16px text to prevent iOS browsers from magnifying the page when a field receives focus. First name and Last name share two columns, as do Inquiry type and Inquiry subtype; Email, Inquiry, and Business remain full-width. At the same range in Stage 2, Role and Language share two columns, as do Company name and Industry; Phone, Country, and State remain full-width. The AI mark and Continue share the action row; later stages retain the shared Back and Continue layout. Stage 2 actions sit 45px below the final visible company field. At wider widths, fields use responsive grids and the enrichment fields use three columns below About.
+The form uses Inter, shared colour and elevation tokens, and a mobile-first layout. A compact full-width footer bar shows one-quarter, one-half, or three-quarters progress for Stages 1-3; it is hidden on Stage 4. Stage 1 begins with an Inquiry heading using the shared section-title style and an AI mark at the left of its action row, opposite Continue. Hovering or focusing the mark shows a light explanation; clicking or tapping it keeps the explanation open until it is clicked again or closed by an outside click. Below 768px, form controls use 16px text to prevent iOS browsers from magnifying the page when a field receives focus. First name and Last name share two columns, as do Inquiry type and Inquiry subtype; Email, Inquiry, and Business remain full-width. At the same range in Stage 2, Role and Language share two columns, as do Company name and Industry; Phone, Country, and State remain full-width. The AI mark and Continue share the action row; later stages retain the shared Back and Continue layout. Stage 2 actions sit 45px below the final visible company field. Stage 4 centers the inquiry thank-you copy and star buttons without the review-only GDPR or Debug content, then replaces them with the 22px feedback thank-you message after a click. At wider widths, fields use responsive grids and the enrichment fields use three columns below About.
 
 ## Maintenance
 

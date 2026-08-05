@@ -361,7 +361,8 @@ test("[F6] shows compact full-width progress for each form stage", async ({ page
   const progressBar = progress.locator(".progress__bar");
 
   await expect(progress).toHaveAttribute("aria-valuenow", "1");
-  await expect(progress).toHaveAttribute("aria-valuetext", "Step 1 of 3: Inquiry");
+  await expect(progress).toHaveAttribute("aria-valuemax", "4");
+  await expect(progress).toHaveAttribute("aria-valuetext", "Step 1 of 4: Inquiry");
   await expect(progress).toHaveCSS("height", "6px");
   await expect(progressBar).toHaveCSS("background-image", "none");
   await expect(progressBar).toHaveCSS("background-color", "rgb(0, 183, 125)");
@@ -379,13 +380,13 @@ test("[F6] shows compact full-width progress for each form stage", async ({ page
   });
 
   expect(initialWidths.indicator).toBeCloseTo(initialWidths.form, 0);
-  expect(initialWidths.fill / initialWidths.indicator).toBeCloseTo(1 / 3, 2);
+  expect(initialWidths.fill / initialWidths.indicator).toBeCloseTo(1 / 4, 2);
 
   await completeStageOne(page);
   await expect(progress).toHaveAttribute("aria-valuenow", "2");
   await expect(progress).toHaveAttribute(
     "aria-valuetext",
-    "Step 2 of 3: Personal and company details"
+    "Step 2 of 4: Personal and company details"
   );
 
   const stageTwoWidths = await progress.evaluate((indicator) => ({
@@ -393,21 +394,26 @@ test("[F6] shows compact full-width progress for each form stage", async ({ page
     fill: indicator.querySelector(".progress__bar").getBoundingClientRect().width
   }));
 
-  expect(stageTwoWidths.fill / stageTwoWidths.indicator).toBeCloseTo(2 / 3, 2);
+  expect(stageTwoWidths.fill / stageTwoWidths.indicator).toBeCloseTo(1 / 2, 2);
 
   await page.getByRole("button", { name: "Continue" }).click();
   await expect(progress).toHaveAttribute("aria-valuenow", "3");
-  await expect(progress).toHaveAttribute("aria-valuetext", "Step 3 of 3: Review and submit");
+  await expect(progress).toHaveAttribute("aria-valuetext", "Step 3 of 4: Review and submit");
 
-  const finalWidths = await progress.evaluate((indicator) => ({
+  const stageThreeWidths = await progress.evaluate((indicator) => ({
     indicator: indicator.getBoundingClientRect().width,
     fill: indicator.querySelector(".progress__bar").getBoundingClientRect().width
   }));
 
-  expect(finalWidths.fill).toBeCloseTo(finalWidths.indicator, 0);
+  expect(stageThreeWidths.fill / stageThreeWidths.indicator).toBeCloseTo(3 / 4, 2);
+
+  await page.getByRole("button", { name: "Submit Inquiry" }).click();
+  await expect(progress).toHaveAttribute("aria-valuenow", "4");
+  await expect(progress).toHaveAttribute("aria-valuetext", "Step 4 of 4: Feedback");
+  await expect(progress).toBeHidden();
 });
 
-test("[F6, F8] allows edits from confirmation and confirms the prototype submission", async ({ page }) => {
+test("[F6, F8] allows edits from review and opens the prototype feedback stage", async ({ page }) => {
   await page.goto("/");
   await completeStagesOneAndTwo(page);
 
@@ -417,8 +423,38 @@ test("[F6, F8] allows edits from confirmation and confirms the prototype submiss
   await page.getByRole("button", { name: "Continue" }).click();
 
   await page.getByRole("button", { name: "Submit Inquiry" }).click();
-  await expect(page.getByText("Your inquiry has been recorded for this prototype. No information was sent.")).toBeVisible();
-  await expect(page.getByRole("button", { name: "Submit Inquiry" })).toBeDisabled();
+  await expect(page.getByRole("heading", { name: "Thank you for your inquiry" })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Submit Inquiry" })).not.toBeVisible();
+  await expect(page.getByRole("button", { name: "1 star" })).toBeFocused();
+});
+
+test("[F13] transitions from clickable stars to the feedback thank-you state", async ({ page }) => {
+  await page.route("**free.freeipapi.com/api/json", (route) => route.abort());
+  await page.route("**/enrich-company", (route) => route.fulfill({ json: enrichmentResponse }));
+  await page.goto("/");
+  await completeStagesOneAndTwo(page);
+
+  await page.getByRole("button", { name: "Submit Inquiry" }).click();
+
+  const feedbackPage = page.locator("#feedback-page");
+  const feedbackQuestion = page.getByText("How easy was it to contact us today?");
+  const feedbackThankYou = page.getByRole("heading", { name: "Thank you for your feedback." });
+
+  await expect(feedbackPage).toBeVisible();
+  await expect(page.locator(".feedback-rating__star")).toHaveCount(5);
+  await expect(feedbackQuestion).toBeVisible();
+  await expect(feedbackThankYou).toBeHidden();
+  await expect(page.getByText("Personal information is processed in accordance with GDPR & our Privacy Policy.")).toBeHidden();
+  await expect(page.getByRole("heading", { name: "Debug" })).toBeHidden();
+  await expect(page.locator("#form-progress")).toBeHidden();
+  await expect(feedbackThankYou).toHaveCSS("font-size", "22px");
+
+  await page.getByRole("button", { name: "5 stars" }).click();
+
+  await expect(feedbackQuestion).toBeHidden();
+  await expect(feedbackThankYou).toBeVisible();
+  await expect(feedbackThankYou).toBeFocused();
+  await expect(page.locator("#form-progress")).toBeHidden();
 });
 
 test("[F6] makes Back 20% smaller than its former mobile action share", async ({ page }) => {
