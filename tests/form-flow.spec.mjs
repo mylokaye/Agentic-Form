@@ -172,6 +172,7 @@ test("[F5] derives empty Website and Company name fields from the Email domain",
   await page.locator("#company-name").fill("Visitor Company");
   await expect(page.locator("#back-button")).toBeEnabled();
   await page.locator("#back-button").click();
+  await expect(page.getByRole("textbox", { name: "First name" })).toBeFocused();
   await page.getByRole("textbox", { name: "Email address" }).fill("person@updated-example.org");
   await page.getByRole("button", { name: "Continue" }).click();
 
