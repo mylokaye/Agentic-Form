@@ -341,7 +341,7 @@ test("[F6] does not repeat completed stage fields on confirmation", async ({ pag
   await expect(page.getByRole("textbox", { name: "Last name" })).not.toBeVisible();
   await expect(page.getByRole("group", { name: "Personal details" })).not.toBeVisible();
   await expect(page.getByRole("group", { name: "Company details" })).not.toBeVisible();
-  await expect(page.getByText("By submitting this form, your personal data will be processed")).toBeVisible();
+  await expect(page.getByText("Personal information is processed in accordance with GDPR & our Privacy Policy.")).toBeVisible();
   await expect(page.locator("#gdpr-consent-note .form__alert-text")).toHaveCSS("font-size", "12px");
   await expect(page.getByRole("heading", { name: "Debug" })).toBeVisible();
   await expect(page.locator("#enriched-details")).not.toHaveAttribute("open", "");
@@ -474,6 +474,19 @@ test("does not horizontally overflow at the configured viewport", async ({ page 
   );
 
   expect(hasHorizontalOverflow).toBe(false);
+});
+
+test("uses 16px mobile controls to avoid iOS focus zoom", async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto("/");
+
+  await expect(page.locator("#first-name")).toHaveCSS("font-size", "16px");
+  await expect(page.locator("#message")).toHaveCSS("font-size", "16px");
+  await expect(page.locator("#business")).toHaveCSS("font-size", "16px");
+
+  await page.setViewportSize({ width: 768, height: 900 });
+
+  await expect(page.locator("#first-name")).toHaveCSS("font-size", "14px");
 });
 
 test("does not horizontally overflow at every required viewport width", async ({ page }) => {

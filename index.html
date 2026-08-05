@@ -46,6 +46,7 @@
       --font-size-body: 14px;
       --font-size-message: 14px;
       --font-size-consent-note: 12px;
+      --font-size-control-mobile: 16px;
       --line-height-body: 20px;
       --height-message-alert: 42px;
       --padding-alert-block: var(--space-sm);
@@ -806,6 +807,10 @@
     }
 
     @media (max-width: 47.999rem) {
+      .form__input {
+        font-size: var(--font-size-control-mobile);
+      }
+
       #page-1 {
         grid-template-columns: repeat(2, minmax(0, 1fr));
       }
