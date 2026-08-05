@@ -363,10 +363,8 @@ test("[F6] shows compact full-width progress for each form stage", async ({ page
   await expect(progress).toHaveAttribute("aria-valuenow", "1");
   await expect(progress).toHaveAttribute("aria-valuetext", "Step 1 of 3: Inquiry");
   await expect(progress).toHaveCSS("height", "6px");
-  await expect(progressBar).toHaveCSS(
-    "background-image",
-    /linear-gradient.*rgb\(255, 255, 255\).*rgb\(0, 183, 125\)/
-  );
+  await expect(progressBar).toHaveCSS("background-image", "none");
+  await expect(progressBar).toHaveCSS("background-color", "rgb(0, 183, 125)");
 
   const initialWidths = await page.locator(".page-shell").evaluate(() => {
     const form = document.querySelector(".form-shell");
