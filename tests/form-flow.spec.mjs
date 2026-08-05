@@ -76,6 +76,36 @@ test("[F11] shows the Spare parts newsletter topic only for that inquiry subtype
   await expect(sparePartsTopic).toBeHidden();
 });
 
+test("[F12] opens the AI company-summary tooltip on hover, click, and keyboard focus", async ({ page }) => {
+  await page.route("**free.freeipapi.com/api/json", (route) => route.abort());
+  await page.goto("/");
+
+  const tooltipButton = page.getByRole("button", { name: "About AI company summaries" });
+  const tooltip = page.getByRole("tooltip");
+
+  await expect(tooltip).toBeHidden();
+  await tooltipButton.hover();
+  await expect(tooltip).toBeVisible();
+  await expect(tooltip).toHaveCSS("background-color", "rgb(255, 255, 255)");
+
+  await page.mouse.move(0, 0);
+  await expect(tooltip).toBeHidden();
+
+  await tooltipButton.focus();
+  await expect(tooltip).toBeVisible();
+
+  await page.getByRole("textbox", { name: "First name" }).focus();
+  await expect(tooltip).toBeHidden();
+
+  await tooltipButton.click();
+  await expect(tooltipButton).toHaveAttribute("aria-expanded", "true");
+  await expect(tooltip).toBeVisible();
+
+  await page.getByRole("textbox", { name: "First name" }).click();
+  await expect(tooltipButton).toHaveAttribute("aria-expanded", "false");
+  await expect(tooltip).toBeHidden();
+});
+
 test("keeps the CSS-only Newsletter banner content inside its mobile layout", async ({ page }) => {
   await page.route("**free.freeipapi.com/api/json", (route) => route.abort());
   await page.goto("/");

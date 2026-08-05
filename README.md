@@ -16,7 +16,7 @@ A portable, three-step inquiry form built with plain HTML, CSS, and JavaScript. 
 2. **Personal details** — Phone, role, language, company name, industry, country, and State. Country sits beside Industry on wider screens and its list is alphabetised; State appears directly below it only when United States is selected and is disabled otherwise, so it is excluded from form submissions. Defaults include Manager, Aerospace, and Alabama; Country starts empty. Language is prefilled from the browser locale when recognised, and F1 can prefill Country and an international Phone prefix from the visitor's approximate IP country.
 3. **Review and submit** — Newsletter opt-in, Submit Inquiry, GDPR note, and a closed-by-default **Debug** accordion containing enrichment fields. It does not duplicate earlier fields.
 
-The GDPR consent note uses 12px text at every viewport width.
+The GDPR consent note uses 12px text at every viewport width and reads: `By submitting this form, we will process your personal data in accordance with GDPR. Read our Privacy Notice.` The Privacy Notice is currently plain text because no destination URL is configured.
 
 The closed **Debug** accordion includes a read-only `currentUrl` field. F9 sets it to the full URL of the page that loaded the form, including any query string or hash. It is prepared for a future submission integration; the current prototype does not transmit it.
 
@@ -87,7 +87,7 @@ The suite covers validation, browser-language prefill, F1 country lookup recover
 
 ## Design notes
 
-The form uses Inter, shared colour and elevation tokens, and a mobile-first layout. On mobile, paired Back and Continue actions stay on one row: Back uses a smaller share and Continue fills the remaining space. Stage 2 actions sit 45px below the final visible company field. At wider widths, fields use responsive grids and the enrichment fields use three columns below About.
+The form uses Inter, shared colour and elevation tokens, and a mobile-first layout. Stage 1 begins with an Inquiry heading using the shared section-title style and an AI mark at the left of its action row, opposite Continue. Hovering or focusing the mark shows a light explanation; clicking or tapping it keeps the explanation open until it is clicked again or closed by an outside click. Below 768px, First name and Last name share two columns, as do Inquiry type and Inquiry subtype; Email, Inquiry, and Business remain full-width. At the same range in Stage 2, Role and Language share two columns, as do Company name and Industry; Phone, Country, and State remain full-width. The AI mark and Continue share the action row; later stages retain the shared Back and Continue layout. Stage 2 actions sit 45px below the final visible company field. At wider widths, fields use responsive grids and the enrichment fields use three columns below About.
 
 ## Maintenance
 
