@@ -13,7 +13,7 @@ A portable, three-step inquiry form built with plain HTML, CSS, and JavaScript. 
 ## Form flow
 
 1. **Inquiry** — First name, last name, email, inquiry, business, inquiry type, and inquiry subtype. The three personal fields have configured defaults. Continue derives company details and starts enrichment.
-2. **Personal details** — Phone, role, language, company name, industry, country, and State. Country sits beside Industry on wider screens and its list is alphabetised; State appears directly below it only when United States is selected and is disabled otherwise, so it is excluded from form submissions. Defaults include Manager, Aerospace, and Alabama; Country starts empty. Language is prefilled from the browser locale when recognised, and F1 can prefill Country and an international Phone prefix from the visitor's approximate IP country.
+2. **Personal details** — Phone, role, language, company name, industry, country, and State. Country sits beside Industry on wider screens and its list is alphabetised; State appears directly below it only when United States is selected and is disabled otherwise, so it is excluded from form submissions. Defaults include Manager, Aerospace, and Alabama; Country starts empty. Language is prefilled from the browser locale when recognised. F1 can prefill Country and display a matching non-editable international dialling code beside an otherwise empty Phone input, allowing browser Contact AutoFill to provide the complete saved number.
 3. **Review and submit** — Newsletter opt-in, Submit Inquiry, GDPR note, and a closed-by-default **Debug** accordion containing enrichment fields. It does not duplicate earlier fields.
 
 The GDPR consent note uses 12px text at every viewport width and reads: `Personal information is processed in accordance with GDPR & our Privacy Policy.` The Privacy Policy is currently plain text because no destination URL is configured.
@@ -30,7 +30,7 @@ The newsletter card uses a CSS-only white geometric gradient across the full car
 - Email-domain suggestions fill only empty Website and Company name fields. Website suggestions use an `https://` URL; untouched suggestions refresh when Email changes, manual edits remain unchanged, and personal names are not inferred.
 - Enrichment requests return `industry`, `about`, `urgency`, `sentiment`, and `query` when available.
 - Requests time out after 20 seconds, stale responses are ignored, and failures allow the form to continue.
-- **F1 country lookup** makes one best-effort browser request to FreeIPAPI when the form loads. It uses a recognised ISO country code to prefill Country and the first valid international dialling code to prefill an empty Phone number. It leaves both fields empty on failure and never overwrites a visitor's entered Country or Phone number.
+- **F1 country lookup** makes one best-effort browser request to FreeIPAPI when the form loads. It uses a recognised ISO country code to prefill Country and shows the first valid international dialling code as a separate non-editable Phone prefix while the real `autocomplete="tel"` input stays empty. A matching code supplied by Contact AutoFill or paste is removed from the editable portion so it is not shown twice. A different complete international number is preserved and the suggested prefix is hidden. F1 leaves both controls empty on failure and never overwrites a visitor's entered Country or Phone number.
 - F1 writes generic `[F1]` technical status messages to the browser console. Those messages never include an IP address, country, form value, or submission data.
 - Language uses the browser's local `navigator.language` preference, converting its base locale to an English language name (for example, `de-DE` becomes German). It makes no network request and remains editable.
 - Submit Inquiry is a local prototype confirmation only. No form data is sent to a submission backend.
@@ -40,7 +40,7 @@ The newsletter card uses a CSS-only white geometric gradient across the full car
 
 ## Known limitations
 
-- F1 location and dialling-prefix suggestions are approximate, depend on FreeIPAPI availability, and can be affected by VPNs, mobile networks, or shared connections.
+- F1 location and dialling-code suggestions are approximate, depend on FreeIPAPI availability, and can be affected by VPNs, mobile networks, or shared connections. A visitor-entered international number takes precedence over a mismatched suggested code.
 - Browser language is a device preference, not a confirmed language preference; visitors can edit the suggested value.
 
 ## Run locally

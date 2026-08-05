@@ -180,16 +180,53 @@ test("[F5] derives empty Website and Company name fields from the Email domain",
   await expect(page.locator("#company-name")).toHaveValue("Visitor Company");
 });
 
-test("[F1] prefills Country from FreeIPAPI", async ({ page }) => {
+test("[F1] prefills Country and shows a separate Phone dialling code", async ({ page }) => {
   await page.route("**free.freeipapi.com/api/json", (route) => route.fulfill({
     json: { countryCode: "GB", phoneCodes: [44] }
   }));
   await page.goto("/");
 
   await expect(page.locator("#country")).toHaveValue("GB");
-  await expect(page.locator("#phone")).toHaveValue("+44 ");
+  await expect(page.locator("#phone")).toHaveValue("");
+  await expect(page.locator("#phone")).toHaveAttribute("autocomplete", "tel");
+  await expect(page.locator("#phone-dial-code")).toHaveText("+44");
+  await expect(page.locator("#phone-dial-code")).toHaveJSProperty("hidden", false);
   await expect(page.locator("#state")).not.toBeVisible();
   await expect(page.locator(".company-state-field")).toHaveCSS("display", "none");
+});
+
+test("[F1] separates a matching international code supplied by Phone AutoFill", async ({ page }) => {
+  await page.route("**free.freeipapi.com/api/json", (route) => route.fulfill({
+    json: { countryCode: "GB", phoneCodes: [44] }
+  }));
+  await page.goto("/");
+
+  await page.locator("#phone").evaluate((field) => {
+    field.value = "+44 7887 511947";
+    field.dispatchEvent(new InputEvent("input", {
+      bubbles: true,
+      inputType: "insertReplacementText"
+    }));
+  });
+
+  await expect(page.locator("#phone-dial-code")).toHaveText("+44");
+  await expect(page.locator("#phone-dial-code")).toHaveJSProperty("hidden", false);
+  await expect(page.locator("#phone")).toHaveValue("7887 511947");
+});
+
+test("[F1] preserves a different complete international Phone number", async ({ page }) => {
+  await page.route("**free.freeipapi.com/api/json", (route) => route.fulfill({
+    json: { countryCode: "GB", phoneCodes: [44] }
+  }));
+  await page.goto("/");
+
+  await page.locator("#phone").evaluate((field) => {
+    field.value = "+49 30 123456";
+    field.dispatchEvent(new Event("input", { bubbles: true }));
+  });
+
+  await expect(page.locator("#phone")).toHaveValue("+49 30 123456");
+  await expect(page.locator("#phone-dial-code")).toHaveJSProperty("hidden", true);
 });
 
 test("[F2] lists Country options alphabetically", async ({ page }) => {
@@ -242,6 +279,7 @@ test("[F1] leaves Country empty when FreeIPAPI is unavailable", async ({ page })
 
   await expect(page.locator("#country")).toHaveValue("");
   await expect(page.locator("#phone")).toHaveValue("");
+  await expect(page.locator("#phone-dial-code")).toHaveJSProperty("hidden", true);
 });
 
 test("[F1] does not replace a Phone number entered before lookup completes", async ({ page }) => {
@@ -265,6 +303,7 @@ test("[F1] does not replace a Phone number entered before lookup completes", asy
 
   await expect(page.locator("#country")).toHaveValue("GB");
   await expect(page.locator("#phone")).toHaveValue("+49 30 123456");
+  await expect(page.locator("#phone-dial-code")).toHaveJSProperty("hidden", true);
 });
 
 test("[F1] keeps a visitor's Country selection when its lookup finishes later", async ({ page }) => {
