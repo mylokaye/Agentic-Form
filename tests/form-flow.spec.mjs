@@ -352,6 +352,62 @@ test("[F6] does not repeat completed stage fields on confirmation", async ({ pag
   await expect(page.getByRole("textbox", { name: "About" })).toBeVisible();
 });
 
+test("[F6] shows compact full-width progress for each form stage", async ({ page }) => {
+  await page.route("**free.freeipapi.com/api/json", (route) => route.abort());
+  await page.goto("/");
+
+  const progress = page.getByRole("progressbar", { name: "Form progress" });
+  const progressBar = progress.locator(".progress__bar");
+
+  await expect(progress).toHaveAttribute("aria-valuenow", "1");
+  await expect(progress).toHaveAttribute("aria-valuetext", "Step 1 of 3: Inquiry");
+  await expect(progress).toHaveCSS("height", "6px");
+  await expect(progressBar).toHaveCSS(
+    "background-image",
+    /linear-gradient.*rgb\(255, 255, 255\).*rgb\(0, 183, 125\)/
+  );
+
+  const initialWidths = await page.locator(".page-shell").evaluate(() => {
+    const form = document.querySelector(".form-shell");
+    const indicator = document.querySelector("#form-progress");
+    const bar = document.querySelector(".progress__bar");
+
+    return {
+      form: form.getBoundingClientRect().width,
+      indicator: indicator.getBoundingClientRect().width,
+      fill: bar.getBoundingClientRect().width
+    };
+  });
+
+  expect(initialWidths.indicator).toBeCloseTo(initialWidths.form, 0);
+  expect(initialWidths.fill / initialWidths.indicator).toBeCloseTo(1 / 3, 2);
+
+  await completeStageOne(page);
+  await expect(progress).toHaveAttribute("aria-valuenow", "2");
+  await expect(progress).toHaveAttribute(
+    "aria-valuetext",
+    "Step 2 of 3: Personal and company details"
+  );
+
+  const stageTwoWidths = await progress.evaluate((indicator) => ({
+    indicator: indicator.getBoundingClientRect().width,
+    fill: indicator.querySelector(".progress__bar").getBoundingClientRect().width
+  }));
+
+  expect(stageTwoWidths.fill / stageTwoWidths.indicator).toBeCloseTo(2 / 3, 2);
+
+  await page.getByRole("button", { name: "Continue" }).click();
+  await expect(progress).toHaveAttribute("aria-valuenow", "3");
+  await expect(progress).toHaveAttribute("aria-valuetext", "Step 3 of 3: Review and submit");
+
+  const finalWidths = await progress.evaluate((indicator) => ({
+    indicator: indicator.getBoundingClientRect().width,
+    fill: indicator.querySelector(".progress__bar").getBoundingClientRect().width
+  }));
+
+  expect(finalWidths.fill).toBeCloseTo(finalWidths.indicator, 0);
+});
+
 test("[F6, F8] allows edits from confirmation and confirms the prototype submission", async ({ page }) => {
   await page.goto("/");
   await completeStagesOneAndTwo(page);
