@@ -27,9 +27,6 @@
       --color-error-border: #f2cf66;
       --color-error-text: #8a3c00;
       --color-control-invalid: #d92d20;
-      --color-success-surface: #e7f8f1;
-      --color-success-border: #86daba;
-      --color-success-text: #0c5f45;
       --color-focus: #7cc4ff;
       --color-green: #00B77D;
       --color-button-primary-hover: #00a971;
@@ -51,7 +48,6 @@
       --padding-alert-block: var(--space-sm);
       --padding-alert-inline: var(--space-md);
       --gap-alert-content: var(--space-sm);
-      --space-stage-two-actions: 145px;
       --font-size-title: 16px;
       --line-height-title: 20px;
       --font-weight-title: 700;
@@ -62,12 +58,15 @@
       --font-weight-label: var(--font-weight-regular);
       --padding-newsletter-block: 19px;
       --padding-newsletter-inline: 0.75rem;
+      --height-newsletter-banner-desktop: 212px;
 
       --height-button: 50px;
       --height-form-shell-desktop: 500px;
       --width-button-continue-stage-one: calc((100% - (var(--space-lg) * 2)) / 3);
       --width-button-continue: calc((100% - var(--space-lg)) * 2 / 3);
       --height-progress: 0.375rem;
+      --duration-stage-transition: 200ms;
+      --duration-progress-transition: 240ms;
       --width-progress-max: 650px;
       --space-progress-top: 15px;
       --space-progress-inline: 5px;
@@ -79,7 +78,6 @@
       --shadow-control-invalid: 0 0 0 2px var(--color-control-invalid), var(--shadow-elevation-depth-sm);
       --shadow-control-invalid-focus: 0 0 0 2px var(--color-control-invalid), 0 0 0 5px var(--color-focus), var(--shadow-elevation-depth-sm);
       --shadow-alert: 0 0 0 1px var(--color-border), var(--shadow-elevation-depth-sm);
-      --shadow-alert-success: 0 0 0 1px var(--color-success-border), var(--shadow-elevation-depth-sm);
       --shadow-alert-error: 0 0 0 1px var(--color-error-border), var(--shadow-elevation-depth-sm);
       --shadow-button: 0 0 0 1px var(--color-button-muted-border), var(--shadow-elevation-depth-sm);
       --shadow-button-primary: 0 0 0 1px var(--color-green), var(--shadow-elevation-depth-sm);
@@ -121,8 +119,8 @@
     }
 
     .form-shell {
-      display: grid;
-      gap: var(--space-sm);
+      display: flex;
+      flex-direction: column;
       padding: var(--space-lg);
     }
 
@@ -151,6 +149,7 @@
       height: 100%;
       border-radius: inherit;
       background: var(--color-green);
+      transition: width var(--duration-progress-transition) ease-out;
     }
 
     .progress[data-progress-stage="2"] .progress__bar {
@@ -167,9 +166,10 @@
 
     /* 4. Form components */
     .form {
-      display: grid;
+      display: flex;
+      flex: 1;
+      flex-direction: column;
       gap: var(--space-lg);
-      align-content: start;
     }
 
     .form__section {
@@ -183,6 +183,38 @@
 
     .form-page[hidden] {
       display: none;
+    }
+
+    .stage-transition-enter {
+      animation: stage-enter var(--duration-stage-transition) ease-out both;
+    }
+
+    .feedback-thank-you.stage-transition-enter {
+      animation-name: feedback-thank-you-enter;
+    }
+
+    @keyframes stage-enter {
+      from {
+        opacity: 0;
+        transform: translateY(0.5rem);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes feedback-thank-you-enter {
+      from {
+        opacity: 0;
+        transform: scale(0.98);
+      }
+
+      to {
+        opacity: 1;
+        transform: scale(1);
+      }
     }
 
     .form-page {
@@ -302,54 +334,28 @@
 
     @media (prefers-reduced-motion: reduce) {
       .form__stage-heading-button,
-      .form__tooltip {
+      .form__tooltip,
+      .progress__bar,
+      .stage-transition-enter {
         transition: none;
+        animation: none;
       }
     }
 
-    .form__accordion {
-      margin: 0;
+    .debug-panel {
+      display: grid;
+      gap: var(--space-lg);
+      margin-top: var(--space-lg);
+      padding: var(--space-lg);
     }
 
-    .form__accordion-summary {
-      display: flex;
-      gap: var(--space-md);
-      align-items: center;
-      justify-content: space-between;
-      cursor: pointer;
-      list-style: none;
-    }
-
-    .form__accordion-summary::-webkit-details-marker {
+    .debug-panel[hidden] {
       display: none;
     }
 
-    .form__accordion-summary:focus-visible {
-      outline: 2px solid var(--color-primary);
-      outline-offset: 0.25rem;
-      border-radius: var(--radius);
-    }
-
-    .form__accordion-summary .form__section-title {
-      padding-bottom: 0;
-    }
-
-    .form__accordion-icon {
-      flex: 0 0 auto;
-      width: 1.25rem;
-      height: 1.25rem;
-      color: var(--color-title);
-      transition: transform 160ms ease;
-    }
-
-    .form__accordion[open] .form__accordion-icon {
-      transform: rotate(180deg);
-    }
-
-    .form__accordion-content {
+    .debug-panel__content {
       display: grid;
       gap: var(--space-lg);
-      padding-top: var(--space-md);
     }
 
     .form__group {
@@ -501,7 +507,7 @@
     .newsletter-card__banner {
       position: relative;
       width: 100%;
-      aspect-ratio: 3.5 / 1;
+      height: var(--height-newsletter-banner-desktop);
       min-height: 8rem;
     }
 
@@ -521,7 +527,7 @@
 
     .newsletter-card__topics {
       position: absolute;
-      top: 52%;
+      top: 48%;
       right: var(--space-md);
       left: clamp(1rem, 3.5vw, 2rem);
       display: grid;
@@ -543,6 +549,7 @@
         align-content: start;
         gap: var(--space-sm);
         aspect-ratio: auto;
+        height: auto;
         padding: var(--space-md);
         box-sizing: border-box;
       }
@@ -585,6 +592,7 @@
     }
 
     .feedback-page {
+      flex: 1;
       min-height: clamp(24rem, 65vh, 40rem);
       align-content: center;
       justify-items: center;
@@ -788,72 +796,18 @@
       opacity: 0.85;
     }
 
-    /* 6. Messages and validation */
-    .form__message {
-      min-height: 1.25rem;
-      margin: calc(var(--space-md) * -1) 0 0;
-      color: var(--color-muted);
-      font-size: var(--font-size-message);
-    }
-
-    .form:not(.form--inquiry) .form__message--empty {
-      display: none;
-    }
-
-    .form__message--error {
-      display: flex;
-      gap: var(--gap-alert-content);
-      align-items: center;
-      min-height: var(--height-message-alert);
-      padding: var(--padding-alert-block) var(--padding-alert-inline);
-      color: var(--color-error-text);
-      background: var(--color-error-surface);
-      border: 0;
-      border-radius: var(--radius);
-      box-shadow: var(--shadow-alert-error);
-    }
-
-    .form__message--success {
-      display: flex;
-      align-items: center;
-      min-height: var(--height-message-alert);
-      padding: var(--padding-alert-block) var(--padding-alert-inline);
-      color: var(--color-success-text);
-      background: var(--color-success-surface);
-      border-radius: var(--radius);
-      box-shadow: var(--shadow-alert-success);
-    }
-
-    .form__message-icon {
-      flex: 0 0 auto;
-      width: 1.5rem;
-      height: 1.5rem;
-    }
-
-    .form__message-icon[hidden],
-    .form__message--empty .form__message-icon {
-      display: none;
-    }
-
-    .form__message--error .form__message-icon {
-      display: block;
-    }
-
+    .action-row,
     .form__actions {
       display: flex;
       flex-direction: column;
       gap: var(--space-md);
       height: var(--height-button);
+      margin-top: auto;
       justify-content: space-between;
     }
 
     .form__actions[hidden] {
       display: none;
-    }
-
-    /* Stage 2 uses the requested 145px action-row margin after company details. */
-    .form__actions--stage-two {
-      margin-top: var(--space-stage-two-actions);
     }
 
     .form__actions .button {
@@ -944,13 +898,12 @@
         min-height: var(--height-form-shell-desktop);
       }
 
-      .form:has(.form__actions--stage-two) {
-        height: 100%;
-        grid-template-rows: minmax(0, 1fr) auto;
+      .form-shell:has(#feedback-page:not([hidden])) {
+        height: var(--height-form-shell-desktop);
       }
 
-      .form:has(.form__actions--stage-two) #verified-fields {
-        align-self: start;
+      .feedback-page {
+        min-height: 0;
       }
 
       .form__section--two-columns {
@@ -1016,7 +969,6 @@
               autocomplete="given-name"
               value="Mylo"
               required
-              aria-describedby="form-message"
               aria-invalid="false"
             >
           </div>
@@ -1031,7 +983,6 @@
               autocomplete="family-name"
               value="Kaye"
               required
-              aria-describedby="form-message"
               aria-invalid="false"
             >
           </div>
@@ -1048,7 +999,7 @@
                 value="mylomrk@icloud.com"
                 inputmode="email"
                 required
-                aria-describedby="email-validation-status form-message"
+                aria-describedby="email-validation-status"
                 aria-invalid="false"
               >
             </div>
@@ -1108,15 +1059,6 @@
             <p class="form__alert-text">Enter as much information as possible in order for us to route your inquiry promptly.</p>
           </div>
         </div>
-
-        <p class="form__message form__message--empty" id="form-message" aria-live="polite">
-          <svg class="form__message-icon" id="form-message-icon" aria-hidden="true" viewBox="0 0 24 24" fill="none" hidden>
-            <path d="M12 3.5 21 20.5H3L12 3.5Z" stroke="currentColor" stroke-linejoin="round" stroke-width="1.75" />
-            <path d="M12 9v5" stroke="currentColor" stroke-linecap="round" stroke-width="1.75" />
-            <circle cx="12" cy="17" r="1" fill="currentColor" />
-          </svg>
-          <span id="form-message-text"></span>
-        </p>
 
         <div class="form-page form__section" id="verified-fields" aria-labelledby="stage-two-personal-details-title" tabindex="-1" hidden>
           <fieldset class="form__group" aria-labelledby="review-personal-details">
@@ -1246,7 +1188,7 @@
           <p class="form__alert-text">Personal information is processed in accordance with GDPR & our Privacy Policy.</p>
         </div>
 
-        <div class="form__actions">
+        <div class="action-row form__actions">
           <div class="form__tooltip-trigger" id="company-info-tooltip-trigger">
             <button
               class="form__stage-heading-button"
@@ -1339,95 +1281,6 @@
           </div>
         </div>
 
-        <div class="form-page form__section" id="enriched-fields" hidden>
-          <details class="form__accordion form__section--full-width" id="enriched-details">
-            <summary class="form__accordion-summary">
-              <h2 class="form__section-title">Debug</h2>
-              <svg class="form__accordion-icon" aria-hidden="true" viewBox="0 0 16 16" fill="none">
-                <path d="m3 6 5 5 5-5" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" />
-              </svg>
-            </summary>
-
-            <div class="form__accordion-content form__section--three-columns">
-              <div class="form__field form__section--full-width">
-                <label class="form__label" for="current-url">Current URL</label>
-                <input
-                  class="form__input"
-                  id="current-url"
-                  name="currentUrl"
-                  type="url"
-                  autocomplete="off"
-                  readonly
-                >
-              </div>
-
-              <div class="form__field form__section--full-width">
-                <label class="form__label" for="about">About</label>
-                <textarea
-                  class="form__input"
-                  id="about"
-                  name="about"
-                  rows="4"
-                ></textarea>
-              </div>
-
-              <div class="form__field">
-                <label class="form__label" for="urgency">Urgency</label>
-                <input
-                  class="form__input"
-                  id="urgency"
-                  name="urgency"
-                  type="text"
-                  autocomplete="off"
-                >
-              </div>
-
-              <div class="form__field">
-                <label class="form__label" for="sentiment">Sentiment</label>
-                <input
-                  class="form__input"
-                  id="sentiment"
-                  name="sentiment"
-                  type="text"
-                  autocomplete="off"
-                >
-              </div>
-
-              <div class="form__field">
-                <label class="form__label" for="query">Query</label>
-                <input
-                  class="form__input"
-                  id="query"
-                  name="query"
-                  type="text"
-                  autocomplete="off"
-                >
-              </div>
-
-              <div class="form__field">
-                <label class="form__label" for="industry">Enriched industry</label>
-                <input
-                  class="form__input"
-                  id="industry"
-                  name="industry"
-                  type="text"
-                  autocomplete="off"
-                >
-              </div>
-
-              <div class="form__field">
-                <label class="form__label" for="website">Website</label>
-                <input
-                  class="form__input"
-                  id="website"
-                  name="website"
-                  type="url"
-                  autocomplete="url"
-                >
-              </div>
-            </div>
-          </details>
-        </div>
       </form>
 
     </section>
@@ -1445,6 +1298,46 @@
     >
       <span class="progress__bar" aria-hidden="true"></span>
     </div>
+
+    <section class="debug-panel elevated-surface" id="enriched-fields" aria-labelledby="debug-heading" hidden>
+      <h2 class="form__section-title" id="debug-heading">Debug</h2>
+      <div class="debug-panel__content form__section--three-columns">
+        <div class="form__field form__section--full-width">
+          <label class="form__label" for="current-url">Current URL</label>
+          <input class="form__input" id="current-url" name="currentUrl" type="url" autocomplete="off" readonly>
+        </div>
+
+        <div class="form__field form__section--full-width">
+          <label class="form__label" for="about">About</label>
+          <textarea class="form__input" id="about" name="about" rows="4"></textarea>
+        </div>
+
+        <div class="form__field">
+          <label class="form__label" for="urgency">Urgency</label>
+          <input class="form__input" id="urgency" name="urgency" type="text" autocomplete="off">
+        </div>
+
+        <div class="form__field">
+          <label class="form__label" for="sentiment">Sentiment</label>
+          <input class="form__input" id="sentiment" name="sentiment" type="text" autocomplete="off">
+        </div>
+
+        <div class="form__field">
+          <label class="form__label" for="query">Query</label>
+          <input class="form__input" id="query" name="query" type="text" autocomplete="off">
+        </div>
+
+        <div class="form__field">
+          <label class="form__label" for="industry">Enriched industry</label>
+          <input class="form__input" id="industry" name="industry" type="text" autocomplete="off">
+        </div>
+
+        <div class="form__field">
+          <label class="form__label" for="website">Website</label>
+          <input class="form__input" id="website" name="website" type="url" autocomplete="url">
+        </div>
+      </div>
+    </section>
   </main>
 
   <script>
@@ -1455,6 +1348,8 @@
     const emailField = document.getElementById("email");
     const form = document.querySelector(".form");
     const currentUrlField = document.getElementById("current-url");
+    // F9 — Debug fields are opt-in through the URL and do not create stored state.
+    const isDebugMode = new URLSearchParams(window.location.search).has("debug");
     const validationStatus = document.getElementById("email-validation-status");
     const pageOne = document.getElementById("page-1");
     const progressIndicator = document.getElementById("form-progress");
@@ -1491,7 +1386,6 @@
     const inquiryTypeField = document.getElementById("inquiry-type");
     const inquirySubtypeField = document.getElementById("inquiry-subtype");
     const enrichedFields = document.getElementById("enriched-fields");
-    const enrichedDetails = document.getElementById("enriched-details");
     const industryField = document.getElementById("industry");
     const roleField = document.getElementById("role");
     const aboutField = document.getElementById("about");
@@ -1499,9 +1393,6 @@
     const urgencyField = document.getElementById("urgency");
     const sentimentField = document.getElementById("sentiment");
     const queryField = document.getElementById("query");
-    const formMessage = document.getElementById("form-message");
-    const formMessageIcon = document.getElementById("form-message-icon");
-    const formMessageText = document.getElementById("form-message-text");
 
     // 2. Configuration
     const PROGRESS_STAGE_LABELS = {
@@ -1510,6 +1401,7 @@
       3: "Step 3 of 4: Review and submit",
       4: "Step 4 of 4: Feedback"
     };
+    const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
 
     // F7 — Company and inquiry enrichment uses the local proxy during development and the hosted route elsewhere.
     const COMPANY_ENRICHMENT_ENDPOINT =
@@ -1588,7 +1480,7 @@
 
     // 3. Feature and shared utility functions
 
-    // F9 — Capture the page URL once in a read-only review field without transmitting or logging it.
+    // F9 — Capture the page URL once in a read-only debug field without transmitting or logging it.
     function populateCurrentUrl() {
       if (!currentUrlField) return;
 
@@ -1863,23 +1755,6 @@
 
     // 5. State / UI functions
 
-    // F4, F6, F7, F8 — One message surface reports validation, navigation, enrichment, and submission outcomes.
-    function setFormMessage(message, isError = false, isSuccess = false) {
-      if (!formMessage || !formMessageText) return;
-
-      const hasError = Boolean(message) && isError;
-      const hasSuccess = Boolean(message) && isSuccess;
-
-      formMessageText.textContent = message;
-      formMessage.classList.toggle("form__message--empty", !message);
-      formMessage.classList.toggle("form__message--error", hasError);
-      formMessage.classList.toggle("form__message--success", hasSuccess);
-
-      if (formMessageIcon) {
-        formMessageIcon.hidden = !hasError;
-      }
-    }
-
     // F4 and F6 — Action readiness is derived from the active stage's exact progression requirements.
     function isPrimaryReady() {
       if (formState.currentPage === 1) {
@@ -1902,7 +1777,6 @@
 
       if (formActions) {
         formActions.classList.toggle("is-final", formState.currentPage === 3);
-        formActions.classList.toggle("form__actions--stage-two", formState.currentPage === 2);
         formActions.hidden = formState.currentPage === 4;
       }
 
@@ -1927,8 +1801,21 @@
       progressIndicator.setAttribute("aria-valuetext", PROGRESS_STAGE_LABELS[formState.currentPage]);
     }
 
-    // F6 — Exactly one form stage is visible at a time; shared status, consent, and progress move with it.
+    // F6 — Stages enter with restrained motion after navigation, unless the visitor prefers reduced motion.
+    function playEntrance(element) {
+      if (!element || prefersReducedMotion.matches) return;
+
+      element.classList.remove("stage-transition-enter");
+      void element.offsetWidth;
+      element.classList.add("stage-transition-enter");
+      element.addEventListener("animationend", () => {
+        element.classList.remove("stage-transition-enter");
+      }, { once: true });
+    }
+
+    // F6 — Exactly one form stage is visible at a time; consent and progress move with it.
     function showPage(pageNumber) {
+      const previousPage = formState.currentPage;
       formState.currentPage = pageNumber;
 
       if (form) {
@@ -1956,10 +1843,8 @@
       }
 
       if (enrichedFields) {
-        enrichedFields.hidden = pageNumber < 3 || pageNumber === 4;
+        enrichedFields.hidden = !isDebugMode;
       }
-
-      placeFormMessage(pageNumber);
 
       reviewTitles.forEach((title) => {
         title.hidden = pageNumber !== 3;
@@ -1971,6 +1856,12 @@
 
       updateProgress();
       updateNavigationState();
+
+      if (previousPage === pageNumber) return;
+
+      const activeStage = [pageOne, verifiedFields, stageThreeNewsletter, feedbackPage][pageNumber - 1];
+      playEntrance(activeStage);
+
     }
 
     // F6 — Focus moves to the first meaningful control whenever navigation reveals a stage.
@@ -1984,18 +1875,6 @@
             : firstNameField;
 
       window.requestAnimationFrame(() => target?.focus());
-    }
-
-    // F6 — The shared message remains adjacent to the currently actionable stage.
-    function placeFormMessage(pageNumber) {
-      if (!formMessage || !pageOne) return;
-
-      if (pageNumber >= 3 && enrichedDetails) {
-        enrichedDetails.after(formMessage);
-        return;
-      }
-
-      pageOne.after(formMessage);
     }
 
     // F7 — Enriched values are cleared when their source email context is reset.
@@ -2212,7 +2091,6 @@
 
       formState.enrichmentController = controller;
       setVerifyLoading(true);
-      setFormMessage("");
 
       try {
         const response = await fetch(COMPANY_ENRICHMENT_ENDPOINT, {
@@ -2244,10 +2122,7 @@
           return null;
         }
 
-        if (error instanceof TypeError) {
-          setFormMessage("");
-          return false;
-        }
+        if (error instanceof TypeError) return false;
 
         if (error?.name === "AbortError") {
           console.error("[Form] Company enrichment timed out.");
@@ -2275,7 +2150,6 @@
       verifyButton.classList.toggle("button--ready", isValidEmail(emailField.value));
       resetValidationFeedback();
       hideVerifiedFields();
-      setFormMessage("");
     }
 
     // F4 and F6 — Detail edits immediately recalculate the active stage's action readiness.
@@ -2300,9 +2174,6 @@
         setFieldInvalidState(firstNameField, !hasFirstName);
         setFieldInvalidState(lastNameField, !hasLastName);
 
-        if (hasStageOneEntries()) {
-          setFormMessage("");
-        }
       }
 
       updateVerifiedButtonState();
@@ -2315,6 +2186,7 @@
       feedbackRatingContent.hidden = true;
       feedbackThankYou.hidden = false;
       feedbackPage.setAttribute("aria-labelledby", "feedback-thank-you-heading");
+      playEntrance(feedbackThankYou);
 
       window.requestAnimationFrame(() => feedbackThankYouHeading?.focus());
     }
@@ -2329,7 +2201,6 @@
         verifyButton.disabled = true;
         console.info("[Form] Inquiry submitted (prototype).");
         showPage(4);
-        setFormMessage("");
         focusCurrentStage(4);
         return;
       }
@@ -2338,12 +2209,8 @@
 
       if (formState.currentPage === 2) {
         // F4 and F6 — Stage 2 cannot advance until its four required derived/detail values exist.
-        if (!hasVerifiedFieldEntries()) {
-          setFormMessage("Enter first name, last name, website, and company name before continuing.", true);
-          return;
-        }
+        if (!hasVerifiedFieldEntries()) return;
         showPage(3);
-        setFormMessage("");
         focusCurrentStage(3);
 
         return;
@@ -2370,7 +2237,6 @@
         formState.isSubmitted = false;
         verifyButton.disabled = false;
         showPage(3);
-        setFormMessage("");
         focusCurrentStage(3);
         return;
       }
@@ -2379,13 +2245,11 @@
         formState.isSubmitted = false;
         verifyButton.disabled = false;
         showPage(2);
-        setFormMessage("");
         focusCurrentStage(2);
         return;
       }
 
       showPage(1);
-      setFormMessage("");
       focusCurrentStage(1);
     }
 

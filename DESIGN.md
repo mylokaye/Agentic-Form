@@ -21,12 +21,17 @@ rules in `AGENTS.md` and user-visible behaviour in `README.md`.
   Stage 4 hides the bar.
 - Stage 1 begins with the shared Inquiry heading and the AI mark beside the
   action row. The mark's accessible explanation is intentionally lightweight.
-- Stage 4 centres the inquiry thank-you copy and stars, omits the GDPR and
-  Debug content, and keeps both its rating and post-rating containers centred
+- Stage 4 centres the inquiry thank-you copy and stars, omits in-form GDPR and
+  Debug controls, and keeps both its rating and post-rating containers centred
   within the form shell's inner width. It then displays the 22px feedback
   thank-you message after a rating click.
+- From 768px upward, Stage 4 fixes the outer form shell at 500px. The feedback
+  page fills the shell's padded inner area so its content remains centred
+  without enlarging the outer surface.
 - The newsletter is a CSS-only white geometric gradient card. Its optional
   checkbox starts unchecked; preserve the existing topic and Subscribe layout.
+  Its desktop banner is 212px tall; mobile stays content-sized with an 8rem
+  minimum height. The desktop topic list sits at 48% of the banner height.
 
 ## Responsive layout
 
@@ -39,11 +44,11 @@ rules in `AGENTS.md` and user-visible behaviour in `README.md`.
   enrichment fields use three columns below the full-width About field.
 - From 768px upward, the form shell has a 500px minimum height. It may grow for
   taller stages; mobile remains content-sized.
-- Phone, Country, and conditional State remain full-width in Stage 2. Stage 2
-  actions use a 145px top margin after the company-details grid and align with
-  Stage 1's inner bottom edge on desktop.
-- Buttons and action rows use the shared 50px control height. The desktop form
-  grid keeps spare shell height below its content instead of stretching actions.
+- Phone, Country, and conditional State remain full-width in Stage 2.
+- The shared **action row** is the form's final control row on Stages 1–3. It
+  uses the shared 50px control height and the same inner bottom inset on each
+  stage. Available space sits above the row; a taller stage expands the shell
+  rather than compressing actions.
 - On desktop, the Continue control uses the same one-third-width, right-aligned
   treatment on Stages 1 and 2. Stage 2 keeps its compact Back control on the
   left; the final stage retains its wider primary action.
@@ -54,3 +59,10 @@ rules in `AGENTS.md` and user-visible behaviour in `README.md`.
 When a visual request supplies an exact measurement, colour, or reference,
 preserve it through shared tokens or reusable rules. Update this guide only for
 durable design decisions, not one-off experimental work.
+
+## Motion
+
+- Stage changes use a restrained 200ms fade-and-rise entrance; the action row
+  remains still. The progress bar eases its width over 240ms.
+- The feedback thank-you message uses the same brief fade with a 98% to 100%
+  scale. Disable all nonessential motion for `prefers-reduced-motion`.
