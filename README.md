@@ -9,6 +9,7 @@ A portable, four-step inquiry form built with plain HTML, CSS, and JavaScript. T
 - `scripts/build-site.mjs` — builds the Sites worker and hosted enrichment route.
 - `tests/form-flow.spec.mjs` — Playwright regression tests.
 - `AGENTS.md` — implementation standards.
+- `DESIGN.md` — visual and responsive design direction.
 
 ## Form flow
 
@@ -90,7 +91,8 @@ The suite covers validation, browser-language prefill, F1 country lookup recover
 
 ## Design notes
 
-The form uses Inter, shared colour and elevation tokens, and a mobile-first layout. A compact full-width footer bar shows one-quarter, one-half, or three-quarters progress for Stages 1-3; it is hidden on Stage 4. Stage 1 begins with an Inquiry heading using the shared section-title style and an AI mark at the left of its action row, opposite Continue. Hovering or focusing the mark shows a light explanation; clicking or tapping it keeps the explanation open until it is clicked again or closed by an outside click. Below 768px, form controls use 16px text to prevent iOS browsers from magnifying the page when a field receives focus. First name and Last name share two columns, as do Inquiry type and Inquiry subtype; Email, Inquiry, and Business remain full-width. At the same range in Stage 2, Role and Language share two columns, as do Company name and Industry; Phone, Country, and State remain full-width. The AI mark and Continue share the action row; later stages retain the shared Back and Continue layout. Stage 2 actions sit 45px below the final visible company field. Stage 4 centers the inquiry thank-you copy and star buttons without the review-only GDPR or Debug content, then replaces them with the 22px feedback thank-you message after a click. At wider widths, fields use responsive grids and the enrichment fields use three columns below About.
+See `DESIGN.md` for the durable visual system, responsive layout rules, and
+design-change discipline.
 
 ## Maintenance
 
