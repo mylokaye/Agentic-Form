@@ -1,4 +1,6 @@
-# Forms v2
+![Agentic Form](https://repository-images.githubusercontent.com/1261559482/b4bacbd7-3508-48a9-8c11-cc59d961b8b6)
+
+# Agentic Form
 
 A portable, four-step inquiry form built with plain HTML, CSS, and JavaScript. The browser UI lives in `index.html`; the optional enrichment service runs through a local proxy or the hosted Sites worker.
 
