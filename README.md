@@ -6,7 +6,7 @@ A portable, four-step inquiry form built with plain HTML, CSS, and JavaScript. T
 
 ## Files
 
-- `index.html` — form UI, styles, browser logic, Google Fonts Inter stylesheet link, and GA4 lifecycle events.
+- `index.html` — form UI, styles, browser logic, Google Fonts Inter stylesheet link, site-wide GA4 tag (`G-0K36MBFB25`), and GA4 lifecycle events.
 - `dev-proxy.mjs` — local company-enrichment proxy.
 - `scripts/build-site.mjs` — builds the Sites worker and hosted enrichment route.
 - `tests/form-flow.spec.mjs` — Playwright regression tests.
@@ -86,8 +86,8 @@ The suite covers validation, browser-language prefill, F1 country lookup recover
 
 ## Privacy and support
 
-- GA4 is loaded for the form lifecycle events described above. Analytics requests contain only fixed event names and non-personal step metadata; the form does not send names, email addresses, messages, URLs, enrichment values, or ratings.
-- Google Analytics requests are sent to Google and are subject to Google's privacy terms. No other analytics, tracking pixels, localStorage, or sessionStorage are used.
+- Google Analytics 4 is loaded site-wide with measurement ID `G-0K36MBFB25` for the form lifecycle events described above. Analytics requests contain only fixed event names and non-personal step metadata; the form does not send names, email addresses, messages, URLs, enrichment values, or ratings.
+- The form does not use other analytics, first-party tracking pixels, localStorage, or sessionStorage.
 - Inter is loaded from Google Fonts for typography; loading the form makes requests to Google font domains, which are subject to Google's privacy terms.
 - The read-only Current URL value may include query-string or hash content. Do not place personal or sensitive information in form URLs.
 - F1 makes a direct request to FreeIPAPI to infer a country from the visitor's IP address. The form does not retain or log that IP address or the lookup result; FreeIPAPI is a third-party service with its own privacy policy.
