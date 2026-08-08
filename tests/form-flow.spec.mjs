@@ -28,6 +28,15 @@ async function completeStagesOneAndTwo(page) {
   await expect(page.getByRole("checkbox", { name: "Subscribe" })).toBeVisible();
 }
 
+test("loads the configured Google Analytics 4 tag from the document head", async ({ page }) => {
+  await page.route("**free.freeipapi.com/api/json", (route) => route.abort());
+  await page.goto("/");
+
+  await expect(page.locator('script[src="https://www.googletagmanager.com/gtag/js?id=G-0K36MBFB25"]')).toHaveCount(1);
+  const inlineScripts = (await page.locator("script").allTextContents()).join("\n");
+  expect(inlineScripts).toContain("gtag('config', 'G-0K36MBFB25')");
+});
+
 test("[F3] prefills Language from the browser locale", async ({ page }) => {
   await page.addInitScript(() => {
     Object.defineProperty(navigator, "language", {

@@ -4,7 +4,7 @@ A portable, four-step inquiry form built with plain HTML, CSS, and JavaScript. T
 
 ## Files
 
-- `index.html` — form UI, styles, browser logic, and the Google Fonts Inter stylesheet link.
+- `index.html` — form UI, styles, browser logic, the Google Fonts Inter stylesheet link, and the site-wide Google Analytics 4 tag (`G-0K36MBFB25`).
 - `dev-proxy.mjs` — local company-enrichment proxy.
 - `scripts/build-site.mjs` — builds the Sites worker and hosted enrichment route.
 - `tests/form-flow.spec.mjs` — Playwright regression tests.
@@ -80,7 +80,8 @@ The suite covers validation, browser-language prefill, F1 country lookup recover
 
 ## Privacy and support
 
-- No first-party analytics, cookies, tracking pixels, localStorage, or sessionStorage are used.
+- Google Analytics 4 is loaded site-wide with measurement ID `G-0K36MBFB25`; it is a third-party analytics service subject to Google's privacy terms.
+- The form does not use first-party tracking pixels, localStorage, or sessionStorage.
 - Inter is loaded from Google Fonts for typography; loading the form makes requests to Google font domains, which are subject to Google's privacy terms.
 - The read-only Current URL value may include query-string or hash content. Do not place personal or sensitive information in form URLs.
 - F1 makes a direct request to FreeIPAPI to infer a country from the visitor's IP address. The form does not retain or log that IP address or the lookup result; FreeIPAPI is a third-party service with its own privacy policy.
