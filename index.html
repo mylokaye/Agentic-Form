@@ -7,6 +7,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap">
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-0K36MBFB25"></script>
         <meta type="xrm/designer/setting" name="type" value="marketing-designer-content-editor-document">
         <meta type="xrm/designer/setting" name="layout-editable" value="marketing-designer-layout-editable">
       <script>
@@ -1349,10 +1350,10 @@
   </main>
 
   <script>
-    // Feature IDs F1-F13 are stable behaviour identifiers defined in AGENTS.md.
+    // Feature IDs F1-F14 are stable behaviour identifiers defined in AGENTS.md.
     // Shared helpers name every feature they directly support; infrastructure is not assigned an ID.
 
-    // 1. Shared DOM references (F1-F13)
+    // 1. Shared DOM references (F1-F14)
     const emailField = document.getElementById("email");
     const form = document.querySelector(".form");
     const currentUrlField = document.getElementById("current-url");
@@ -1410,6 +1411,18 @@
       4: "Step 4 of 4: Feedback"
     };
     const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+
+    // F14 — Analytics sends only fixed form and step metadata, never visitor-entered values.
+    const FORM_ANALYTICS_NAME = "inquiry";
+    const FORM_STEP_NAMES = {
+      1: "Inquiry",
+      2: "Personal and company details",
+      3: "Review and submit",
+      4: "Feedback"
+    };
+    const formAnalyticsState = {
+      hasStarted: false
+    };
 
     // F7 — Company and inquiry enrichment uses the local proxy during development and the hosted route elsewhere.
     const COMPANY_ENRICHMENT_ENDPOINT =
@@ -1776,6 +1789,36 @@
       return true;
     }
 
+    // F14 — Keep GA failures from interrupting form progression or submission.
+    function trackFormEvent(eventName, parameters = {}) {
+      if (typeof window.gtag !== "function") return;
+
+      try {
+        window.gtag("event", eventName, {
+          form_name: FORM_ANALYTICS_NAME,
+          ...parameters
+        });
+      } catch {
+        // Analytics is optional infrastructure and must not change form behaviour.
+      }
+    }
+
+    // F14 — Track each visible stage with a numeric step and static label only.
+    function trackFormStepView(pageNumber) {
+      trackFormEvent("form_step_view", {
+        form_step: pageNumber,
+        form_step_name: FORM_STEP_NAMES[pageNumber]
+      });
+    }
+
+    // F14 — Track the first meaningful form interaction once per page load.
+    function trackFormStart() {
+      if (formAnalyticsState.hasStarted) return;
+
+      formAnalyticsState.hasStarted = true;
+      trackFormEvent("form_start");
+    }
+
     // F6 — Navigation owns Back visibility, action labels, stage spacing, and ready-state styling.
     function updateNavigationState() {
       if (backButton) {
@@ -1821,7 +1864,7 @@
       }, { once: true });
     }
 
-    // F6 — Exactly one form stage is visible at a time; consent and progress move with it.
+    // F6 and F14 — Exactly one form stage is visible at a time; consent, progress, and stage-view analytics move with it.
     function showPage(pageNumber) {
       const previousPage = formState.currentPage;
       formState.currentPage = pageNumber;
@@ -1867,6 +1910,7 @@
 
       if (previousPage === pageNumber) return;
 
+      trackFormStepView(pageNumber);
       const activeStage = [pageOne, verifiedFields, stageThreeNewsletter, feedbackPage][pageNumber - 1];
       playEntrance(activeStage);
 
@@ -2199,17 +2243,32 @@
       window.requestAnimationFrame(() => feedbackThankYouHeading?.focus());
     }
 
-    // F4, F6, F7, F8, F13 — The primary action validates, advances, enriches, or opens feedback by active stage.
+    // F4, F6, F7, F8, F13, F14 — The primary action validates, advances, enriches, submits, or opens feedback by active stage.
     async function handlePrimaryAction() {
       if (formState.currentPage === 3) {
         // F8 — Submission is intentionally local-only and idempotent for this prototype.
         if (formState.isSubmitted) return;
 
+        trackFormEvent("form_submit");
         formState.isSubmitted = true;
         verifyButton.disabled = true;
-        console.info("[Form] Inquiry submitted (prototype).");
-        showPage(4);
-        focusCurrentStage(4);
+
+        try {
+          console.info("[Form] Inquiry submitted (prototype).");
+          showPage(4);
+          focusCurrentStage(4);
+          trackFormEvent("form_step_complete", {
+            form_step: 3,
+            form_step_name: FORM_STEP_NAMES[3]
+          });
+          trackFormEvent("form_submit_success");
+        } catch {
+          formState.isSubmitted = false;
+          verifyButton.disabled = false;
+          console.error("[Form] Inquiry submission failed.");
+          trackFormEvent("form_submit_error");
+        }
+
         return;
       }
 
@@ -2217,7 +2276,15 @@
 
       if (formState.currentPage === 2) {
         // F4 and F6 — Stage 2 cannot advance until its four required derived/detail values exist.
-        if (!hasVerifiedFieldEntries()) return;
+        if (!hasVerifiedFieldEntries()) {
+          trackFormEvent("form_validation_error", { form_step: 2 });
+          return;
+        }
+
+        trackFormEvent("form_step_complete", {
+          form_step: 2,
+          form_step_name: FORM_STEP_NAMES[2]
+        });
         showPage(3);
         focusCurrentStage(3);
 
@@ -2225,9 +2292,14 @@
       }
 
       if (!updateStageOneValidation()) {
+        trackFormEvent("form_validation_error", { form_step: 1 });
         return;
       }
 
+      trackFormEvent("form_step_complete", {
+        form_step: 1,
+        form_step_name: FORM_STEP_NAMES[1]
+      });
       updateEmailValidation();
 
       showPage(2);
@@ -2320,7 +2392,8 @@
     }
 
     if (form) {
-      // F4, F6, F7, F8
+      // F4, F6, F7, F8, F14
+      form.addEventListener("focusin", trackFormStart);
       form.addEventListener("submit", (event) => {
         event.preventDefault();
         void handlePrimaryAction();
@@ -2329,6 +2402,8 @@
 
     // 8. Explicit feature initialisation
     showPage(1);                  // F6
+    trackFormEvent("form_view");  // F14
+    trackFormStepView(1);         // F14
     populateCountryOptions();     // F2
     updateStateVisibility();      // F2
     prefillLanguageFromBrowser(); // F3

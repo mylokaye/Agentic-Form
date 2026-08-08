@@ -6,7 +6,7 @@ A portable, four-step inquiry form built with plain HTML, CSS, and JavaScript. T
 
 ## Files
 
-- `index.html` — form UI, styles, browser logic, and the Google Fonts Inter stylesheet link.
+- `index.html` — form UI, styles, browser logic, Google Fonts Inter stylesheet link, and GA4 lifecycle events.
 - `dev-proxy.mjs` — local company-enrichment proxy.
 - `scripts/build-site.mjs` — builds the Sites worker and hosted enrichment route.
 - `tests/form-flow.spec.mjs` — Playwright regression tests.
@@ -40,6 +40,7 @@ The newsletter card uses a CSS-only white geometric gradient across the full car
 - F1 writes generic `[F1]` technical status messages to the browser console. Those messages never include an IP address, country, form value, or submission data.
 - Language uses the browser's local `navigator.language` preference, converting its base locale to an English language name (for example, `de-DE` becomes German). It makes no network request and remains editable.
 - Submit Inquiry is a local prototype action only. It advances to Stage 4 and emits a generic technical console message; no form data is sent to a submission backend.
+- **F14 analytics** sends `form_view`, `form_start`, `form_step_view`, `form_step_complete`, `form_validation_error`, `form_submit`, `form_submit_success`, and `form_submit_error` to GA4. Events include only the fixed form name and numeric/static step metadata; they never include form fields, URLs, enrichment values, or feedback ratings.
 - **F13 feedback rating** displays five keyboard-accessible clickable star buttons. Clicking any star reveals the feedback thank-you message; the rating is not recorded, stored, or transmitted.
 - **F9 debug-gated current URL capture** records the page URL in the read-only `currentUrl` field on load. The standalone Debug panel is visible only with `?debug`; F9 does not log, store, or send the value.
 - **F10 personalized newsletter heading** updates the Newsletter banner with the editable First name. It does not log, store, or send the name.
@@ -49,7 +50,7 @@ The newsletter card uses a CSS-only white geometric gradient across the full car
 
 - F1 location and dialling-prefix suggestions are approximate, depend on FreeIPAPI availability, and can be affected by VPNs, mobile networks, or shared connections.
 - Browser language is a device preference, not a confirmed language preference; visitors can edit the suggested value.
-- The Stage 4 star rating is a visual prototype only and is not connected to a survey, CRM, analytics, or submission service.
+- The Stage 4 star rating is a visual prototype only and is not connected to a survey, CRM, analytics event, or submission service.
 
 ## Run locally
 
@@ -85,7 +86,8 @@ The suite covers validation, browser-language prefill, F1 country lookup recover
 
 ## Privacy and support
 
-- No first-party analytics, cookies, tracking pixels, localStorage, or sessionStorage are used.
+- GA4 is loaded for the form lifecycle events described above. Analytics requests contain only fixed event names and non-personal step metadata; the form does not send names, email addresses, messages, URLs, enrichment values, or ratings.
+- Google Analytics requests are sent to Google and are subject to Google's privacy terms. No other analytics, tracking pixels, localStorage, or sessionStorage are used.
 - Inter is loaded from Google Fonts for typography; loading the form makes requests to Google font domains, which are subject to Google's privacy terms.
 - The read-only Current URL value may include query-string or hash content. Do not place personal or sensitive information in form URLs.
 - F1 makes a direct request to FreeIPAPI to infer a country from the visitor's IP address. The form does not retain or log that IP address or the lookup result; FreeIPAPI is a third-party service with its own privacy policy.
