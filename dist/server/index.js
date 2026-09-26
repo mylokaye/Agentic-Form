@@ -51,6 +51,11 @@ async function classifyInquiry(request, apiKey) {
   if (!inquiry) return jsonResponse(400, { error: "Inquiry text is required." });
   if (inquiry.length > 8000) return jsonResponse(413, { error: "Inquiry is too long." });
   if (typeof apiKey !== "string" || !apiKey.trim()) return jsonResponse(503, { error: "Classification is unavailable." });
+  const authorizationKey = apiKey.trim().split("").filter((character) => {
+    const code = character.charCodeAt(0);
+    return code >= 33 && code <= 126;
+  }).join("");
+  if (!authorizationKey) return jsonResponse(503, { error: "Classification is unavailable." });
 
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), 8000);
@@ -60,7 +65,7 @@ async function classifyInquiry(request, apiKey) {
       method: "POST",
       signal: controller.signal,
       headers: {
-        authorization: "Bearer " + apiKey.trim(),
+        authorization: "Bearer " + authorizationKey,
         "content-type": "application/json"
       },
       body: JSON.stringify({
