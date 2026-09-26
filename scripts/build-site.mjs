@@ -104,7 +104,8 @@ async function classifyInquiry(request, apiKey) {
     return jsonResponse(200, { inquiryType: inquiryTypes[choice] });
   } catch (error) {
     const code = error?.cause?.code;
-    console.error("[F15] TypeSafe request failed (" + (error?.name || "Error") + (code ? ", " + code : "") + ").");
+    const detail = [error?.message, code, error?.cause?.message].filter(Boolean).join(" | ").slice(0, 240);
+    console.error("[F15] TypeSafe request failed (" + (error?.name || "Error") + "): " + detail);
     return jsonResponse(502, { error: "Classification is unavailable." });
   } finally {
     clearTimeout(timeoutId);
