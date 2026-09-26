@@ -89,16 +89,22 @@ async function classifyInquiry(request, apiKey) {
       })
     });
 
-    if (!response.ok) return jsonResponse(502, { error: "Classification is unavailable." });
+    if (!response.ok) {
+      console.error("[F15] TypeSafe returned HTTP " + response.status + ".");
+      return jsonResponse(502, { error: "Classification is unavailable." });
+    }
 
     const result = await response.json();
     const choice = result?.answers?.inquiry_type?.choice;
     if (typeof choice !== "string" || !Object.hasOwn(inquiryTypes, choice)) {
+      console.error("[F15] TypeSafe response did not contain an allowlisted Choice.");
       return jsonResponse(502, { error: "Classification response was invalid." });
     }
 
     return jsonResponse(200, { inquiryType: inquiryTypes[choice] });
-  } catch {
+  } catch (error) {
+    const code = error?.cause?.code;
+    console.error("[F15] TypeSafe request failed (" + (error?.name || "Error") + (code ? ", " + code : "") + ").");
     return jsonResponse(502, { error: "Classification is unavailable." });
   } finally {
     clearTimeout(timeoutId);
