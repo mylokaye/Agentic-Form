@@ -109,7 +109,7 @@ async function classifyInquiry(request, response) {
   }
 
   const apiKey = process.env.TYPESAFE_API_KEY;
-  if (!apiKey) {
+  if (typeof apiKey !== "string" || !apiKey.trim()) {
     sendJson(response, 503, { error: "Classification is unavailable." });
     return;
   }
@@ -122,7 +122,7 @@ async function classifyInquiry(request, response) {
       method: "POST",
       signal: controller.signal,
       headers: {
-        Authorization: `Bearer ${apiKey}`,
+        Authorization: `Bearer ${apiKey.trim()}`,
         "Content-Type": "application/json"
       },
       body: JSON.stringify({
