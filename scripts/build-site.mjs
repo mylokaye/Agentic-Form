@@ -2,24 +2,18 @@ import { mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
-// Build infrastructure — Package the current HTML and newsletter image into the Sites worker.
-// This packaging is not a user-facing feature and therefore has no feature ID.
+// Build infrastructure — Package the static form and TypeSafe route for the Sites worker.
 const projectDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const html = await readFile(path.join(projectDir, "index.html"), "utf8");
 const encodedHtml = Buffer.from(html, "utf8").toString("base64");
 const worker = `// Build infrastructure — Static assets embedded by scripts/build-site.mjs.
 const assets = {"/":"${encodedHtml}","/index.html":"${encodedHtml}"};
-const assetContentTypes = {"/":"text/html; charset=utf-8","/index.html":"text/html; charset=utf-8"};
-
-// F7 — Hosted enrichment adapter configuration and five-field response contract.
-const DEEPSEEK_API_URL = "https://api.deepseek.com/v1/chat/completions";
-const MODEL = "deepseek-v4-flash";
-const REQUEST_TIMEOUT_MS = 8000;
-const MAX_BODY_BYTES = 10000;
-const RATE_LIMIT_WINDOW_MS = 10 * 60 * 1000;
-const RATE_LIMIT_MAX_REQUESTS = 12;
-const ENRICHMENT_RESPONSE_FIELDS = ["industry", "about", "urgency", "sentiment", "query"];
-const rateLimits = new Map();
+const inquiryTypes = {
+  new_business: "New Business",
+  service: "Service",
+  parts: "Parts",
+  other: "Other"
+};
 
 // Build infrastructure — Decode embedded static assets without changing their bytes.
 function decode(value) {
@@ -33,212 +27,103 @@ function decode(value) {
   return bytes;
 }
 
-// Shared hosted infrastructure — Return non-cacheable JSON with basic content protections.
-function json(payload, status = 200) {
-  return new Response(JSON.stringify(payload), {
-    status,
-    headers: {
-      "content-type": "application/json; charset=utf-8",
-      "cache-control": "no-store",
-      "x-content-type-options": "nosniff"
-    }
-  });
-}
-
-// F7 support — Cloudflare's connection IP is used only for ephemeral, in-memory rate limiting.
-function getClientIp(request) {
-  return request.headers.get("CF-Connecting-IP") || "unknown";
-}
-
-// F7 support — Limit each worker instance to 12 requests per client in ten minutes.
-function isRateLimited(request) {
-  const now = Date.now();
-  const clientIp = getClientIp(request);
-  const existing = rateLimits.get(clientIp);
-
-  if (!existing || existing.resetAt <= now) {
-    rateLimits.set(clientIp, { count: 1, resetAt: now + RATE_LIMIT_WINDOW_MS });
-    return false;
+// F15 — Classify only the inquiry text; the TypeSafe key stays in the worker environment.
+async function classifyInquiry(request, apiKey) {
+  if (request.method !== "POST") {
+    return jsonResponse(405, { error: "Method not allowed." }, { allow: "POST" });
   }
 
-  existing.count += 1;
-
-  if (rateLimits.size > 2000) {
-    for (const [ip, entry] of rateLimits) {
-      if (entry.resetAt <= now) rateLimits.delete(ip);
-    }
+  const requestUrl = new URL(request.url);
+  if (request.headers.get("origin") !== requestUrl.origin) {
+    return jsonResponse(403, { error: "Request origin is not allowed." });
+  }
+  if (!request.headers.get("content-type")?.includes("application/json")) {
+    return jsonResponse(415, { error: "Content-Type must be application/json." });
   }
 
-  return existing.count > RATE_LIMIT_MAX_REQUESTS;
-}
+  const contentLength = Number(request.headers.get("content-length"));
+  if (Number.isFinite(contentLength) && contentLength > 10000) {
+    return jsonResponse(413, { error: "Inquiry is too long." });
+  }
 
-// F7 contract — Company enrichment supplies Industry and About.
-function getCompanyPrompt(companyUrl) {
-  return "Visit " + companyUrl + ", return a JSON result with two fields:\\n" +
-    "- \\\"industry\\\": the company's industry in one or two broad words (e.g. \\\"Manufacturing\\\", \\\"Financial Services\\\")\\n" +
-    "- \\\"about\\\": a short 1-2 sentence description of what the company does";
-}
-
-// F7 contract — Optional inquiry analysis supplies Urgency, Sentiment, and Query.
-function getMessageAnalysisPrompt(message) {
-  return "Analyse this customer message and classify it into exactly these three fields:\\n" +
-    "- \\\"urgency\\\": one of \\\"Low\\\", \\\"Medium\\\", or \\\"High\\\"\\n" +
-    "- \\\"sentiment\\\": one of \\\"Annoyed\\\", \\\"Content\\\", or \\\"Happy\\\"\\n" +
-    "- \\\"query\\\": one of \\\"General\\\", \\\"Complaint\\\", \\\"New Business\\\", or \\\"Parts & Service\\\"\\n\\n" +
-    "Message:\\n" + message;
-}
-
-// F7 support — Normalise model output to the complete five-string browser contract.
-function parseDeepSeekJson(content) {
-  const trimmedContent = String(content || "").trim();
-  const jsonMatch = trimmedContent.match(/\\{[\\s\\S]*\\}/);
-  const parsed = JSON.parse(jsonMatch ? jsonMatch[0] : trimmedContent);
-
-  return ENRICHMENT_RESPONSE_FIELDS.reduce((result, fieldName) => {
-    result[fieldName] = String(parsed[fieldName] || "").trim();
-    return result;
-  }, {});
-}
-
-// F7 support — Always return all five registered fields, using empty strings when unavailable.
-function createEnrichmentResponse(companyResult, messageResult) {
-  const merged = { ...companyResult, ...messageResult };
-
-  return ENRICHMENT_RESPONSE_FIELDS.reduce((result, fieldName) => {
-    result[fieldName] = String(merged[fieldName] || "").trim();
-    return result;
-  }, {});
-}
-
-// F7 support — Hosted requests accept only public HTTP(S) company URLs.
-function isPublicCompanyUrl(value) {
-  let url;
-
+  let body;
   try {
-    url = new URL(value);
+    const rawBody = await request.text();
+    if (rawBody.length > 10000) return jsonResponse(413, { error: "Inquiry is too long." });
+    body = JSON.parse(rawBody);
   } catch {
-    return false;
+    return jsonResponse(400, { error: "Request must be valid JSON." });
   }
 
-  if (url.protocol !== "https:" && url.protocol !== "http:") return false;
-
-  const hostname = url.hostname.toLowerCase();
-  const blockedHosts = ["localhost", "0.0.0.0", "127.0.0.1", "::1"];
-
-  return !blockedHosts.includes(hostname) && !hostname.endsWith(".localhost");
-}
-
-// F7 support — Secrets remain in worker bindings and requests time out after eight seconds.
-async function callDeepSeek(env, prompt) {
-  const apiKey = env.DEEPSEEK_API_KEY || env.deepseek;
-
-  if (!apiKey) {
-    const error = new Error("DeepSeek is not configured.");
-    error.code = "MISSING_DEEPSEEK_CONFIGURATION";
-    throw error;
-  }
+  const inquiry = typeof body?.inquiry === "string" ? body.inquiry.trim() : "";
+  if (!inquiry) return jsonResponse(400, { error: "Inquiry text is required." });
+  if (inquiry.length > 8000) return jsonResponse(413, { error: "Inquiry is too long." });
+  if (!apiKey) return jsonResponse(503, { error: "Classification is unavailable." });
 
   const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
+  const timeoutId = setTimeout(() => controller.abort(), 8000);
 
   try {
-    const response = await fetch(DEEPSEEK_API_URL, {
+    const response = await fetch("https://api.typesafe.ai/v1/systemone", {
       method: "POST",
       signal: controller.signal,
       headers: {
-        "authorization": "Bearer " + apiKey,
+        authorization: "Bearer " + apiKey,
         "content-type": "application/json"
       },
       body: JSON.stringify({
-        model: MODEL,
-        messages: [
-          { role: "system", content: "Return valid JSON only. Do not include markdown or extra commentary." },
-          { role: "user", content: prompt }
-        ],
-        response_format: { type: "json_object" },
-        temperature: 0,
-        stream: false
+        state: { inquiry: inquiry },
+        model: "jev-latest",
+        questions: {
+          inquiry_type: {
+            type: "choice",
+            instructions: "Classify the primary reason for this inquiry. Choose the closest category based on what the person wants.",
+            criteria: {
+              new_business: "A prospective customer asks about becoming a customer, a new purchase, pricing, a quote, or a business partnership. Examples: becoming a customer; requesting a quote for a new system.",
+              service: "The person needs technical help, maintenance, repair, troubleshooting, warranty support, or another service for an existing product. Examples: repairing a system; troubleshooting a problem.",
+              parts: "The person asks to buy, identify, replace, or get information about spare parts or components. Examples: requesting a replacement part; identifying a spare component.",
+              other: "The primary request does not fit new business, service, or parts. Examples: updating an account contact; asking a general question about the company."
+            }
+          }
+        }
       })
     });
-    const payload = await response.json();
 
-    if (!response.ok) {
-      throw new Error(payload.error?.message || "DeepSeek request failed.");
+    if (!response.ok) return jsonResponse(502, { error: "Classification is unavailable." });
+
+    const result = await response.json();
+    const choice = result?.answers?.inquiry_type?.choice;
+    if (typeof choice !== "string" || !Object.hasOwn(inquiryTypes, choice)) {
+      return jsonResponse(502, { error: "Classification response was invalid." });
     }
 
-    return parseDeepSeekJson(payload.choices?.[0]?.message?.content || "{}");
+    return jsonResponse(200, { inquiryType: inquiryTypes[choice] });
+  } catch {
+    return jsonResponse(502, { error: "Classification is unavailable." });
   } finally {
     clearTimeout(timeoutId);
   }
 }
 
-// F7 endpoint — Validate, rate-limit, enrich, and degrade message classification independently.
-async function handleEnrichment(request, env) {
-  if (isRateLimited(request)) {
-    return json({ error: "Too many enrichment requests. Please try again shortly." }, 429);
-  }
-
-  const contentLength = Number(request.headers.get("content-length") || 0);
-
-  if (contentLength > MAX_BODY_BYTES) {
-    return json({ error: "Request body is too large." }, 413);
-  }
-
-  const rawBody = await request.text();
-
-  if (rawBody.length > MAX_BODY_BYTES) {
-    return json({ error: "Request body is too large." }, 413);
-  }
-
-  let body;
-
-  try {
-    body = JSON.parse(rawBody || "{}");
-  } catch {
-    return json({ error: "Request body must be valid JSON." }, 400);
-  }
-
-  const companyUrl = String(body.companyUrl || "").trim();
-  const message = String(body.message || "").trim();
-
-  if (!companyUrl) return json({ error: "companyUrl is required." }, 400);
-  if (!isPublicCompanyUrl(companyUrl)) return json({ error: "companyUrl must be a public HTTP(S) URL." }, 400);
-
-  try {
-    const companyResult = await callDeepSeek(env, getCompanyPrompt(companyUrl));
-    let messageResult = { urgency: "", sentiment: "", query: "" };
-
-    if (message) {
-      try {
-        messageResult = await callDeepSeek(env, getMessageAnalysisPrompt(message));
-      } catch {
-        // Company enrichment remains useful if message classification is unavailable.
-      }
+function jsonResponse(status, payload, extraHeaders = {}) {
+  return new Response(JSON.stringify(payload), {
+    status,
+    headers: {
+      "content-type": "application/json; charset=utf-8",
+      "cache-control": "no-store",
+      "x-content-type-options": "nosniff",
+      ...extraHeaders
     }
-
-    return json(createEnrichmentResponse(companyResult, messageResult));
-  } catch (error) {
-    console.error("DeepSeek enrichment failed:", error?.message || "unknown error");
-    const status = error?.code === "MISSING_DEEPSEEK_CONFIGURATION" ? 503 : 502;
-    const message = error?.code === "MISSING_DEEPSEEK_CONFIGURATION"
-      ? "Company enrichment is not configured yet."
-      : error?.name === "AbortError"
-      ? "DeepSeek request timed out. Please try again."
-      : "Company enrichment failed. Please try again.";
-
-    return json({ error: message }, status);
-  }
+  });
 }
 
-// Hosted worker entrypoint — Owns the F7 API route and static asset delivery.
+// Hosted worker entrypoint — Serve the form or classify an inquiry through TypeSafe.
 export default {
-  async fetch(request, env) {
+  async fetch(request, env = {}) {
     const path = new URL(request.url).pathname;
 
-    // F7 route — The enrichment API accepts POST only.
-    if (path === "/enrich-company") {
-      if (request.method !== "POST") return json({ error: "Not found." }, 404);
-      return handleEnrichment(request, env);
+    if (path === "/api/classify-inquiry") {
+      return classifyInquiry(request, env.TYPESAFE_API_KEY);
     }
 
     const asset = assets[path];
@@ -249,7 +134,7 @@ export default {
 
     return new Response(decode(asset), {
       headers: {
-        "content-type": assetContentTypes[path],
+        "content-type": "text/html; charset=utf-8",
         "x-content-type-options": "nosniff",
         "referrer-policy": "strict-origin-when-cross-origin",
         "x-frame-options": "DENY"

@@ -6,6 +6,7 @@
   "description": "Static forms-v2 Sites deployment metadata",
   "scripts": {
     "build": "node scripts/build-site.mjs",
+    "dev": "node dev-proxy.mjs",
     "test:e2e": "playwright test"
   },
   "devDependencies": {

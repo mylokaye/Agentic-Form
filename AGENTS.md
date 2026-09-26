@@ -2,9 +2,10 @@
 
 ## Purpose and scope
 
-Forms v2 is a portable, accessible, four-stage inquiry prototype. Browser-facing
+Forms v2 is a portable, accessible, two-step inquiry prototype with a
+post-submit feedback screen. Browser-facing
 HTML, CSS, and JavaScript live only in `index.html`. Node files are limited to
-local enrichment, regression tests, and Sites packaging.
+the local TypeSafe preview adapter, regression tests, and Sites packaging.
 
 ## Non-negotiable implementation rules
 
@@ -31,19 +32,22 @@ index.html                 Browser UI, styles, and browser logic
 README.md                  Behaviour, setup, limitations, and privacy notes
 DESIGN.md                  Durable visual and responsive design rules
 FEATURES.md                Canonical JavaScript feature register and contracts
-dev-proxy.mjs              Local-only F7 enrichment adapter
 tests/form-flow.spec.mjs   Optional regression coverage
-scripts/build-site.mjs     Sites packaging and hosted enrichment adapter
+dev-proxy.mjs              Local preview server and TypeSafe adapter
+scripts/build-site.mjs     Sites packaging and TypeSafe worker route
 .openai/hosting.json       Existing Sites project configuration
 ```
 
 Do not introduce browser-facing files, assets, dependencies, or build layers
-without approval. Keep `DEEPSEEK_API_KEY` server-side.
+without approval. TypeSafe may receive only the Inquiry text for the F15
+category suggestion. Keep its API key server-side, send no other form fields,
+and do not log or persist the text or classification response. Do not add other
+AI providers or enrichment features.
 
 ## Documentation
 
 - Update `README.md` when user-visible behaviour, fields, validation, consent,
-  submission, enrichment, privacy, or browser support changes.
+  submission, privacy, or browser support changes.
 - Update `DESIGN.md` when a durable visual or responsive rule changes.
 - Before adding or materially changing a JavaScript feature, read `FEATURES.md`.
   Update its stable `F#` register entry and the matching inline code comment.

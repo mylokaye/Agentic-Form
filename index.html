@@ -67,9 +67,6 @@
       --font-weight-regular: 400;
       --font-weight-medium: 500;
       --font-weight-label: var(--font-weight-regular);
-      --padding-newsletter-block: 19px;
-      --padding-newsletter-inline: 0.75rem;
-      --height-newsletter-banner-desktop: 212px;
 
       --height-button: 50px;
       --height-form-shell-desktop: 500px;
@@ -156,7 +153,7 @@
 
     .progress__bar {
       display: block;
-      width: calc(100% / 4);
+      width: 50%;
       height: 100%;
       border-radius: inherit;
       background: var(--color-green);
@@ -164,14 +161,6 @@
     }
 
     .progress[data-progress-stage="2"] .progress__bar {
-      width: 50%;
-    }
-
-    .progress[data-progress-stage="3"] .progress__bar {
-      width: 75%;
-    }
-
-    .progress[data-progress-stage="4"] .progress__bar {
       width: 100%;
     }
 
@@ -265,87 +254,7 @@
       padding-bottom: 0;
     }
 
-    .form__tooltip-trigger {
-      position: relative;
-      flex: 0 0 auto;
-    }
-
-    .form__stage-heading-button {
-      display: grid;
-      width: 2.5rem;
-      height: 2.5rem;
-      padding: 0;
-      place-items: center;
-      border: 0;
-      border-radius: 50%;
-      background: transparent;
-      color: inherit;
-      cursor: pointer;
-      transition: transform 160ms ease, opacity 160ms ease;
-    }
-
-    .form__stage-heading-button:hover,
-    .form__stage-heading-button[aria-expanded="true"] {
-      opacity: 0.78;
-      transform: scale(1.06);
-    }
-
-    .form__stage-heading-button:focus-visible {
-      outline: 2px solid var(--color-primary);
-      outline-offset: 0.25rem;
-    }
-
-    .form__stage-heading-icon {
-      width: 2.5rem;
-      height: 2.5rem;
-    }
-
-    .form__tooltip {
-      position: absolute;
-      left: calc(100% + var(--space-sm));
-      bottom: 0;
-      z-index: 1;
-      width: min(17rem, calc(100vw - 6.5rem));
-      padding: 0.75rem var(--space-md);
-      border-radius: var(--radius);
-      background: var(--color-surface);
-      box-shadow: var(--shadow-elevation-sm);
-      color: var(--color-text);
-      font-size: var(--font-size-body);
-      line-height: var(--line-height-body);
-      opacity: 0;
-      pointer-events: none;
-      transform: translateY(0.25rem);
-      transition: opacity 160ms ease, transform 160ms ease;
-      visibility: hidden;
-    }
-
-    .form__tooltip::after {
-      position: absolute;
-      left: -0.375rem;
-      bottom: 0.875rem;
-      width: 0.75rem;
-      height: 0.75rem;
-      background: var(--color-surface);
-      content: "";
-      transform: rotate(45deg);
-    }
-
-    .form__tooltip-text {
-      display: block;
-    }
-
-    .form__tooltip-trigger:hover .form__tooltip,
-    .form__tooltip-trigger:focus-within .form__tooltip,
-    .form__tooltip-trigger.is-tooltip-open .form__tooltip {
-      opacity: 1;
-      transform: translateY(0);
-      visibility: visible;
-    }
-
     @media (prefers-reduced-motion: reduce) {
-      .form__stage-heading-button,
-      .form__tooltip,
       .progress__bar,
       .stage-transition-enter {
         transition: none;
@@ -451,6 +360,13 @@
       color: var(--color-primary);
     }
 
+    .form__field-hint {
+      margin: 0;
+      color: var(--color-muted);
+      font-size: var(--font-size-message);
+      line-height: var(--line-height-body);
+    }
+
     /* Textareas can scroll their content under an internal label, so the label has its own surface. */
     .form__field--textarea .form__label {
       padding-inline: var(--space-xs);
@@ -498,108 +414,8 @@
       scroll-padding-top: 1.85rem;
     }
 
-    .newsletter-group {
-      padding: 0;
-      background: var(--color-surface);
-      border-radius: var(--radius);
-      box-shadow: var(--shadow-elevation-sm);
-    }
-
-    .newsletter-card {
-      display: grid;
-      grid-template-columns: minmax(0, 1fr);
-      align-items: center;
-      gap: 0;
-      overflow: hidden;
-      border-radius: var(--radius);
-      background-image: linear-gradient(6deg, rgba(0, 0, 0, 0.02) 0%, rgba(0, 0, 0, 0.02) 39%, transparent 39%, transparent 74%, rgba(117, 117, 117, 0.02) 74%, rgba(117, 117, 117, 0.02) 100%), linear-gradient(129deg, rgba(222, 222, 222, 0.02) 0%, rgba(222, 222, 222, 0.02) 65%, transparent 65%, transparent 73%, rgba(83, 83, 83, 0.02) 73%, rgba(83, 83, 83, 0.02) 100%), linear-gradient(90deg, rgb(255, 255, 255), rgb(255, 255, 255));
-    }
-
-    .newsletter-card__banner {
-      position: relative;
-      width: 100%;
-      height: var(--height-newsletter-banner-desktop);
-      min-height: 8rem;
-    }
-
-    .newsletter-card__heading {
-      position: absolute;
-      top: clamp(1rem, 3.5vw, 2rem);
-      right: var(--space-md);
-      left: clamp(1rem, 3.5vw, 2rem);
-      margin: 0;
-      color: #4a5565;
-      font-family: Inter, sans-serif;
-      font-size: 22px;
-      font-weight: var(--font-weight-title);
-      line-height: 1.25;
-      pointer-events: none;
-    }
-
-    .newsletter-card__topics {
-      position: absolute;
-      top: 48%;
-      right: var(--space-md);
-      left: clamp(1rem, 3.5vw, 2rem);
-      display: grid;
-      gap: var(--space-sm);
-      margin: 0;
-      padding: 0;
-      color: #4a5565;
-      font-family: Inter, sans-serif;
-      font-size: var(--font-size-body);
-      font-weight: var(--font-weight-regular);
-      line-height: 1.35;
-      list-style: none;
-      pointer-events: none;
-    }
-
-    @media (max-width: 47.999rem) {
-      .newsletter-card__banner {
-        display: grid;
-        align-content: start;
-        gap: var(--space-sm);
-        aspect-ratio: auto;
-        height: auto;
-        padding: var(--space-md);
-        box-sizing: border-box;
-      }
-
-      .newsletter-card__heading,
-      .newsletter-card__topics {
-        position: static;
-      }
-    }
-
-    .newsletter-card__content {
-      display: grid;
-      gap: var(--space-md);
-      padding: var(--padding-newsletter-block) clamp(1rem, 3.5vw, 2rem);
-    }
-
-    .newsletter-option {
-      display: inline-flex;
-      gap: var(--space-sm);
-      align-items: center;
-      min-height: 1.5rem;
-      padding: 0;
-      color: var(--color-text);
-      font-size: var(--font-size-body);
-      font-weight: var(--font-weight-regular);
-      line-height: var(--line-height-body);
-      cursor: pointer;
-    }
-
-    .newsletter-option__input {
-      width: 1.5rem;
-      height: 1.5rem;
-      margin: 0;
-      accent-color: var(--color-green);
-    }
-
-    .newsletter-option__input:focus-visible {
-      outline: 3px solid var(--color-focus);
-      outline-offset: 2px;
+    .form__field--textarea .form__field-hint {
+      margin-top: var(--space-sm);
     }
 
     .feedback-page {
@@ -830,18 +646,6 @@
       width: 100%;
     }
 
-    .form__actions .form__tooltip-trigger {
-      display: none;
-    }
-
-    .form--inquiry .form__actions {
-      align-items: center;
-    }
-
-    .form--inquiry .form__actions .form__tooltip-trigger {
-      display: block;
-    }
-
     .form__actions.is-final .button:last-child {
       width: var(--width-button-continue);
     }
@@ -1025,7 +829,9 @@
               name="message"
               rows="3"
               placeholder="How can we help you today?"
+              aria-describedby="inquiry-classification-disclosure"
             ></textarea>
+            <p class="form__field-hint" id="inquiry-classification-disclosure">When you continue, this text is sent to TypeSafe to suggest an inquiry type.</p>
           </div>
 
           <div class="form__field form__field--full-width-below-tablet">
@@ -1041,24 +847,13 @@
 
           <div class="form__field">
             <label class="form__label" for="inquiry-type">Inquiry type</label>
-            <select
+            <input
               class="form__input"
               id="inquiry-type"
               name="inquiryType"
-            >
-              <option value="Aftermarket" selected>Aftermarket</option>
-            </select>
-          </div>
-
-          <div class="form__field">
-            <label class="form__label" for="inquiry-subtype">Inquiry subtype</label>
-            <select
-              class="form__input"
-              id="inquiry-subtype"
-              name="inquirySubtype"
-            >
-              <option value="Spare parts" selected>Spare parts</option>
-            </select>
+              type="text"
+              value="Aftermarket"
+            />
           </div>
 
           <div class="form__alert form__section--full-width" id="stage-one-guidance" role="note" hidden>
@@ -1163,64 +958,20 @@
             </div>
           </fieldset>
 
+          <div class="form__alert form__section--full-width" id="gdpr-consent-note" role="note">
+            <svg class="form__alert-icon" aria-hidden="true" viewBox="0 0 24 24" fill="none">
+              <rect x="5" y="10" width="14" height="10" rx="2" stroke="currentColor" stroke-width="1.75" />
+              <path d="M8 10V7a4 4 0 0 1 8 0v3" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" />
+            </svg>
+            <p class="form__alert-text">Personal information is processed in accordance with GDPR & our Privacy Policy.</p>
+          </div>
         </div>
 
-        <fieldset class="form__group newsletter-group" id="stage-three-newsletter" hidden>
-          <legend class="visually-hidden">Subscribe and stay informed</legend>
-          <div class="newsletter-card">
-            <div class="newsletter-card__banner">
-              <h2 class="newsletter-card__heading" id="newsletter-heading"></h2>
-              <ul class="newsletter-card__topics" aria-label="Newsletter topics">
-                <li id="newsletter-spare-parts-topic">Spare parts &amp; service reminders</li>
-                <li>New products &amp; promotions</li>
-                <li>Shutdown and critical alerts</li>
-              </ul>
-            </div>
-            <div class="newsletter-card__content">
-              <label class="newsletter-option" for="newsletter">
-                <input
-                  class="newsletter-option__input"
-                  id="newsletter"
-                  name="newsletter"
-                  type="checkbox"
-                  value="newsletter"
-                >
-                <span>Subscribe</span>
-              </label>
-            </div>
-          </div>
-        </fieldset>
-
-        <div class="form__alert form__section--full-width" id="gdpr-consent-note" role="note" hidden>
-          <svg class="form__alert-icon" aria-hidden="true" viewBox="0 0 24 24" fill="none">
-            <rect x="5" y="10" width="14" height="10" rx="2" stroke="currentColor" stroke-width="1.75" />
-            <path d="M8 10V7a4 4 0 0 1 8 0v3" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" />
-          </svg>
-          <p class="form__alert-text">Personal information is processed in accordance with GDPR & our Privacy Policy.</p>
+        <div class="form__alert form__section--full-width" id="inquiry-classification-status" role="status" aria-live="polite" hidden>
+          <p class="form__alert-text"></p>
         </div>
 
         <div class="action-row form__actions">
-          <div class="form__tooltip-trigger" id="company-info-tooltip-trigger">
-            <button
-              class="form__stage-heading-button"
-              id="company-info-tooltip-button"
-              type="button"
-              aria-describedby="company-info-tooltip"
-              aria-expanded="false"
-              aria-label="About AI company summaries"
-            >
-              <svg class="form__stage-heading-icon" aria-hidden="true" viewBox="0 0 566.93 566.93">
-                <path fill-rule="evenodd" opacity=".5" d="M272.03,100.72c100.92,0,182.74,81.82,182.74,182.75s-81.82,182.74-182.74,182.74-182.75-81.82-182.75-182.74,81.82-182.75,182.75-182.75" />
-                <g fill="#fff">
-                  <path d="M170.79,353.74c-1.08,0-2.05-.43-2.92-1.31-.88-.87-1.31-1.84-1.31-2.92,0-.67.07-1.27.2-1.81l47.34-129.32c.4-1.48,1.24-2.79,2.52-3.93,1.27-1.14,3.05-1.71,5.34-1.71h29.81c2.28,0,4.06.57,5.34,1.71,1.27,1.14,2.11,2.45,2.52,3.93l47.14,129.32c.27.54.4,1.14.4,1.81,0,1.08-.44,2.05-1.31,2.92s-1.91,1.31-3.12,1.31h-24.78c-2.01,0-3.52-.5-4.53-1.51-1.01-1.01-1.65-1.91-1.91-2.72l-7.86-20.55h-53.78l-7.65,20.55c-.27.81-.88,1.71-1.81,2.72-.94,1.01-2.55,1.51-4.83,1.51h-24.78ZM218.13,299.96h37.47l-18.93-53.18-18.53,53.18Z" />
-                  <path d="M328.11,353.74c-1.48,0-2.69-.47-3.63-1.41-.94-.94-1.41-2.15-1.41-3.63v-130.93c0-1.48.47-2.68,1.41-3.63s2.15-1.41,3.63-1.41h26.99c1.48,0,2.68.47,3.63,1.41.94.94,1.41,2.15,1.41,3.63v130.93c0,1.48-.47,2.69-1.41,3.63-.94.94-2.15,1.41-3.63,1.41h-26.99Z" />
-                </g>
-              </svg>
-            </button>
-            <span class="form__tooltip" id="company-info-tooltip" role="tooltip">
-              <span class="form__tooltip-text">AI is used to summarise information about your company.</span>
-            </span>
-          </div>
           <button
             class="button button--secondary"
             type="button"
@@ -1302,45 +1053,20 @@
       role="progressbar"
       aria-label="Form progress"
       aria-valuemin="1"
-      aria-valuemax="4"
+      aria-valuemax="2"
       aria-valuenow="1"
-      aria-valuetext="Step 1 of 4: Inquiry"
+      aria-valuetext="Step 1 of 2: Inquiry"
       data-progress-stage="1"
     >
       <span class="progress__bar" aria-hidden="true"></span>
     </div>
 
-    <section class="debug-panel elevated-surface" id="enriched-fields" aria-labelledby="debug-heading" hidden>
+    <section class="debug-panel elevated-surface" id="debug-fields" aria-labelledby="debug-heading" hidden>
       <h2 class="form__section-title" id="debug-heading">Debug</h2>
-      <div class="debug-panel__content form__section--three-columns">
+      <div class="debug-panel__content">
         <div class="form__field form__section--full-width">
           <label class="form__label" for="current-url">Current URL</label>
           <input class="form__input" id="current-url" name="currentUrl" type="url" autocomplete="off" readonly>
-        </div>
-
-        <div class="form__field form__section--full-width">
-          <label class="form__label" for="about">About</label>
-          <textarea class="form__input" id="about" name="about" rows="4"></textarea>
-        </div>
-
-        <div class="form__field">
-          <label class="form__label" for="urgency">Urgency</label>
-          <input class="form__input" id="urgency" name="urgency" type="text" autocomplete="off">
-        </div>
-
-        <div class="form__field">
-          <label class="form__label" for="sentiment">Sentiment</label>
-          <input class="form__input" id="sentiment" name="sentiment" type="text" autocomplete="off">
-        </div>
-
-        <div class="form__field">
-          <label class="form__label" for="query">Query</label>
-          <input class="form__input" id="query" name="query" type="text" autocomplete="off">
-        </div>
-
-        <div class="form__field">
-          <label class="form__label" for="industry">Enriched industry</label>
-          <input class="form__input" id="industry" name="industry" type="text" autocomplete="off">
         </div>
 
         <div class="form__field">
@@ -1352,40 +1078,36 @@
   </main>
 
   <script>
-    // Feature IDs F1-F14 are stable behaviour identifiers defined in AGENTS.md.
+    // Feature IDs F1-F15 are stable behaviour identifiers defined in AGENTS.md.
     // Shared helpers name every feature they directly support; infrastructure is not assigned an ID.
 
-    // 1. Shared DOM references (F1-F14)
+    // 1. Shared DOM references (F1-F15)
     const emailField = document.getElementById("email");
     const form = document.querySelector(".form");
     const currentUrlField = document.getElementById("current-url");
+    const debugFields = document.getElementById("debug-fields");
     // F9 — Debug fields are opt-in through the URL and do not create stored state.
     const isDebugMode = new URLSearchParams(window.location.search).has("debug");
     const validationStatus = document.getElementById("email-validation-status");
     const pageOne = document.getElementById("page-1");
     const progressIndicator = document.getElementById("form-progress");
-    const reviewTitles = document.querySelectorAll("[data-review-title]");
     const stageTwoPersonalTitles = document.querySelectorAll("[data-stage-two-personal-title]");
-    const companyInfoTooltipTrigger = document.getElementById("company-info-tooltip-trigger");
-    const companyInfoTooltipButton = document.getElementById("company-info-tooltip-button");
     const backButton = document.getElementById("back-button");
     const verifyButton = document.getElementById("verify-button");
     const verifyButtonLabel = verifyButton?.querySelector(".button__label");
     const formActions = document.querySelector(".form__actions");
     const verifiedFields = document.getElementById("verified-fields");
-    const stageThreeNewsletter = document.getElementById("stage-three-newsletter");
     const gdprConsentNote = document.getElementById("gdpr-consent-note");
+    const inquiryClassificationStatus = document.getElementById("inquiry-classification-status");
+    const inquiryClassificationStatusText = inquiryClassificationStatus?.querySelector(".form__alert-text");
     const feedbackPage = document.getElementById("feedback-page");
     const feedbackRatingContent = document.getElementById("feedback-rating-content");
     const feedbackThankYou = document.getElementById("feedback-thank-you");
     const feedbackThankYouHeading = document.getElementById("feedback-thank-you-heading");
     const feedbackStarButtons = document.querySelectorAll(".feedback-rating__star");
-    const newsletterHeading = document.getElementById("newsletter-heading");
-    const newsletterSparePartsTopic = document.getElementById("newsletter-spare-parts-topic");
     const firstNameField = document.getElementById("first-name");
     const lastNameField = document.getElementById("last-name");
     const phoneField = document.getElementById("phone");
-    const newsletterField = document.getElementById("newsletter");
     const languageField = document.getElementById("language");
     const websiteField = document.getElementById("website");
     const companyNameField = document.getElementById("company-name");
@@ -1395,22 +1117,13 @@
     const stateFieldContainer = stateField?.closest(".form__field");
     const businessField = document.getElementById("business");
     const inquiryTypeField = document.getElementById("inquiry-type");
-    const inquirySubtypeField = document.getElementById("inquiry-subtype");
-    const enrichedFields = document.getElementById("enriched-fields");
-    const industryField = document.getElementById("industry");
     const roleField = document.getElementById("role");
-    const aboutField = document.getElementById("about");
     const messageField = document.getElementById("message");
-    const urgencyField = document.getElementById("urgency");
-    const sentimentField = document.getElementById("sentiment");
-    const queryField = document.getElementById("query");
 
     // 2. Configuration
     const PROGRESS_STAGE_LABELS = {
-      1: "Step 1 of 4: Inquiry",
-      2: "Step 2 of 4: Personal and company details",
-      3: "Step 3 of 4: Review and submit",
-      4: "Step 4 of 4: Feedback"
+      1: "Step 1 of 2: Inquiry",
+      2: "Step 2 of 2: Personal and company details"
     };
     const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
 
@@ -1418,20 +1131,11 @@
     const FORM_ANALYTICS_NAME = "inquiry";
     const FORM_STEP_NAMES = {
       1: "Inquiry",
-      2: "Personal and company details",
-      3: "Review and submit",
-      4: "Feedback"
+      2: "Personal and company details"
     };
     const formAnalyticsState = {
       hasStarted: false
     };
-
-    // F7 — Company and inquiry enrichment uses the local proxy during development and the hosted route elsewhere.
-    const COMPANY_ENRICHMENT_ENDPOINT =
-      window.location.hostname === "127.0.0.1" || window.location.hostname === "localhost"
-        ? "http://127.0.0.1:8787/enrich-company"
-        : "/enrich-company";
-    const COMPANY_ENRICHMENT_TIMEOUT_MS = 20000;
 
     // F1 — Approximate-location prefill has its own public endpoint and short, non-blocking timeout.
     const F1_COUNTRY_LOOKUP_ENDPOINT = "https://free.freeipapi.com/api/json";
@@ -1456,7 +1160,7 @@
       "TR", "TT", "TV", "TW", "TZ", "UA", "UG", "UM", "US", "UY", "UZ", "VA", "VC", "VE", "VG", "VI",
       "VN", "VU", "WF", "WS", "XK", "YE", "YT", "ZA", "ZM", "ZW"
     ];
-    // Shared field metadata drives F4 validation, F6 navigation readiness, and F7 enrichment/reset handling.
+    // Shared field metadata drives F4 validation and F6 navigation readiness.
     const FIELD_CONFIG = {
       email: { field: emailField },
       message: { field: messageField },
@@ -1471,30 +1175,17 @@
       country: { field: countryField, detail: true },
       state: { field: stateField, detail: true },
       business: { field: businessField, detail: true },
-      inquiryType: { field: inquiryTypeField, detail: true },
-      inquirySubtype: { field: inquirySubtypeField, detail: true },
-      industry: { field: industryField, enrichment: true, resetWhenEmailChanges: true },
-      about: { field: aboutField, enrichment: true, resetWhenEmailChanges: true },
-      urgency: { field: urgencyField, enrichment: true, resetWhenEmailChanges: true },
-      sentiment: { field: sentimentField, enrichment: true, resetWhenEmailChanges: true },
-      query: { field: queryField, enrichment: true, resetWhenEmailChanges: true }
+      inquiryType: { field: inquiryTypeField, detail: true }
     };
     const DETAIL_FIELDS = Object.values(FIELD_CONFIG)
       .filter(({ field, detail }) => field && detail)
       .map(({ field }) => field);
-    const ENRICHMENT_FIELD_NAMES = Object.entries(FIELD_CONFIG)
-      .filter(([, { enrichment }]) => enrichment)
-      .map(([name]) => name);
-    const RESET_FIELD_NAMES = Object.entries(FIELD_CONFIG)
-      .filter(([, { resetWhenEmailChanges }]) => resetWhenEmailChanges)
-      .map(([name]) => name);
-    // Shared state is limited to navigation and asynchronous ownership for F1, F6, F7, F8, and F13.
+    // Shared state is limited to navigation, country lookup, and F5 suggestion ownership.
     const formState = {
       currentPage: 1,
-      enrichmentController: null,
-      enrichmentRequestId: 0,
-      isEnrichmentLoading: false,
       isSubmitted: false,
+      isClassifyingInquiry: false,
+      hasInquiryTypeBeenEdited: false,
       countryLookupController: null,
       hasCountryBeenEdited: false,
       suggestedWebsite: "",
@@ -1508,21 +1199,6 @@
       if (!currentUrlField) return;
 
       currentUrlField.value = window.location.href;
-    }
-
-    // F10 and F11 — Keep Newsletter copy personal and subtype-aware without persisting either field.
-    function updateNewsletterContent() {
-      if (newsletterHeading) {
-        const firstName = getFieldValue(firstNameField);
-
-        newsletterHeading.textContent = firstName
-          ? `Content tailored for you, ${firstName}.`
-          : "Content tailored for you.";
-      }
-
-      if (newsletterSparePartsTopic) {
-        newsletterSparePartsTopic.hidden = inquirySubtypeField?.value !== "Spare parts";
-      }
     }
 
     // F5 — Email-domain suggestions normalise company-label words before filling empty fields.
@@ -1687,7 +1363,7 @@
         .join(" ");
     }
 
-    // Shared F4, F5, F6, F7 utility — Read a field defensively and trim surrounding whitespace.
+    // Shared F4, F5, F6 utility — Read a field defensively and trim surrounding whitespace.
     function getFieldValue(field) {
       return field ? field.value.trim() : "";
     }
@@ -1738,7 +1414,7 @@
       }
     }
 
-    // F5 and F7 — Website suggestions and enrichment normalise bare domains to HTTPS without altering explicit HTTP(S) input.
+    // F5 — Website suggestions normalise bare domains to HTTPS without altering explicit HTTP(S) input.
     function getWebsiteUrl(value) {
       const trimmedValue = value.trim();
 
@@ -1749,31 +1425,10 @@
         : `https://${trimmedValue}`;
     }
 
-    // F4 — Stage 2 requires identity and company URL/name values before progression.
+    // F4 — Stage 2 requires identity and company URL/name values before submission.
     function hasVerifiedFieldEntries() {
       return [firstNameField, lastNameField, websiteField, companyNameField]
         .every((field) => getFieldValue(field));
-    }
-
-    // F7 — A request snapshot binds enrichment to the exact inputs that produced it.
-    function getEnrichmentSnapshot(companyUrl) {
-      return {
-        email: getFieldValue(emailField),
-        companyUrl,
-        message: getFieldValue(messageField)
-      };
-    }
-
-    // F7 — Results are current only while request ownership, stage, and source inputs still match.
-    function isCurrentEnrichmentRequest(requestId, controller, snapshot) {
-      return (
-        formState.enrichmentRequestId === requestId &&
-        formState.enrichmentController === controller &&
-        formState.currentPage === 2 &&
-        snapshot.email === getFieldValue(emailField) &&
-        snapshot.companyUrl === getWebsiteUrl(getFieldValue(websiteField)) &&
-        snapshot.message === getFieldValue(messageField)
-      );
     }
 
     // 5. State / UI functions
@@ -1788,7 +1443,7 @@
         return hasVerifiedFieldEntries();
       }
 
-      return true;
+      return false;
     }
 
     // F14 — Keep GA failures from interrupting form progression or submission.
@@ -1825,33 +1480,35 @@
     function updateNavigationState() {
       if (backButton) {
         backButton.hidden = formState.currentPage === 1;
-        backButton.disabled = formState.isEnrichmentLoading;
       }
 
       if (formActions) {
-        formActions.classList.toggle("is-final", formState.currentPage === 3);
-        formActions.hidden = formState.currentPage === 4;
+        formActions.classList.toggle("is-final", formState.currentPage === 2);
+        formActions.hidden = formState.currentPage === 3;
       }
 
       if (!verifyButton) return;
 
       if (!verifyButton.disabled && verifyButtonLabel) {
-        verifyButtonLabel.textContent = formState.currentPage === 3 ? "Submit Inquiry" : "Continue";
+        verifyButtonLabel.textContent = formState.currentPage === 2 ? "Submit Inquiry" : "Continue";
       }
 
       verifyButton.classList.toggle("button--ready", isPrimaryReady());
     }
 
-    // F6 — Stages 1-3 expose progress to assistive technology; the final feedback stage omits it.
+    // F6 — The two form steps expose accessible progress; post-submit feedback hides it.
     function updateProgress() {
       if (!progressIndicator) return;
 
-      const currentStage = String(formState.currentPage);
+      const currentStage = Math.min(formState.currentPage, 2);
 
-      progressIndicator.hidden = formState.currentPage === 4;
-      progressIndicator.dataset.progressStage = currentStage;
-      progressIndicator.setAttribute("aria-valuenow", currentStage);
-      progressIndicator.setAttribute("aria-valuetext", PROGRESS_STAGE_LABELS[formState.currentPage]);
+      progressIndicator.hidden = formState.currentPage === 3;
+
+      if (progressIndicator.hidden) return;
+
+      progressIndicator.dataset.progressStage = String(currentStage);
+      progressIndicator.setAttribute("aria-valuenow", String(currentStage));
+      progressIndicator.setAttribute("aria-valuetext", PROGRESS_STAGE_LABELS[currentStage]);
     }
 
     // F6 — Stages enter with restrained motion after navigation, unless the visitor prefers reduced motion.
@@ -1866,7 +1523,7 @@
       }, { once: true });
     }
 
-    // F6 and F14 — Exactly one form stage is visible at a time; consent, progress, and stage-view analytics move with it.
+    // F6 and F14 — Exactly one stage is visible; privacy notice, progress, and step analytics follow it.
     function showPage(pageNumber) {
       const previousPage = formState.currentPage;
       formState.currentPage = pageNumber;
@@ -1883,25 +1540,21 @@
         verifiedFields.hidden = pageNumber !== 2;
       }
 
-      if (stageThreeNewsletter) {
-        stageThreeNewsletter.hidden = pageNumber !== 3;
+      if (gdprConsentNote) {
+        gdprConsentNote.hidden = pageNumber !== 2;
       }
 
-      if (gdprConsentNote) {
-        gdprConsentNote.hidden = pageNumber !== 3;
+      if (inquiryClassificationStatus && pageNumber === 3) {
+        inquiryClassificationStatus.hidden = true;
       }
 
       if (feedbackPage) {
-        feedbackPage.hidden = pageNumber !== 4;
+        feedbackPage.hidden = pageNumber !== 3;
       }
 
-      if (enrichedFields) {
-        enrichedFields.hidden = !isDebugMode;
+      if (debugFields) {
+        debugFields.hidden = !isDebugMode;
       }
-
-      reviewTitles.forEach((title) => {
-        title.hidden = pageNumber !== 3;
-      });
 
       stageTwoPersonalTitles.forEach((title) => {
         title.hidden = pageNumber !== 2;
@@ -1912,8 +1565,11 @@
 
       if (previousPage === pageNumber) return;
 
-      trackFormStepView(pageNumber);
-      const activeStage = [pageOne, verifiedFields, stageThreeNewsletter, feedbackPage][pageNumber - 1];
+      if (pageNumber <= 2) {
+        trackFormStepView(pageNumber);
+      }
+
+      const activeStage = [pageOne, verifiedFields, feedbackPage][pageNumber - 1];
       playEntrance(activeStage);
 
     }
@@ -1923,37 +1579,10 @@
       const target = pageNumber === 2
         ? verifiedFields
         : pageNumber === 3
-          ? newsletterField
-          : pageNumber === 4
-            ? feedbackStarButtons[0]
-            : firstNameField;
+          ? feedbackStarButtons[0]
+          : firstNameField;
 
       window.requestAnimationFrame(() => target?.focus());
-    }
-
-    // F7 — Enriched values are cleared when their source email context is reset.
-    function clearEnrichmentFields() {
-      if (enrichedFields) {
-        enrichedFields.hidden = true;
-      }
-
-      RESET_FIELD_NAMES.forEach((name) => {
-        const field = FIELD_CONFIG[name].field;
-
-        if (field) {
-          field.value = "";
-        }
-      });
-    }
-
-    // F4, F5, F7 — Editing Email returns the flow to Stage 1 and clears derived/enriched state.
-    function hideVerifiedFields() {
-      if (verifiedFields) {
-        verifiedFields.hidden = true;
-      }
-
-      clearEnrichmentFields();
-      showPage(1);
     }
 
     // F4 — Validation feedback resets while the visitor edits before the next progression attempt.
@@ -2050,156 +1679,10 @@
       }
     }
 
-    // F7 — Enrichment loading temporarily locks navigation to prevent conflicting stage changes.
-    function setVerifyLoading(isLoading) {
-      formState.isEnrichmentLoading = isLoading;
-
-      if (backButton) {
-        backButton.disabled = isLoading;
-      }
-
-      if (!verifyButton) return;
-
-      verifyButton.disabled = isLoading;
-
-      if (verifyButtonLabel) {
-        verifyButtonLabel.textContent = formState.currentPage === 3 ? "Submit Inquiry" : "Continue";
-      }
-
-      if (!isLoading) {
-        updateNavigationState();
-      }
-    }
-
-    // F7 — Cancellation invalidates the request ID before aborting, preventing stale results from applying.
-    function cancelEnrichmentRequest() {
-      formState.enrichmentRequestId += 1;
-
-      if (formState.enrichmentController) {
-        formState.enrichmentController.abort();
-        formState.enrichmentController = null;
-      }
-
-      if (formState.isEnrichmentLoading) {
-        setVerifyLoading(false);
-      }
-    }
-
-    // F7 — Every enrichment response must contain the complete five-string browser contract.
-    function getEnrichmentResult(result) {
-      if (!result || typeof result !== "object" || Array.isArray(result)) {
-        throw new Error("Company enrichment returned an invalid response.");
-      }
-
-      return ENRICHMENT_FIELD_NAMES.reduce((enrichment, name) => {
-        const value = result[name];
-
-        if (typeof value !== "string") {
-          throw new Error("Company enrichment returned an invalid response.");
-        }
-
-        enrichment[name] = value;
-        return enrichment;
-      }, {});
-    }
-
-    // F7 — Validated enrichment values populate only their registered Debug fields.
-    function applyEnrichmentResult(result) {
-      ENRICHMENT_FIELD_NAMES.forEach((name) => {
-        const field = FIELD_CONFIG[name].field;
-
-        if (field) {
-          field.value = result[name];
-        }
-      });
-    }
-
-    // F7 — Enrichment is non-blocking, timed, stale-response safe, and optional to progression.
-    async function enrichCompanyDetails() {
-      if (
-        !websiteField ||
-        !industryField ||
-        !aboutField ||
-        !urgencyField ||
-        !sentimentField ||
-        !queryField ||
-        !enrichedFields
-      ) {
-        return;
-      }
-
-      const companyUrl = getWebsiteUrl(getFieldValue(websiteField));
-
-      if (!companyUrl) {
-        console.warn("[Form] Company enrichment skipped because required information is unavailable.");
-        return false;
-      }
-
-      const snapshot = getEnrichmentSnapshot(companyUrl);
-      const requestId = ++formState.enrichmentRequestId;
-      const controller = new AbortController();
-      const timeoutId = window.setTimeout(
-        () => controller.abort(),
-        COMPANY_ENRICHMENT_TIMEOUT_MS
-      );
-
-      formState.enrichmentController = controller;
-      setVerifyLoading(true);
-
-      try {
-        const response = await fetch(COMPANY_ENRICHMENT_ENDPOINT, {
-          method: "POST",
-          signal: controller.signal,
-          headers: {
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify({
-            companyUrl: snapshot.companyUrl,
-            message: snapshot.message
-          })
-        });
-
-        const result = await response.json();
-
-        if (!isCurrentEnrichmentRequest(requestId, controller, snapshot)) {
-          return null;
-        }
-
-        if (!response.ok) {
-          throw new Error(result.error || "Company enrichment failed.");
-        }
-
-        applyEnrichmentResult(getEnrichmentResult(result));
-        return true;
-      } catch (error) {
-        if (!isCurrentEnrichmentRequest(requestId, controller, snapshot)) {
-          return null;
-        }
-
-        if (error instanceof TypeError) return false;
-
-        if (error?.name === "AbortError") {
-          console.error("[Form] Company enrichment timed out.");
-          return false;
-        }
-
-        console.error("[Form] Company enrichment failed.");
-        return false;
-      } finally {
-        window.clearTimeout(timeoutId);
-
-        if (formState.enrichmentController === controller) {
-          formState.enrichmentController = null;
-          setVerifyLoading(false);
-        }
-      }
-    }
-
-    // F4, F5, F7 — Email edits recalculate readiness and invalidate all prior derived request context.
+    // F4 and F5 — Email edits recalculate readiness and clear prior suggestions.
     function updateVerifyButtonState() {
       if (!emailField || !verifyButton) return;
 
-      cancelEnrichmentRequest();
       clearEmailDomainSuggestions();
       verifyButton.classList.toggle("button--ready", isValidEmail(emailField.value));
       resetValidationFeedback();
@@ -2217,10 +1700,6 @@
     function handleVerifiedFieldInput(event) {
       releaseEmailDomainSuggestion(event?.target);
 
-      if (event?.target === firstNameField) {
-        updateNewsletterContent();
-      }
-
       if (formState.currentPage === 1) {
         const hasFirstName = Boolean(getFieldValue(firstNameField));
         const hasLastName = Boolean(getFieldValue(lastNameField));
@@ -2233,7 +1712,7 @@
       updateVerifiedButtonState();
     }
 
-    // F13 — The rating is a visual prototype only; clicking any star reveals the thank-you state.
+    // F13 — Post-submit feedback is a visual prototype; clicking any star reveals the thank-you state.
     function showFeedbackThankYou() {
       if (!feedbackPage || !feedbackRatingContent || !feedbackThankYou) return;
 
@@ -2245,39 +1724,77 @@
       window.requestAnimationFrame(() => feedbackThankYouHeading?.focus());
     }
 
-    // F4, F6, F7, F8, F13, F14 — The primary action validates, advances, enriches, submits, or opens feedback by active stage.
-    async function handlePrimaryAction() {
-      if (formState.currentPage === 3) {
-        // F8 — Submission is intentionally local-only and idempotent for this prototype.
-        if (formState.isSubmitted) return;
+    // F15 — Classify only the Inquiry text through the same-origin server route; the browser never holds the API key.
+    async function classifyInquiryText() {
+      const inquiry = getFieldValue(messageField);
 
-        trackFormEvent("form_submit");
-        formState.isSubmitted = true;
-        verifyButton.disabled = true;
+      if (inquiryClassificationStatus) inquiryClassificationStatus.hidden = true;
+      if (!inquiry) return true;
 
-        try {
-          console.info("[Form] Inquiry submitted (prototype).");
-          showPage(4);
-          focusCurrentStage(4);
-          trackFormEvent("form_step_complete", {
-            form_step: 3,
-            form_step_name: FORM_STEP_NAMES[3]
-          });
-          trackFormEvent("form_submit_success");
-        } catch {
-          formState.isSubmitted = false;
-          verifyButton.disabled = false;
-          console.error("[Form] Inquiry submission failed.");
-          trackFormEvent("form_submit_error");
+      if (inquiryClassificationStatus) {
+        inquiryClassificationStatus.hidden = false;
+        if (inquiryClassificationStatusText) {
+          inquiryClassificationStatusText.textContent = "Suggesting an inquiry type…";
         }
-
-        return;
       }
 
-      if (formState.currentPage === 4) return;
+      formState.isClassifyingInquiry = true;
+      if (form) form.setAttribute("aria-busy", "true");
+      if (verifyButton) verifyButton.disabled = true;
+      if (verifyButtonLabel) verifyButtonLabel.textContent = "Classifying…";
+
+      const controller = new AbortController();
+      const timeoutId = window.setTimeout(() => controller.abort(), 9000);
+
+      try {
+        const response = await fetch("/api/classify-inquiry", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ inquiry }),
+          signal: controller.signal
+        });
+
+        if (!response.ok) throw new Error("Classification request failed.");
+
+        const result = await response.json();
+        const allowedInquiryTypes = ["New Business", "Service", "Parts", "Other"];
+
+        if (!allowedInquiryTypes.includes(result.inquiryType)) {
+          throw new Error("Classification response was invalid.");
+        }
+
+        if (!formState.hasInquiryTypeBeenEdited && getFieldValue(messageField) !== inquiry) {
+          if (inquiryClassificationStatus) inquiryClassificationStatus.hidden = false;
+          if (inquiryClassificationStatusText) {
+            inquiryClassificationStatusText.textContent = "The Inquiry changed while it was being classified. The suggestion was not applied; you can try again after going back.";
+          }
+        } else if (!formState.hasInquiryTypeBeenEdited && inquiryTypeField) {
+          inquiryTypeField.value = result.inquiryType;
+        }
+
+        return true;
+      } catch {
+        if (inquiryClassificationStatus) inquiryClassificationStatus.hidden = false;
+        if (inquiryClassificationStatusText) {
+          inquiryClassificationStatusText.textContent = "We couldn’t suggest an inquiry type. Your current value is unchanged; you can update it by going back.";
+        }
+
+        return false;
+      } finally {
+        window.clearTimeout(timeoutId);
+        formState.isClassifyingInquiry = false;
+        if (form) form.removeAttribute("aria-busy");
+        if (verifyButton) verifyButton.disabled = false;
+        updateNavigationState();
+      }
+    }
+
+    // F4, F6, F8, F13, F14, F15 — Continue validates and classifies Step 1; Submit Inquiry opens completion.
+    async function handlePrimaryAction() {
+      if (formState.currentPage === 3 || formState.isSubmitted) return;
+      if (formState.isClassifyingInquiry) return;
 
       if (formState.currentPage === 2) {
-        // F4 and F6 — Stage 2 cannot advance until its four required derived/detail values exist.
         if (!hasVerifiedFieldEntries()) {
           trackFormEvent("form_validation_error", { form_step: 2 });
           return;
@@ -2287,8 +1804,21 @@
           form_step: 2,
           form_step_name: FORM_STEP_NAMES[2]
         });
-        showPage(3);
-        focusCurrentStage(3);
+        trackFormEvent("form_submit");
+        formState.isSubmitted = true;
+        verifyButton.disabled = true;
+
+        try {
+          console.info("[Form] Inquiry submitted (prototype).");
+          showPage(3);
+          focusCurrentStage(3);
+          trackFormEvent("form_submit_success");
+        } catch {
+          formState.isSubmitted = false;
+          verifyButton.disabled = false;
+          console.error("[Form] Inquiry submission failed.");
+          trackFormEvent("form_submit_error");
+        }
 
         return;
       }
@@ -2303,44 +1833,17 @@
         form_step_name: FORM_STEP_NAMES[1]
       });
       updateEmailValidation();
-
+      await classifyInquiryText();
       showPage(2);
       focusCurrentStage(2);
-      void enrichCompanyDetails();
     }
 
-    // F6 and F7 — Back navigation preserves visitor input and cannot interrupt active enrichment.
+    // F6 — Back navigation preserves visitor input.
     function handleBack() {
-      if (formState.isEnrichmentLoading) {
-        return;
-      }
-
-      if (formState.currentPage === 4) {
-        formState.isSubmitted = false;
-        verifyButton.disabled = false;
-        showPage(3);
-        focusCurrentStage(3);
-        return;
-      }
-
-      if (formState.currentPage === 3) {
-        formState.isSubmitted = false;
-        verifyButton.disabled = false;
-        showPage(2);
-        focusCurrentStage(2);
-        return;
-      }
+      if (formState.currentPage !== 2) return;
 
       showPage(1);
       focusCurrentStage(1);
-    }
-
-    // F12 — The AI explanation stays available to hover, keyboard, and touch users without changing form data.
-    function setCompanyInfoTooltipOpen(isOpen) {
-      if (!companyInfoTooltipTrigger || !companyInfoTooltipButton) return;
-
-      companyInfoTooltipTrigger.classList.toggle("is-tooltip-open", isOpen);
-      companyInfoTooltipButton.setAttribute("aria-expanded", String(isOpen));
     }
 
     // 7. Feature event listeners
@@ -2352,6 +1855,23 @@
       });
     }
 
+    if (inquiryTypeField) {
+      // F15 — Preserve a visitor-entered Inquiry type instead of replacing it with a suggestion.
+      inquiryTypeField.addEventListener("input", () => {
+        formState.hasInquiryTypeBeenEdited = true;
+        if (inquiryClassificationStatus) inquiryClassificationStatus.hidden = true;
+      });
+    }
+
+    if (messageField) {
+      // F15 — Clear a previous classification failure when the visitor changes the Inquiry text.
+      messageField.addEventListener("input", () => {
+        if (!formState.isClassifyingInquiry && inquiryClassificationStatus) {
+          inquiryClassificationStatus.hidden = true;
+        }
+      });
+    }
+
     if (countryField) {
       // F1 and F2
       countryField.addEventListener("change", () => {
@@ -2360,27 +1880,9 @@
       });
     }
 
-    if (inquirySubtypeField) {
-      // F11 — The spare-parts topic is included only for the matching inquiry subtype.
-      inquirySubtypeField.addEventListener("change", updateNewsletterContent);
-    }
-
-    if (companyInfoTooltipButton) {
-      // F12 — Click or tap toggles a persistent explanation while hover and focus remain CSS-only.
-      companyInfoTooltipButton.addEventListener("click", () => {
-        setCompanyInfoTooltipOpen(companyInfoTooltipButton.getAttribute("aria-expanded") !== "true");
-      });
-    }
-
     feedbackStarButtons.forEach((button) => {
       // F13 — Keep the prototype interaction local and transition without recording the selected rating.
       button.addEventListener("click", showFeedbackThankYou);
-    });
-
-    document.addEventListener("click", (event) => {
-      if (!companyInfoTooltipTrigger?.contains(event.target)) {
-        setCompanyInfoTooltipOpen(false);
-      }
     });
 
     DETAIL_FIELDS.forEach((field) => {
@@ -2389,12 +1891,12 @@
     });
 
     if (backButton) {
-      // F6 and F7
+      // F6
       backButton.addEventListener("click", handleBack);
     }
 
     if (form) {
-      // F4, F6, F7, F8, F14
+      // F4, F6, F8, F14
       form.addEventListener("focusin", trackFormStart);
       form.addEventListener("submit", (event) => {
         event.preventDefault();
@@ -2410,7 +1912,6 @@
     updateStateVisibility();      // F2
     prefillLanguageFromBrowser(); // F3
     populateCurrentUrl();         // F9
-    updateNewsletterContent();    // F10 and F11
     void lookupCountryForF1();    // F1
   </script>
 </body>

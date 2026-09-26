@@ -1,14 +1,5 @@
 import { expect, test } from "@playwright/test";
 
-// F7 fixture — Complete five-string enrichment contract returned by both adapters.
-const enrichmentResponse = {
-  industry: "Aerospace",
-  about: "Test company overview.",
-  urgency: "Low",
-  sentiment: "Positive",
-  query: "Test query"
-};
-
 // F4, F6 helper — Satisfy Stage 1 validation and advance to Stage 2.
 async function completeStageOne(page) {
   await page.getByRole("textbox", { name: "Email address" }).fill("test.user@example.com");
@@ -85,36 +76,6 @@ test("[F11] shows the Spare parts newsletter topic only for that inquiry subtype
   await expect(sparePartsTopic).toBeHidden();
 });
 
-test("[F12] opens the AI company-summary tooltip on hover, click, and keyboard focus", async ({ page }) => {
-  await page.route("**free.freeipapi.com/api/json", (route) => route.abort());
-  await page.goto("/");
-
-  const tooltipButton = page.getByRole("button", { name: "About AI company summaries" });
-  const tooltip = page.getByRole("tooltip");
-
-  await expect(tooltip).toBeHidden();
-  await tooltipButton.hover();
-  await expect(tooltip).toBeVisible();
-  await expect(tooltip).toHaveCSS("background-color", "rgb(255, 255, 255)");
-
-  await page.mouse.move(0, 0);
-  await expect(tooltip).toBeHidden();
-
-  await tooltipButton.focus();
-  await expect(tooltip).toBeVisible();
-
-  await page.getByRole("textbox", { name: "First name" }).focus();
-  await expect(tooltip).toBeHidden();
-
-  await tooltipButton.click();
-  await expect(tooltipButton).toHaveAttribute("aria-expanded", "true");
-  await expect(tooltip).toBeVisible();
-
-  await page.getByRole("textbox", { name: "First name" }).click();
-  await expect(tooltipButton).toHaveAttribute("aria-expanded", "false");
-  await expect(tooltip).toBeHidden();
-});
-
 test("keeps the CSS-only Newsletter banner content inside its mobile layout", async ({ page }) => {
   await page.route("**free.freeipapi.com/api/json", (route) => route.abort());
   await page.goto("/");
@@ -155,12 +116,8 @@ test("keeps the CSS-only Newsletter banner content inside its mobile layout", as
 
 test("[F9] shows the full current form URL in the Debug accordion", async ({ page }) => {
   await page.route("**free.freeipapi.com/api/json", (route) => route.abort());
-  await page.route("**/enrich-company", (route) => route.fulfill({ json: enrichmentResponse }));
-  await page.goto("/?source=regression#inquiry");
+  await page.goto("/?source=regression&debug#inquiry");
   await completeStagesOneAndTwo(page);
-  await page.locator("#enriched-details").evaluate((details) => {
-    details.open = true;
-  });
 
   await expect(page.getByLabel("Current URL")).toBeVisible();
   await expect(page.locator("#current-url")).not.toBeEditable();
@@ -169,7 +126,6 @@ test("[F9] shows the full current form URL in the Debug accordion", async ({ pag
 
 test("[F5] derives empty Website and Company name fields from the Email domain", async ({ page }) => {
   await page.route("**free.freeipapi.com/api/json", (route) => route.abort());
-  await page.route("**/enrich-company", (route) => route.fulfill({ json: enrichmentResponse }));
   await page.goto("/");
 
   await page.getByRole("textbox", { name: "Email address" }).fill("person@example-company.com");
@@ -214,7 +170,6 @@ test("[F2] lists Country options alphabetically", async ({ page }) => {
 
 test("[F2] shows State only when United States is selected", async ({ page }) => {
   await page.route("**free.freeipapi.com/api/json", (route) => route.abort());
-  await page.route("**/enrich-company", (route) => route.fulfill({ json: enrichmentResponse }));
   await page.goto("/");
   await completeStageOne(page);
 
@@ -286,7 +241,6 @@ test("[F1] keeps a visitor's Country selection when its lookup finishes later", 
       };
     });
   });
-  await page.route("**/enrich-company", (route) => route.fulfill({ json: enrichmentResponse }));
   await page.goto("/");
   await expect.poll(() => Boolean(fulfillLookup)).toBe(true);
   await completeStageOne(page);
@@ -353,13 +307,8 @@ test("[F6] does not repeat completed stage fields on confirmation", async ({ pag
   await expect(page.getByRole("group", { name: "Company details" })).not.toBeVisible();
   await expect(page.getByText("Personal information is processed in accordance with GDPR & our Privacy Policy.")).toBeVisible();
   await expect(page.locator("#gdpr-consent-note .form__alert-text")).toHaveCSS("font-size", "12px");
-  await expect(page.getByRole("heading", { name: "Debug" })).toBeVisible();
-  await expect(page.locator("#enriched-details")).not.toHaveAttribute("open", "");
-  await expect(page.getByRole("textbox", { name: "About" })).not.toBeVisible();
-
-  await page.locator("#enriched-details > summary").click();
-  await expect(page.locator("#enriched-details")).toHaveAttribute("open", "");
-  await expect(page.getByRole("textbox", { name: "About" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Debug" })).not.toBeVisible();
+  await expect(page.locator("#debug-fields")).toBeHidden();
 });
 
 test("[F6] shows compact full-width progress for each form stage", async ({ page }) => {
@@ -439,7 +388,6 @@ test("[F6, F8] allows edits from review and opens the prototype feedback stage",
 
 test("[F13] transitions from clickable stars to the feedback thank-you state", async ({ page }) => {
   await page.route("**free.freeipapi.com/api/json", (route) => route.abort());
-  await page.route("**/enrich-company", (route) => route.fulfill({ json: enrichmentResponse }));
   await page.goto("/");
   await completeStagesOneAndTwo(page);
 
@@ -484,48 +432,6 @@ test("[F6] makes Back 20% smaller than its former mobile action share", async ({
   expect(actionWidths.back / (actionWidths.back + actionWidths.continue)).toBeCloseTo(0.8 / 3, 2);
 });
 
-test("[F7] maps a successful enrichment response into the Debug accordion", async ({ page }) => {
-  await page.route("**/enrich-company", (route) => route.fulfill({ json: enrichmentResponse }));
-  await page.goto("/");
-  await completeStageOne(page);
-  await page.getByRole("button", { name: "Continue" }).click();
-
-  await expect(page.locator("#about")).toHaveValue(enrichmentResponse.about);
-  await expect(page.locator("#urgency")).toHaveValue(enrichmentResponse.urgency);
-  await expect(page.locator("#sentiment")).toHaveValue(enrichmentResponse.sentiment);
-  await expect(page.locator("#query")).toHaveValue(enrichmentResponse.query);
-  await expect(page.locator("#industry")).toHaveValue(enrichmentResponse.industry);
-});
-
-test("[F7] ignores a stale enrichment response after the company URL changes", async ({ page }) => {
-  let fulfilRoute;
-  await page.route("**/enrich-company", async (route) => {
-    await new Promise((resolve) => {
-      fulfilRoute = async () => {
-        await route.fulfill({ json: enrichmentResponse });
-        resolve();
-      };
-    });
-  });
-  await page.goto("/");
-  await page.getByRole("textbox", { name: "Email address" }).fill("test.user@example.com");
-  await page.getByRole("textbox", { name: "First name" }).fill("Avery");
-  await page.getByRole("textbox", { name: "Last name" }).fill("Jordan");
-  await page.getByRole("button", { name: "Continue" }).click();
-  await expect(page.getByRole("group", { name: "Personal details" })).toBeVisible();
-
-  await expect.poll(() => Boolean(fulfilRoute)).toBe(true);
-  await page.locator("#website").evaluate((field) => {
-    field.value = "changed.example";
-    field.dispatchEvent(new Event("input", { bubbles: true }));
-  });
-  await fulfilRoute();
-
-  await expect(page.getByRole("button", { name: "Continue" })).toBeEnabled({ timeout: 25000 });
-  await page.getByRole("button", { name: "Continue" }).click();
-  await expect(page.locator("#about")).toHaveValue("");
-});
-
 test("[F6] preserves newsletter consent after returning from confirmation", async ({ page }) => {
   await page.goto("/");
   await completeStageOne(page);
@@ -556,14 +462,6 @@ test("[F6] moves keyboard focus to the current stage after navigation", async ({
 
   await page.getByRole("button", { name: "Back" }).click();
   await expect(page.locator("#verified-fields")).toBeFocused();
-});
-
-test("[F7] recovers after enrichment is unavailable", async ({ page }) => {
-  await page.route("**/enrich-company", (route) => route.abort());
-  await page.goto("/");
-  await completeStageOne(page);
-
-  await expect(page.getByRole("button", { name: "Continue" })).toBeEnabled({ timeout: 25000 });
 });
 
 test("does not horizontally overflow at the configured viewport", async ({ page }) => {

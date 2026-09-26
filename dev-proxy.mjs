@@ -1,304 +1,198 @@
 import http from "node:http";
-import fs from "node:fs";
+import { readFile, readFileSync, existsSync } from "node:fs";
 import path from "node:path";
+import { fileURLToPath } from "node:url";
 
-// F7 — Local enrichment adapter. It keeps the DeepSeek key outside browser code and mirrors
-// the hosted five-field response contract at POST /enrich-company for localhost development.
-const PORT = 8787;
-const DEEPSEEK_API_URL = "https://api.deepseek.com/v1/chat/completions";
-const MODEL = "deepseek-v4-flash";
-const ENV_FILES = [".env.local", ".env"];
-const ALLOWED_ORIGINS = new Set([
-  "http://127.0.0.1:8000",
-  "http://localhost:8000"
-]);
-const DEFAULT_SYSTEM_PROMPT = "Return valid JSON only. Do not include markdown or extra commentary.";
-const DEEPSEEK_REQUEST_TIMEOUT_MS = 8000;
-const ENRICHMENT_RESPONSE_FIELDS = [
-  "industry",
-  "about",
-  "urgency",
-  "sentiment",
-  "query"
-];
+// Local development adapter — Serve the form and same-origin TypeSafe route.
+const projectDir = path.dirname(fileURLToPath(import.meta.url));
+const port = Number(process.env.PORT || 8001);
+const inquiryTypes = {
+  new_business: "New Business",
+  service: "Service",
+  parts: "Parts",
+  other: "Other"
+};
 
-// F7 support — Load uncommitted local environment files without replacing exported variables.
-function loadLocalEnv() {
-  ENV_FILES.forEach((fileName) => {
-    const filePath = path.join(process.cwd(), fileName);
+// Local configuration — Read ignored env files without replacing exported variables.
+function loadLocalEnvironment() {
+  [".env.local", ".env"].forEach((fileName) => {
+    const filePath = path.join(projectDir, fileName);
+    if (!existsSync(filePath)) return;
 
-    if (!fs.existsSync(filePath)) {
-      return;
-    }
-
-    const lines = fs.readFileSync(filePath, "utf8").split(/\r?\n/);
-
-    lines.forEach((line) => {
+    readFileSync(filePath, "utf8").split(/\r?\n/).forEach((line) => {
       const trimmedLine = line.trim();
-
-      if (!trimmedLine || trimmedLine.startsWith("#")) {
-        return;
-      }
+      if (!trimmedLine || trimmedLine.startsWith("#")) return;
 
       const separatorIndex = trimmedLine.indexOf("=");
-
-      if (separatorIndex === -1) {
-        return;
-      }
+      if (separatorIndex < 1) return;
 
       const key = trimmedLine.slice(0, separatorIndex).trim();
-      const value = trimmedLine.slice(separatorIndex + 1).trim();
+      if (!key || process.env[key]) return;
 
-      if (!key || process.env[key]) {
-        return;
-      }
-
-      process.env[key] = value.replace(/^["']|["']$/g, "");
+      const rawValue = trimmedLine.slice(separatorIndex + 1).trim();
+      process.env[key] = rawValue.replace(/^(["'])(.*)\1$/, "$2");
     });
   });
 }
 
-loadLocalEnv();
+loadLocalEnvironment();
 
-// F7 support — Only the two documented local form origins receive CORS permission.
-function sendJson(request, response, statusCode, payload) {
-  const origin = request.headers.origin;
-  const headers = {
-    "Access-Control-Allow-Headers": "Content-Type",
-    "Access-Control-Allow-Methods": "POST, OPTIONS",
-    "Content-Type": "application/json"
-  };
-
-  if (ALLOWED_ORIGINS.has(origin)) {
-    headers["Access-Control-Allow-Origin"] = origin;
-    headers.Vary = "Origin";
-  }
-
-  response.writeHead(statusCode, headers);
+function sendJson(response, statusCode, payload, extraHeaders = {}) {
+  response.writeHead(statusCode, {
+    "Content-Type": "application/json; charset=utf-8",
+    "Cache-Control": "no-store",
+    "X-Content-Type-Options": "nosniff",
+    ...extraHeaders
+  });
   response.end(JSON.stringify(payload));
 }
 
-// F7 support — Reject malformed JSON and bodies above 10 KB before enrichment.
-function readJsonBody(request) {
-  return new Promise((resolve, reject) => {
-    let body = "";
+async function readJsonBody(request) {
+  const chunks = [];
+  let size = 0;
 
-    request.on("data", (chunk) => {
-      body += chunk;
-
-      if (body.length > 10000) {
-        reject(new Error("Request body is too large."));
-        request.destroy();
-      }
-    });
-
-    request.on("end", () => {
-      try {
-        resolve(JSON.parse(body || "{}"));
-      } catch {
-        reject(new Error("Request body must be valid JSON."));
-      }
-    });
-
-    request.on("error", reject);
-  });
-}
-
-// F7 contract — Company enrichment supplies Industry and About.
-function getCompanyPrompt(companyUrl) {
-  return `Visit ${companyUrl}, return a JSON result with two fields:
-- "industry": the company's industry in one or two broad words (e.g. "Manufacturing", "Financial Services")
-- "about": a short 1-2 sentence description of what the company does`;
-}
-
-// F7 contract — Optional inquiry analysis supplies Urgency, Sentiment, and Query.
-function getMessageAnalysisPrompt(message) {
-  return `Analyse this customer message and classify it into exactly these three fields:
-- "urgency": one of "Low", "Medium", or "High"
-- "sentiment": one of "Annoyed", "Content", or "Happy"
-- "query": one of "General", "Complaint", "New Business", or "Parts & Service"
-
-Message:
-${message}`;
-}
-
-// F7 support — Normalise model output to strings before it reaches the browser contract.
-function parseDeepSeekJson(content) {
-  const trimmedContent = content.trim();
-  const jsonMatch = trimmedContent.match(/\{[\s\S]*\}/);
-  const parsed = JSON.parse(jsonMatch ? jsonMatch[0] : trimmedContent);
-
-  return {
-    industry: String(parsed.industry || "").trim(),
-    about: String(parsed.about || "").trim(),
-    urgency: String(parsed.urgency || "").trim(),
-    sentiment: String(parsed.sentiment || "").trim(),
-    query: String(parsed.query || "").trim()
-  };
-}
-
-// F7 support — Always return all five registered fields, using empty strings when unavailable.
-function createEnrichmentResponse(companyResult, messageResult) {
-  const result = {
-    ...companyResult,
-    ...messageResult
-  };
-
-  return ENRICHMENT_RESPONSE_FIELDS.reduce((response, fieldName) => {
-    response[fieldName] = String(result[fieldName] || "").trim();
-    return response;
-  }, {});
-}
-
-// F7 support — Convert technical failures to concise local-development responses without secrets.
-function getPublicErrorMessage(error) {
-  if (error?.name === "AbortError") {
-    return "DeepSeek request timed out. Please try again.";
+  for await (const chunk of request) {
+    size += chunk.length;
+    if (size > 10000) {
+      const error = new Error("Request body is too large.");
+      error.statusCode = 413;
+      throw error;
+    }
+    chunks.push(chunk);
   }
 
-  if (error?.message === "fetch failed") {
-    return "DeepSeek request could not be reached. Check your network, VPN, firewall, or certificate settings.";
+  try {
+    return JSON.parse(Buffer.concat(chunks).toString("utf8") || "{}");
+  } catch {
+    const error = new Error("Request body must be valid JSON.");
+    error.statusCode = 400;
+    throw error;
   }
-
-  return error?.message || "Company enrichment failed.";
 }
 
-// F7 support — The server-side request is deterministic, abortable, and requires a local secret.
-async function callDeepSeek({
-  prompt,
-  systemPrompt = DEFAULT_SYSTEM_PROMPT
-}) {
-  const apiKey = process.env.DEEPSEEK_API_KEY;
+// F15 — Send only the visitor's Inquiry text to TypeSafe and return an allowlisted label.
+async function classifyInquiry(request, response) {
+  if (request.method !== "POST") {
+    sendJson(response, 405, { error: "Method not allowed." }, { Allow: "POST" });
+    return;
+  }
 
+  const requestOrigin = request.headers.origin;
+  const expectedOrigin = `http://${request.headers.host}`;
+  if (requestOrigin !== expectedOrigin) {
+    sendJson(response, 403, { error: "Request origin is not allowed." });
+    return;
+  }
+  if (!request.headers["content-type"]?.includes("application/json")) {
+    sendJson(response, 415, { error: "Content-Type must be application/json." });
+    return;
+  }
+
+  let body;
+  try {
+    body = await readJsonBody(request);
+  } catch (error) {
+    sendJson(response, error.statusCode || 400, {
+      error: error.statusCode === 413 ? "Inquiry is too long." : "Request must be valid JSON."
+    });
+    return;
+  }
+
+  const inquiry = typeof body?.inquiry === "string" ? body.inquiry.trim() : "";
+  if (!inquiry) {
+    sendJson(response, 400, { error: "Inquiry text is required." });
+    return;
+  }
+  if (inquiry.length > 8000) {
+    sendJson(response, 413, { error: "Inquiry is too long." });
+    return;
+  }
+
+  const apiKey = process.env.TYPESAFE_API_KEY;
   if (!apiKey) {
-    throw new Error("Missing DEEPSEEK_API_KEY environment variable.");
+    sendJson(response, 503, { error: "Classification is unavailable." });
+    return;
   }
 
   const controller = new AbortController();
-  const timeoutId = setTimeout(
-    () => controller.abort(),
-    DEEPSEEK_REQUEST_TIMEOUT_MS
-  );
+  const timeoutId = setTimeout(() => controller.abort(), 8000);
 
   try {
-    const response = await fetch(DEEPSEEK_API_URL, {
+    const upstreamResponse = await fetch("https://api.typesafe.ai/v1/systemone", {
       method: "POST",
       signal: controller.signal,
       headers: {
-        "Authorization": `Bearer ${apiKey}`,
+        Authorization: `Bearer ${apiKey}`,
         "Content-Type": "application/json"
       },
       body: JSON.stringify({
-        model: MODEL,
-        messages: [
-          {
-            role: "system",
-            content: systemPrompt
-          },
-          {
-            role: "user",
-            content: prompt
+        state: { inquiry },
+        model: "jev-latest",
+        questions: {
+          inquiry_type: {
+            type: "choice",
+            instructions: "Classify the primary reason for this inquiry. Choose the closest category based on what the person wants.",
+            criteria: {
+              new_business: "A prospective customer asks about becoming a customer, a new purchase, pricing, a quote, or a business partnership. Examples: becoming a customer; requesting a quote for a new system.",
+              service: "The person needs technical help, maintenance, repair, troubleshooting, warranty support, or another service for an existing product. Examples: repairing a system; troubleshooting a problem.",
+              parts: "The person asks to buy, identify, replace, or get information about spare parts or components. Examples: requesting a replacement part; identifying a spare component.",
+              other: "The primary request does not fit new business, service, or parts. Examples: updating an account contact; asking a general question about the company."
+            }
           }
-        ],
-        response_format: {
-          type: "json_object"
-        },
-        temperature: 0,
-        stream: false
+        }
       })
     });
 
-    const payload = await response.json();
-
-    if (!response.ok) {
-      throw new Error(payload.error?.message || "DeepSeek request failed.");
+    if (!upstreamResponse.ok) {
+      sendJson(response, 502, { error: "Classification is unavailable." });
+      return;
     }
 
-    const rawContent = payload.choices?.[0]?.message?.content || "{}";
-    return parseDeepSeekJson(rawContent);
+    const result = await upstreamResponse.json();
+    const choice = result?.answers?.inquiry_type?.choice;
+    if (typeof choice !== "string" || !Object.hasOwn(inquiryTypes, choice)) {
+      sendJson(response, 502, { error: "Classification response was invalid." });
+      return;
+    }
+
+    sendJson(response, 200, { inquiryType: inquiryTypes[choice] });
+  } catch {
+    sendJson(response, 502, { error: "Classification is unavailable." });
   } finally {
     clearTimeout(timeoutId);
   }
 }
 
-// F7 support — Company analysis is required for a successful enrichment response.
-async function enrichCompany(companyUrl) {
-  return callDeepSeek({
-    prompt: getCompanyPrompt(companyUrl)
-  });
-}
-
-// F7 support — Message classification may fail independently without losing company enrichment.
-async function analyzeMessage(message) {
-  if (!message) {
-    return {
-      urgency: "",
-      sentiment: "",
-      query: ""
-    };
-  }
-
-  try {
-    const result = await callDeepSeek({
-      prompt: getMessageAnalysisPrompt(message)
-    });
-
-    return {
-      urgency: result.urgency || "",
-      sentiment: result.sentiment || "",
-      query: result.query || ""
-    };
-  } catch (error) {
-    return {
-      urgency: "",
-      sentiment: "",
-      query: ""
-    };
-  }
-}
-
-// F7 endpoint — Company URL is required; Inquiry is optional.
-async function handleEnrichmentRequest(request, response) {
-  const body = await readJsonBody(request);
-  const companyUrl = String(body.companyUrl || "").trim();
-  const message = String(body.message || "").trim();
-
-  if (!companyUrl) {
-    sendJson(request, response, 400, {
-      error: "companyUrl is required."
-    });
-    return;
-  }
-
-  const companyResult = await enrichCompany(companyUrl);
-  const messageResult = await analyzeMessage(message);
-  sendJson(request, response, 200, createEnrichmentResponse(companyResult, messageResult));
-}
-
-// F7 local route — Only OPTIONS and POST /enrich-company are supported.
 const server = http.createServer(async (request, response) => {
-  if (request.method === "OPTIONS") {
-    sendJson(request, response, 204, {});
+  const pathname = new URL(request.url, "http://localhost").pathname;
+
+  if (pathname === "/api/classify-inquiry") {
+    await classifyInquiry(request, response);
     return;
   }
 
-  if (request.method !== "POST" || request.url !== "/enrich-company") {
-    sendJson(request, response, 404, {
-      error: "Not found."
+  if (request.method === "GET" && (pathname === "/" || pathname === "/index.html")) {
+    readFile(path.join(projectDir, "index.html"), (error, html) => {
+      if (error) {
+        response.writeHead(500, { "Content-Type": "text/plain; charset=utf-8" });
+        response.end("Preview unavailable.");
+        return;
+      }
+
+      response.writeHead(200, {
+        "Content-Type": "text/html; charset=utf-8",
+        "Cache-Control": "no-store",
+        "X-Content-Type-Options": "nosniff",
+        "Referrer-Policy": "strict-origin-when-cross-origin"
+      });
+      response.end(html);
     });
     return;
   }
 
-  try {
-    await handleEnrichmentRequest(request, response);
-  } catch (error) {
-    sendJson(request, response, 500, {
-      error: getPublicErrorMessage(error)
-    });
-  }
+  sendJson(response, 404, { error: "Not found." });
 });
 
-server.listen(PORT, "127.0.0.1", () => {
-  // F7 support — This message reports only the local technical endpoint.
-  console.log(`DeepSeek dev proxy running at http://127.0.0.1:${PORT}`);
+server.listen(port, "127.0.0.1", () => {
+  console.log(`Agentic Form preview running at http://localhost:${port}`);
 });

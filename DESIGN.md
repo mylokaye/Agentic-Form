@@ -15,43 +15,37 @@ rules in `AGENTS.md` and user-visible behaviour in `README.md`.
 
 ## Form flow and feedback
 
-- Stages 1–3 use a compact, centred solid-green progress bar at one-quarter,
-  one-half, and three-quarters. It has a 650px desktop cap, stays fluid below
-  that width with a 5px inset on both sides, and sits 15px below the form shell.
-  Stage 4 hides the bar.
-- Stage 1 begins with the shared Inquiry heading and the AI mark beside the
-  action row. The mark's accessible explanation is intentionally lightweight.
-- Stage 4 centres the inquiry thank-you copy and stars, omits in-form GDPR and
-  Debug controls, and keeps both its rating and post-rating containers centred
+- Steps 1 and 2 use a compact, centred solid-green progress bar at one-half and
+  full width. It has a 650px desktop cap, stays fluid below that width with a
+  5px inset on both sides, and sits 15px below the form shell. The post-submit
+  feedback screen hides the bar.
+- Step 2 contains the privacy note immediately above its Back and Submit Inquiry
+  actions. The post-submit screen centers the inquiry thank-you copy and stars,
+  omits the privacy note and in-form Debug controls, and keeps its rating and
+  post-rating containers centered
   within the form shell's inner width. It then displays the 22px feedback
   thank-you message after a rating click.
-- From 768px upward, Stage 4 fixes the outer form shell at 500px. The feedback
+- From 768px upward, the post-submit screen fixes the outer form shell at 500px. The feedback
   page fills the shell's padded inner area so its content remains centred
   without enlarging the outer surface.
-- The newsletter is a CSS-only white geometric gradient card. Its optional
-  checkbox starts unchecked; preserve the existing topic and Subscribe layout.
-  Its desktop banner is 212px tall; mobile stays content-sized with an 8rem
-  minimum height. The desktop topic list sits at 48% of the banner height.
 
 ## Responsive layout
 
 - Start mobile-first. Below 768px, controls use 16px text to avoid iOS focus
   zoom; fields stack unless the established two-column pair remains usable.
-- On mobile, a single action fills its row. Back and Continue remain one row at
+- On mobile, a single action fills its row. Back and Submit Inquiry remain one row at
   a one-third/two-thirds split.
-- At wider widths, use responsive grids: First/Last name and inquiry type/subtype
-  pair in Stage 1; Role/Language and Company/Industry pair in Stage 2; the
-  enrichment fields use three columns below the full-width About field.
+- At wider widths, use responsive grids for First/Last name in Step 1 and
+  Role/Language plus Company/Industry in Step 2.
 - From 768px upward, the form shell has a 500px minimum height. It may grow for
   taller stages; mobile remains content-sized.
 - Phone, Country, and conditional State remain full-width in Stage 2.
-- The shared **action row** is the form's final control row on Stages 1–3. It
+- The shared **action row** is the form's final control row on Steps 1 and 2. It
   uses the shared 50px control height and the same inner bottom inset on each
   stage. Available space sits above the row; a taller stage expands the shell
   rather than compressing actions.
-- On desktop, the Continue control uses the same one-third-width, right-aligned
-  treatment on Stages 1 and 2. Stage 2 keeps its compact Back control on the
-  left; the final stage retains its wider primary action.
+- On desktop, Continue and Submit Inquiry use the same right-aligned treatment.
+  Step 2 keeps its compact Back control on the left.
 - Maintain readable validation and status messages with no horizontal overflow.
 
 ## Change discipline
