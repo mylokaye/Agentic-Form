@@ -1763,6 +1763,8 @@
           throw new Error("Classification response was invalid.");
         }
 
+        if (inquiryClassificationStatus) inquiryClassificationStatus.hidden = true;
+
         if (!formState.hasInquiryTypeBeenEdited && getFieldValue(messageField) !== inquiry) {
           if (inquiryClassificationStatus) inquiryClassificationStatus.hidden = false;
           if (inquiryClassificationStatusText) {
