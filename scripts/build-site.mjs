@@ -6,8 +6,10 @@ import { fileURLToPath } from "node:url";
 const projectDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const html = await readFile(path.join(projectDir, "index.html"), "utf8");
 const encodedHtml = Buffer.from(html, "utf8").toString("base64");
+const icon = await readFile(path.join(projectDir, "assets", "agentic-form-icon.png"));
+const encodedIcon = icon.toString("base64");
 const worker = `// Build infrastructure — Static assets embedded by scripts/build-site.mjs.
-const assets = {"/":"${encodedHtml}","/index.html":"${encodedHtml}"};
+const assets = {"/":"${encodedHtml}","/index.html":"${encodedHtml}","/assets/agentic-form-icon.png":"${encodedIcon}"};
 const inquiryTypes = {
   new_business: "New Business",
   service: "Service",
@@ -146,7 +148,7 @@ export default {
 
     return new Response(decode(asset), {
       headers: {
-        "content-type": "text/html; charset=utf-8",
+        "content-type": path === "/assets/agentic-form-icon.png" ? "image/png" : "text/html; charset=utf-8",
         "x-content-type-options": "nosniff",
         "referrer-policy": "strict-origin-when-cross-origin",
         "x-frame-options": "DENY"

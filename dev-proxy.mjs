@@ -171,8 +171,10 @@ const server = http.createServer(async (request, response) => {
     return;
   }
 
-  if (request.method === "GET" && (pathname === "/" || pathname === "/index.html")) {
-    readFile(path.join(projectDir, "index.html"), (error, html) => {
+  const isIcon = pathname === "/assets/agentic-form-icon.png";
+  if (request.method === "GET" && (pathname === "/" || pathname === "/index.html" || isIcon)) {
+    const fileName = isIcon ? "assets/agentic-form-icon.png" : "index.html";
+    readFile(path.join(projectDir, fileName), (error, asset) => {
       if (error) {
         response.writeHead(500, { "Content-Type": "text/plain; charset=utf-8" });
         response.end("Preview unavailable.");
@@ -180,12 +182,12 @@ const server = http.createServer(async (request, response) => {
       }
 
       response.writeHead(200, {
-        "Content-Type": "text/html; charset=utf-8",
+        "Content-Type": isIcon ? "image/png" : "text/html; charset=utf-8",
         "Cache-Control": "no-store",
         "X-Content-Type-Options": "nosniff",
         "Referrer-Policy": "strict-origin-when-cross-origin"
       });
-      response.end(html);
+      response.end(asset);
     });
     return;
   }

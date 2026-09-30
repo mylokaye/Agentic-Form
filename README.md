@@ -1,12 +1,13 @@
-![Agentic Form](https://repository-images.githubusercontent.com/1261559482/b4bacbd7-3508-48a9-8c11-cc59d961b8b6)
+![Agentic Form banner](assets/agentic-form-banner.jpg)
 
-# Agentic Form
+# <img src="assets/agentic-form-icon.png" alt="" width="32" height="32"> Agentic Form
 
 A portable, two-step inquiry form built with plain HTML, CSS, and JavaScript. The browser UI lives in `index.html`; the Sites worker serves the static form.
 
 ## Files
 
 - `index.html` — form UI, styles, browser logic, Google Fonts Inter stylesheet link, site-wide GA4 tag (`G-0K36MBFB25`), and GA4 lifecycle events.
+- `assets/` — supplied README banner and blue form icon; the icon also appears in the browser tab and is included in the Sites package.
 - `dev-proxy.mjs` — serves the local preview and its same-origin TypeSafe route.
 - `scripts/build-site.mjs` — packages the form and TypeSafe route for Sites.
 - `tests/form-flow.spec.mjs` — Playwright regression tests.
