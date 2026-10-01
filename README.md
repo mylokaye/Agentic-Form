@@ -1,4 +1,4 @@
-![Agentic Form banner](assets/agentic-form-banner.jpg)
+![Agentic Form banner](assets/agentic-form-readme-banner.jpg)
 
 # <img src="assets/agentic-form-icon.png" alt="" width="32" height="32"> Agentic Form
 
@@ -7,7 +7,7 @@ A portable, two-step inquiry form built with plain HTML, CSS, and JavaScript. Th
 ## Files
 
 - `index.html` — form UI, styles, browser logic, Google Fonts Inter stylesheet link, site-wide GA4 tag (`G-0K36MBFB25`), and GA4 lifecycle events.
-- `assets/` — supplied README banner, original blue form icon, browser favicons, Apple touch icon, and web app icons; all site icons are included in the Sites package.
+- `assets/` — README hero image, original blue form icon, browser favicons, Apple touch icon, and web app icons; all site icons are included in the Sites package.
 - `site.webmanifest` — site identity and home-screen icon metadata.
 - `dev-proxy.mjs` — serves the local preview and its same-origin TypeSafe route.
 - `scripts/build-site.mjs` — packages the form and TypeSafe route for Sites.
