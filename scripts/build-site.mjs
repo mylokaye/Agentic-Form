@@ -4,12 +4,30 @@ import { fileURLToPath } from "node:url";
 
 // Build infrastructure — Package the static form and TypeSafe route for the Sites worker.
 const projectDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
-const html = await readFile(path.join(projectDir, "index.html"), "utf8");
-const encodedHtml = Buffer.from(html, "utf8").toString("base64");
-const icon = await readFile(path.join(projectDir, "assets", "agentic-form-icon.png"));
-const encodedIcon = icon.toString("base64");
+const assetFiles = {
+  "/": ["index.html", "text/html; charset=utf-8"],
+  "/index.html": ["index.html", "text/html; charset=utf-8"],
+  "/favicon.ico": ["assets/favicon.ico", "image/vnd.microsoft.icon"],
+  "/apple-touch-icon.png": ["assets/apple-touch-icon.png", "image/png"],
+  "/site.webmanifest": ["site.webmanifest", "application/manifest+json; charset=utf-8"],
+  "/assets/agentic-form-icon.png": ["assets/agentic-form-icon.png", "image/png"],
+  "/assets/favicon-16x16.png": ["assets/favicon-16x16.png", "image/png"],
+  "/assets/favicon-32x32.png": ["assets/favicon-32x32.png", "image/png"],
+  "/assets/favicon-48x48.png": ["assets/favicon-48x48.png", "image/png"],
+  "/assets/favicon-96x96.png": ["assets/favicon-96x96.png", "image/png"],
+  "/assets/icon-192x192.png": ["assets/icon-192x192.png", "image/png"],
+  "/assets/icon-512x512.png": ["assets/icon-512x512.png", "image/png"],
+  "/assets/icon-maskable-512x512.png": ["assets/icon-maskable-512x512.png", "image/png"]
+};
+const assets = {};
+
+for (const [pathname, [fileName, contentType]] of Object.entries(assetFiles)) {
+  const content = await readFile(path.join(projectDir, fileName));
+  assets[pathname] = { content: content.toString("base64"), contentType };
+}
+
 const worker = `// Build infrastructure — Static assets embedded by scripts/build-site.mjs.
-const assets = {"/":"${encodedHtml}","/index.html":"${encodedHtml}","/assets/agentic-form-icon.png":"${encodedIcon}"};
+const assets = ${JSON.stringify(assets)};
 const inquiryTypes = {
   new_business: "New Business",
   service: "Service",
@@ -146,9 +164,9 @@ export default {
       return new Response("Not found", { status: 404, headers: { "content-type": "text/plain; charset=utf-8" } });
     }
 
-    return new Response(decode(asset), {
+    return new Response(decode(asset.content), {
       headers: {
-        "content-type": path === "/assets/agentic-form-icon.png" ? "image/png" : "text/html; charset=utf-8",
+        "content-type": asset.contentType,
         "x-content-type-options": "nosniff",
         "referrer-policy": "strict-origin-when-cross-origin",
         "x-frame-options": "DENY"

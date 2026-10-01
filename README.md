@@ -7,12 +7,19 @@ A portable, two-step inquiry form built with plain HTML, CSS, and JavaScript. Th
 ## Files
 
 - `index.html` — form UI, styles, browser logic, Google Fonts Inter stylesheet link, site-wide GA4 tag (`G-0K36MBFB25`), and GA4 lifecycle events.
-- `assets/` — supplied README banner and blue form icon; the icon also appears in the browser tab and is included in the Sites package.
+- `assets/` — supplied README banner, original blue form icon, browser favicons, Apple touch icon, and web app icons; all site icons are included in the Sites package.
+- `site.webmanifest` — site identity and home-screen icon metadata.
 - `dev-proxy.mjs` — serves the local preview and its same-origin TypeSafe route.
 - `scripts/build-site.mjs` — packages the form and TypeSafe route for Sites.
 - `tests/form-flow.spec.mjs` — Playwright regression tests.
 - `AGENTS.md` — implementation standards.
 - `DESIGN.md` — visual and responsive design direction.
+
+## Site icons
+
+The supplied 1024px icon is the source for 16px, 32px, 48px, and 96px PNG favicons, a 16/32/48px ICO fallback at `/favicon.ico`, and an opaque 180px Apple touch icon at `/apple-touch-icon.png`. The manifest lists 192px, 512px, and the original 1024px icons, plus a separate opaque, padded 512px maskable icon for adaptive home-screen shapes. The manifest keeps the normal browser display mode; it adds no offline support or service worker.
+
+Both the local preview and the Sites worker serve the icons and manifest with their appropriate content types.
 
 ## Form flow
 

@@ -6,6 +6,21 @@ import { fileURLToPath } from "node:url";
 // Local development adapter — Serve the form and same-origin TypeSafe route.
 const projectDir = path.dirname(fileURLToPath(import.meta.url));
 const port = Number(process.env.PORT || 8001);
+const assetFiles = {
+  "/": ["index.html", "text/html; charset=utf-8"],
+  "/index.html": ["index.html", "text/html; charset=utf-8"],
+  "/favicon.ico": ["assets/favicon.ico", "image/vnd.microsoft.icon"],
+  "/apple-touch-icon.png": ["assets/apple-touch-icon.png", "image/png"],
+  "/site.webmanifest": ["site.webmanifest", "application/manifest+json; charset=utf-8"],
+  "/assets/agentic-form-icon.png": ["assets/agentic-form-icon.png", "image/png"],
+  "/assets/favicon-16x16.png": ["assets/favicon-16x16.png", "image/png"],
+  "/assets/favicon-32x32.png": ["assets/favicon-32x32.png", "image/png"],
+  "/assets/favicon-48x48.png": ["assets/favicon-48x48.png", "image/png"],
+  "/assets/favicon-96x96.png": ["assets/favicon-96x96.png", "image/png"],
+  "/assets/icon-192x192.png": ["assets/icon-192x192.png", "image/png"],
+  "/assets/icon-512x512.png": ["assets/icon-512x512.png", "image/png"],
+  "/assets/icon-maskable-512x512.png": ["assets/icon-maskable-512x512.png", "image/png"]
+};
 const inquiryTypes = {
   new_business: "New Business",
   service: "Service",
@@ -171,9 +186,9 @@ const server = http.createServer(async (request, response) => {
     return;
   }
 
-  const isIcon = pathname === "/assets/agentic-form-icon.png";
-  if (request.method === "GET" && (pathname === "/" || pathname === "/index.html" || isIcon)) {
-    const fileName = isIcon ? "assets/agentic-form-icon.png" : "index.html";
+  const assetFile = assetFiles[pathname];
+  if (request.method === "GET" && assetFile) {
+    const [fileName, contentType] = assetFile;
     readFile(path.join(projectDir, fileName), (error, asset) => {
       if (error) {
         response.writeHead(500, { "Content-Type": "text/plain; charset=utf-8" });
@@ -182,7 +197,7 @@ const server = http.createServer(async (request, response) => {
       }
 
       response.writeHead(200, {
-        "Content-Type": isIcon ? "image/png" : "text/html; charset=utf-8",
+        "Content-Type": contentType,
         "Cache-Control": "no-store",
         "X-Content-Type-Options": "nosniff",
         "Referrer-Policy": "strict-origin-when-cross-origin"
