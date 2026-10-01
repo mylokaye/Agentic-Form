@@ -78,7 +78,7 @@ npm run test:e2e
 Test the hosted form:
 
 ```sh
-BASE_URL="https://forms-v2-mylo.v6pdwnhvws.chatgpt.site" npm run test:e2e
+BASE_URL="https://form.mylokaye.me" npm run test:e2e
 ```
 
 Run the optional Playwright suite with `npm run test:e2e`.
